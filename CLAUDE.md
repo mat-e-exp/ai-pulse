@@ -61,20 +61,25 @@ ai-pulse/
 └── README.md           # User documentation
 ```
 
-## Data Sources (Free/Low-Cost)
+## Data Sources
 
-**News & Social**:
-- NewsAPI (100 calls/day free)
-- Twitter/X API (basic tier)
+**Active ✅**:
 - Hacker News API (unlimited, free)
+- NewsAPI (100 calls/day free)
+- SEC EDGAR (unlimited, free) - 8-K filings, material events
+- GitHub API (5000 calls/hour free) - trending AI repos, releases
+- Company IR RSS (unlimited, free) - NVIDIA, AMD press releases
+
+**Disabled (2025-11-11)**:
+- Google News RSS - Feed structure incompatible, returns no results
+- Bing News API - Requires separate API key, not worth additional cost
+- Tech RSS Feeds - Inconsistent/broken feeds with parsing errors
+- Files exist in `sources/` but not integrated into collector
+
+**Future Sources**:
+- Twitter/X API (basic tier)
 - Reddit API (free tier)
-
-**Technical**:
 - ArXiv API (unlimited, free)
-- GitHub API (5000 calls/hour free)
-- HuggingFace (free)
-
-**Financial**:
 - Yahoo Finance via yfinance (free)
 - Alpha Vantage (500 calls/day free)
 
@@ -108,11 +113,12 @@ ALPHA_VANTAGE_API_KEY=...
 ## Commands (Phase 1 + Phase 2)
 
 ```bash
-# PHASE 1: Data Collection
+# PHASE 1: Data Collection (all 5 sources)
 python3.9 agents/collector.py --hn-limit 20
+python3.9 agents/collector.py --hn-limit 20 --news-limit 30 --sec-days 7 --github-days 7 --github-stars 500 --ir-days 7
 python3.9 agents/reporter.py --daily
 
-# PHASE 2: Agentic Analysis (NEW!)
+# PHASE 2: Agentic Analysis
 python3.9 agents/analyzer.py --limit 10
 python3.9 agents/reporter_intelligent.py --min-score 40
 
@@ -121,6 +127,11 @@ python3.9 agents/reporter_intelligent.py --top --days 7
 
 # Show top events from analyzer
 python3.9 agents/analyzer.py --top --limit 10
+
+# Cost tracking
+python3.9 cost_tracking/tracker.py --today
+python3.9 cost_tracking/tracker.py --breakdown
+python3.9 cost_tracking/tracker.py --set-budget 50.0
 ```
 
 ## Autonomous Capabilities (Phase 2)
@@ -143,9 +154,13 @@ python3.9 agents/analyzer.py --top --limit 10
 ### Phase 1: Basic Collector ✅ COMPLETE
 - ✅ Project structure
 - ✅ Hacker News integration
-- ✅ NewsAPI integration (optional)
+- ✅ NewsAPI integration
+- ✅ SEC EDGAR integration (8-K filings)
+- ✅ GitHub trending integration (AI repos, releases)
+- ✅ Company IR RSS integration (NVIDIA, AMD)
 - ✅ SQLite storage with deduplication
 - ✅ Simple daily summaries
+- ✅ Cost tracking database
 
 ### Phase 2: Intelligence Layer ✅ COMPLETE
 - ✅ Claude API integration
@@ -154,6 +169,7 @@ python3.9 agents/analyzer.py --top --limit 10
 - ✅ Competitive impact analysis
 - ✅ Investment implications assessment
 - ✅ Intelligent briefing generation
+- ✅ Cost tracking with budget management
 
 ### Phase 3: Narrative Tracking (NEXT)
 - Track sentiment over time
