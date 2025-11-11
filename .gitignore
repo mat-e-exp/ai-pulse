@@ -28,6 +28,9 @@ dist/
 data/
 cache/
 
+# But track example/test databases if needed
+!test*.db
+
 # Logs
 *.log
 logs/

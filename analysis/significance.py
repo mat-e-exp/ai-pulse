@@ -20,6 +20,7 @@ from anthropic import Anthropic
 from typing import Optional
 from models.events import Event, EventType
 from datetime import datetime
+from cost_tracking.tracker import CostTracker
 
 
 class SignificanceAnalyzer:
@@ -27,14 +28,17 @@ class SignificanceAnalyzer:
     Uses Claude to analyze the significance of AI sector events.
 
     This is the "brain" of the agent - it reasons about what matters and why.
+
+    Now includes cost tracking for budget management.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, enable_cost_tracking: bool = True):
         """
         Initialize analyzer with Claude API.
 
         Args:
             api_key: Anthropic API key. If None, reads from ANTHROPIC_API_KEY env var
+            enable_cost_tracking: Whether to track API costs (default: True)
         """
         self.api_key = api_key or os.getenv('ANTHROPIC_API_KEY')
         if not self.api_key:
@@ -44,6 +48,9 @@ class SignificanceAnalyzer:
             )
 
         self.client = Anthropic(api_key=self.api_key)
+
+        # Initialize cost tracker
+        self.cost_tracker = CostTracker() if enable_cost_tracking else None
 
     def analyze_event(self, event: Event) -> dict:
         """
@@ -77,6 +84,16 @@ class SignificanceAnalyzer:
                 }
             ]
         )
+
+        # Track cost
+        if self.cost_tracker:
+            cost = self.cost_tracker.log_anthropic_call(
+                response,
+                operation='event_analysis',
+                event_id=event.id if hasattr(event, 'id') else None
+            )
+            # Optional: print cost for transparency
+            # print(f"  Cost: ${cost:.6f}")
 
         # Parse Claude's response
         analysis_text = response.content[0].text
