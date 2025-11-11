@@ -1,0 +1,19 @@
+# Core
+anthropic>=0.18.1
+requests>=2.31.0
+python-dateutil>=2.8.2
+
+# Data handling
+pandas>=2.0.3
+
+# Financial data
+yfinance>=0.2.28
+
+# Environment
+python-dotenv>=1.0.0
+
+# Optional - Add when needed
+# beautifulsoup4>=4.12.0  # For web scraping
+# newsapi-python>=0.2.7   # NewsAPI client
+# tweepy>=4.14.0          # Twitter API
+# alpha-vantage>=2.3.1    # Alpha Vantage API
