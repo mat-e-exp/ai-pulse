@@ -1,16 +1,21 @@
 /* AI-Pulse Web Briefing Styles */
 
 :root {
-    --primary-color: #2563eb;
+    --primary-color: #818cf8;
     --bg-color: #0f172a;
     --card-bg: #1e293b;
     --text-color: #e2e8f0;
     --text-muted: #94a3b8;
     --border-color: #334155;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --info-color: #3b82f6;
+    --success-color: #6ee7b7;
+    --warning-color: #fcd34d;
+    --danger-color: #fca5a5;
+    --info-color: #93c5fd;
+    --pastel-purple: #c4b5fd;
+    --pastel-pink: #f9a8d4;
+    --pastel-blue: #93c5fd;
+    --pastel-green: #86efac;
+    --pastel-yellow: #fde68a;
 }
 
 * {
@@ -40,9 +45,7 @@ header {
 header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff;
 }
 
 header .date {
@@ -89,6 +92,7 @@ nav a:hover, nav a.active {
 .hero h2 {
     font-size: 2rem;
     margin-bottom: 10px;
+    color: var(--pastel-purple);
 }
 
 .hero p {
@@ -127,6 +131,7 @@ section h2 {
     margin-bottom: 30px;
     padding-bottom: 10px;
     border-bottom: 2px solid var(--border-color);
+    color: var(--pastel-purple);
 }
 
 .summary {
@@ -155,7 +160,7 @@ section h2 {
     display: block;
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--pastel-blue);
     margin-bottom: 5px;
 }
 
@@ -168,6 +173,7 @@ section h2 {
 .sentiment-breakdown h3 {
     font-size: 1.2rem;
     margin-bottom: 15px;
+    color: var(--pastel-pink);
 }
 
 .sentiment-breakdown ul {
@@ -235,6 +241,7 @@ section h2 {
     flex: 1;
     font-size: 1.3rem;
     line-height: 1.4;
+    color: var(--pastel-purple);
 }
 
 .event-meta {
@@ -263,7 +270,7 @@ section h2 {
 .event-content h4 {
     font-size: 1rem;
     margin: 20px 0 10px;
-    color: var(--primary-color);
+    color: var(--pastel-blue);
 }
 
 .event-content p {
