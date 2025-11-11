@@ -72,10 +72,16 @@ class Event:
     published_at: Optional[datetime] = None  # When was it published?
     collected_at: datetime = None     # When did we collect it?
 
-    # Analysis (added later by agent)
+    # Analysis (added later by agent) - Phase 2
     significance_score: Optional[float] = None  # 0-100, how important?
-    sentiment: Optional[str] = None    # positive, negative, neutral
-    analysis: Optional[str] = None     # Agent's reasoning
+    sentiment: Optional[str] = None    # positive, negative, neutral, mixed
+    analysis: Optional[str] = None     # Agent's full reasoning (JSON or text)
+
+    # Phase 2: Richer analysis fields
+    implications: Optional[str] = None  # What does this mean for investors?
+    affected_parties: Optional[str] = None  # Who wins/loses?
+    investment_relevance: Optional[str] = None  # Material/Marginal/Noise
+    key_context: Optional[str] = None  # Historical comparisons, context
 
     def __post_init__(self):
         """Initialize defaults"""
@@ -107,6 +113,10 @@ class Event:
             'significance_score': self.significance_score,
             'sentiment': self.sentiment,
             'analysis': self.analysis,
+            'implications': self.implications,
+            'affected_parties': self.affected_parties,
+            'investment_relevance': self.investment_relevance,
+            'key_context': self.key_context,
         }
 
     @classmethod
@@ -129,6 +139,10 @@ class Event:
             significance_score=data.get('significance_score'),
             sentiment=data.get('sentiment'),
             analysis=data.get('analysis'),
+            implications=data.get('implications'),
+            affected_parties=data.get('affected_parties'),
+            investment_relevance=data.get('investment_relevance'),
+            key_context=data.get('key_context'),
         )
 
     def __repr__(self):

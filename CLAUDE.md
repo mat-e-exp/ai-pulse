@@ -4,7 +4,8 @@
 Real-time intelligence agent for the AI sector - tracks product launches, funding, technical breakthroughs, market sentiment, and competitive dynamics to provide actionable insights for AI investment decisions.
 
 ## Current Status
-- 🆕 **Project Initialization**: Basic structure being created
+- ✅ **Phase 1 Complete**: Basic news collector working
+- ✅ **Phase 2 Complete**: Agentic significance analysis with Claude API
 
 ## Project Vision
 
@@ -104,59 +105,67 @@ TWITTER_API_KEY=...
 ALPHA_VANTAGE_API_KEY=...
 ```
 
-## Commands (Will Be Added)
+## Commands (Phase 1 + Phase 2)
 
 ```bash
-# Collect latest AI sector data
-python3 agents/collector.py
+# PHASE 1: Data Collection
+python3.9 agents/collector.py --hn-limit 20
+python3.9 agents/reporter.py --daily
 
-# Generate daily briefing
-python3 agents/reporter.py --daily
+# PHASE 2: Agentic Analysis (NEW!)
+python3.9 agents/analyzer.py --limit 10
+python3.9 agents/reporter_intelligent.py --min-score 40
 
-# Real-time monitoring mode
-python3 agents/collector.py --monitor
+# Show top events by significance
+python3.9 agents/reporter_intelligent.py --top --days 7
 
-# Analyze specific event
-python3 agents/analyzer.py --event "Claude 4 launch"
+# Show top events from analyzer
+python3.9 agents/analyzer.py --top --limit 10
 ```
 
-## Autonomous Capabilities (Planned)
+## Autonomous Capabilities (Phase 2)
 
-**Decides Automatically**:
-- Which news items are material
-- When to send real-time alerts
-- How to prioritize multiple events
-- What historical context is relevant
-- Which companies are impacted
-- Narrative sentiment shifts
+**Agent Decides Automatically** ✅:
+- Which events are significant (0-100 scoring)
+- Why events matter (reasoning)
+- Who is affected (winners/losers)
+- Investment implications (material/marginal/noise)
+- Historical context and comparisons
+- Sentiment analysis (positive/negative/neutral/mixed)
 
 **Requires Human Input**:
 - Trading decisions (agent provides analysis only)
 - Priority adjustments (which topics to emphasize)
-- Thesis validation
+- Final investment thesis validation
 
 ## Development Phases
 
-### Phase 1: Basic Collector ✋ Current
-- Set up project structure
-- Integrate 2-3 news sources
-- Store events in SQLite
-- Generate simple daily summary
+### Phase 1: Basic Collector ✅ COMPLETE
+- ✅ Project structure
+- ✅ Hacker News integration
+- ✅ NewsAPI integration (optional)
+- ✅ SQLite storage with deduplication
+- ✅ Simple daily summaries
 
-### Phase 2: Intelligence Layer
-- Add Claude API for significance scoring
-- Implement "why does this matter?" reasoning
-- Basic competitive impact analysis
+### Phase 2: Intelligence Layer ✅ COMPLETE
+- ✅ Claude API integration
+- ✅ Significance scoring (0-100)
+- ✅ "Why does this matter?" reasoning
+- ✅ Competitive impact analysis
+- ✅ Investment implications assessment
+- ✅ Intelligent briefing generation
 
-### Phase 3: Narrative Tracking
+### Phase 3: Narrative Tracking (NEXT)
 - Track sentiment over time
 - Detect narrative shifts
 - Historical pattern matching
+- Cross-event reasoning
 
 ### Phase 4: Full Autonomy
 - Real-time monitoring
 - Automated alert prioritization
 - Multi-step investigation workflows
+- Proactive deep-dives
 
 ## Related Projects
 - None (standalone project)

@@ -57,6 +57,10 @@ class EventDatabase:
                 significance_score REAL,
                 sentiment TEXT,
                 analysis TEXT,
+                implications TEXT,
+                affected_parties TEXT,
+                investment_relevance TEXT,
+                key_context TEXT,
                 UNIQUE(source, source_id)
             )
         """)
@@ -102,11 +106,13 @@ class EventDatabase:
                 INSERT INTO events (
                     source, source_id, source_url, title, content, summary,
                     event_type, companies, products, people,
-                    published_at, collected_at, significance_score, sentiment, analysis
+                    published_at, collected_at, significance_score, sentiment, analysis,
+                    implications, affected_parties, investment_relevance, key_context
                 ) VALUES (
                     :source, :source_id, :source_url, :title, :content, :summary,
                     :event_type, :companies, :products, :people,
-                    :published_at, :collected_at, :significance_score, :sentiment, :analysis
+                    :published_at, :collected_at, :significance_score, :sentiment, :analysis,
+                    :implications, :affected_parties, :investment_relevance, :key_context
                 )
             """, data)
 
@@ -233,20 +239,38 @@ class EventDatabase:
             'last_24h': last_24h,
         }
 
-    def update_event_analysis(self, event_id: int, significance_score: float,
-                             sentiment: str, analysis: str):
+    def update_event_analysis(self, event_id: int, analysis_data: dict):
         """
         Update an event with agent analysis.
 
         This is called after the agent has analyzed an event's significance.
+
+        Args:
+            event_id: Database ID of event
+            analysis_data: Dictionary with analysis fields
         """
         cursor = self.conn.cursor()
 
         cursor.execute("""
             UPDATE events
-            SET significance_score = ?, sentiment = ?, analysis = ?
+            SET significance_score = ?,
+                sentiment = ?,
+                analysis = ?,
+                implications = ?,
+                affected_parties = ?,
+                investment_relevance = ?,
+                key_context = ?
             WHERE id = ?
-        """, (significance_score, sentiment, analysis, event_id))
+        """, (
+            analysis_data.get('significance_score'),
+            analysis_data.get('sentiment'),
+            analysis_data.get('full_analysis'),  # Store full text
+            analysis_data.get('implications'),
+            analysis_data.get('affected_parties'),
+            analysis_data.get('investment_relevance'),
+            analysis_data.get('key_context'),
+            event_id
+        ))
 
         self.conn.commit()
 
