@@ -29,26 +29,36 @@ def publish_daily_briefing(db_path: str = "ai_pulse.db", days_back: int = 1, min
     briefings_dir = Path("briefings")
     briefings_dir.mkdir(exist_ok=True)
 
+    # Get current date
+    date_str = datetime.utcnow().strftime('%Y-%m-%d')
+
     # Generate HTML briefing
     print("\n1. Generating HTML briefing...")
     reporter = HTMLReporter(db_path=db_path)
-    html = reporter.generate_briefing(days_back=days_back, min_score=min_score)
+    html, sentiment_counts = reporter.generate_briefing(days_back=days_back, min_score=min_score)
+
+    # Save daily sentiment to database
+    print("2. Saving daily sentiment aggregates...")
+    from storage.db import EventDatabase
+    db = EventDatabase(db_path=db_path)
+    db.save_daily_sentiment(date_str, sentiment_counts)
+    db.close()
+
     reporter.close()
 
     # Save to dated file
-    date_str = datetime.utcnow().strftime('%Y-%m-%d')
     briefing_path = briefings_dir / f"{date_str}.html"
 
-    print(f"2. Saving briefing: {briefing_path}")
+    print(f"3. Saving briefing: {briefing_path}")
     with open(briefing_path, 'w') as f:
         f.write(html)
 
     # Update index.html with latest briefing
-    print("3. Updating index.html...")
+    print("4. Updating index.html...")
     update_index(briefing_path, date_str)
 
     # Update archive.html
-    print("4. Updating archive.html...")
+    print("5. Updating archive.html...")
     update_archive()
 
     print("\n" + "=" * 80)

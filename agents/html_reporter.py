@@ -22,7 +22,7 @@ class HTMLReporter:
         """Initialize reporter"""
         self.db = EventDatabase(db_path)
 
-    def generate_briefing(self, days_back: int = 1, min_score: int = 40) -> str:
+    def generate_briefing(self, days_back: int = 1, min_score: int = 40):
         """
         Generate HTML briefing.
 
@@ -31,7 +31,7 @@ class HTMLReporter:
             min_score: Minimum significance score
 
         Returns:
-            HTML string
+            Tuple of (HTML string, sentiment_counts dict)
         """
         # Get recent events (convert days to hours)
         hours_back = days_back * 24
@@ -55,24 +55,31 @@ class HTMLReporter:
             sent = event.sentiment or 'unknown'
             sentiment_counts[sent] = sentiment_counts.get(sent, 0) + 1
 
+        # Get sentiment history for chart
+        sentiment_history = self.db.get_sentiment_history(days=30)
+
         # Generate HTML
         html = self._generate_html(
             events=events,
             total_collected=total_collected,
             total_analyzed=total_analyzed,
             sentiment_counts=sentiment_counts,
+            sentiment_history=sentiment_history,
             days_back=days_back,
             min_score=min_score
         )
 
-        return html
+        return html, sentiment_counts
 
-    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, days_back, min_score) -> str:
+    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, days_back, min_score) -> str:
         """Generate HTML document"""
 
         now = datetime.utcnow()
         date_str = now.strftime('%Y-%m-%d')
         time_str = now.strftime('%H:%M UTC')
+
+        # Prepare chart data (reverse chronological order for chart)
+        chart_data = self._prepare_chart_data(sentiment_history)
 
         # Group events by relevance
         material_events = [e for e in events if e.investment_relevance and 'material' in e.investment_relevance.lower()]
@@ -86,6 +93,7 @@ class HTMLReporter:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-Pulse Briefing - {date_str}</title>
     <link rel="stylesheet" href="../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function toggleEvent(id) {{
             const content = document.getElementById('content-' + id);
@@ -98,6 +106,79 @@ class HTMLReporter:
                 button.textContent = '▶';
             }}
         }}
+
+        // Initialize chart when page loads
+        window.addEventListener('DOMContentLoaded', function() {{
+            const ctx = document.getElementById('sentimentChart').getContext('2d');
+            const chartData = {chart_data};
+
+            new Chart(ctx, {{
+                type: 'line',
+                data: {{
+                    labels: chartData.dates,
+                    datasets: [
+                        {{
+                            label: 'Positive',
+                            data: chartData.positive,
+                            borderColor: '#6ee7b7',
+                            backgroundColor: 'rgba(110, 231, 183, 0.1)',
+                            tension: 0.3
+                        }},
+                        {{
+                            label: 'Negative',
+                            data: chartData.negative,
+                            borderColor: '#fca5a5',
+                            backgroundColor: 'rgba(252, 165, 165, 0.1)',
+                            tension: 0.3
+                        }},
+                        {{
+                            label: 'Neutral',
+                            data: chartData.neutral,
+                            borderColor: '#94a3b8',
+                            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                            tension: 0.3
+                        }},
+                        {{
+                            label: 'Mixed',
+                            data: chartData.mixed,
+                            borderColor: '#fcd34d',
+                            backgroundColor: 'rgba(252, 211, 77, 0.1)',
+                            tension: 0.3
+                        }}
+                    ]
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {{
+                        legend: {{
+                            labels: {{
+                                color: '#e2e8f0'
+                            }}
+                        }}
+                    }},
+                    scales: {{
+                        y: {{
+                            beginAtZero: true,
+                            ticks: {{
+                                color: '#94a3b8'
+                            }},
+                            grid: {{
+                                color: '#334155'
+                            }}
+                        }},
+                        x: {{
+                            ticks: {{
+                                color: '#94a3b8'
+                            }},
+                            grid: {{
+                                color: '#334155'
+                            }}
+                        }}
+                    }}
+                }}
+            }});
+        }});
     </script>
 </head>
 <body>
@@ -131,14 +212,20 @@ class HTMLReporter:
 
     <main>
         <section class="sentiment-box">
-            <h3>Sentiment Breakdown</h3>
-            <ul class="sentiment-list">
+            <h3>Sentiment Trend (Last 30 Days)</h3>
+            <div class="chart-container">
+                <canvas id="sentimentChart"></canvas>
+            </div>
+            <div class="sentiment-current">
+                <h4>Today's Breakdown</h4>
+                <ul class="sentiment-list">
 """
 
         for sentiment, count in sorted(sentiment_counts.items(), key=lambda x: x[1], reverse=True):
-            html += f'                <li><span class="sentiment-{sentiment}">{sentiment}</span>: {count}</li>\n'
+            html += f'                    <li><span class="sentiment-{sentiment}">{sentiment}</span>: {count}</li>\n'
 
-        html += """            </ul>
+        html += """                </ul>
+            </div>
         </section>
 """
 
@@ -255,6 +342,23 @@ class HTMLReporter:
 """
         return html
 
+    def _prepare_chart_data(self, sentiment_history: list) -> str:
+        """Prepare sentiment history data for Chart.js"""
+        import json
+
+        # Reverse to get chronological order (oldest to newest)
+        history = list(reversed(sentiment_history))
+
+        chart_data = {
+            'dates': [row['date'] for row in history],
+            'positive': [row['positive'] for row in history],
+            'negative': [row['negative'] for row in history],
+            'neutral': [row['neutral'] for row in history],
+            'mixed': [row['mixed'] for row in history]
+        }
+
+        return json.dumps(chart_data)
+
     def _truncate(self, text: str, max_len: int) -> str:
         """Truncate text to max length"""
         if not text:
@@ -285,7 +389,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     reporter = HTMLReporter(db_path=args.db)
-    html = reporter.generate_briefing(days_back=args.days, min_score=args.min_score)
+    html, sentiment_counts = reporter.generate_briefing(days_back=args.days, min_score=args.min_score)
     reporter.close()
 
     if args.output:

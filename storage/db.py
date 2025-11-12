@@ -81,6 +81,25 @@ class EventDatabase:
             ON events(significance_score DESC)
         """)
 
+        # Daily sentiment aggregates table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS daily_sentiment (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL UNIQUE,
+                positive INTEGER DEFAULT 0,
+                negative INTEGER DEFAULT 0,
+                neutral INTEGER DEFAULT 0,
+                mixed INTEGER DEFAULT 0,
+                total_analyzed INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_sentiment_date
+            ON daily_sentiment(date DESC)
+        """)
+
         self.conn.commit()
 
     def save_event(self, event: Event) -> int:
@@ -273,6 +292,60 @@ class EventDatabase:
         ))
 
         self.conn.commit()
+
+    def save_daily_sentiment(self, date: str, sentiment_counts: dict):
+        """
+        Save or update daily sentiment aggregates.
+
+        Args:
+            date: Date string (YYYY-MM-DD)
+            sentiment_counts: Dict with sentiment counts
+        """
+        cursor = self.conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO daily_sentiment (
+                date, positive, negative, neutral, mixed, total_analyzed, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(date) DO UPDATE SET
+                positive = excluded.positive,
+                negative = excluded.negative,
+                neutral = excluded.neutral,
+                mixed = excluded.mixed,
+                total_analyzed = excluded.total_analyzed
+        """, (
+            date,
+            sentiment_counts.get('positive', 0),
+            sentiment_counts.get('negative', 0),
+            sentiment_counts.get('neutral', 0),
+            sentiment_counts.get('mixed', 0),
+            sum(sentiment_counts.values()),
+            datetime.utcnow().isoformat()
+        ))
+
+        self.conn.commit()
+
+    def get_sentiment_history(self, days: int = 30) -> List[dict]:
+        """
+        Get sentiment history for last N days.
+
+        Args:
+            days: Number of days to retrieve
+
+        Returns:
+            List of dicts with date and sentiment counts
+        """
+        cursor = self.conn.cursor()
+
+        cursor.execute("""
+            SELECT date, positive, negative, neutral, mixed, total_analyzed
+            FROM daily_sentiment
+            ORDER BY date DESC
+            LIMIT ?
+        """, (days,))
+
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
 
     def close(self):
         """Close database connection"""

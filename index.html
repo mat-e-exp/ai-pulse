@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-Pulse Briefing - 2025-11-12</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function toggleEvent(id) {
             const content = document.getElementById('content-' + id);
@@ -17,6 +18,79 @@
                 button.textContent = '▶';
             }
         }
+
+        // Initialize chart when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('sentimentChart').getContext('2d');
+            const chartData = {"dates": [], "positive": [], "negative": [], "neutral": [], "mixed": []};
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.dates,
+                    datasets: [
+                        {
+                            label: 'Positive',
+                            data: chartData.positive,
+                            borderColor: '#6ee7b7',
+                            backgroundColor: 'rgba(110, 231, 183, 0.1)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Negative',
+                            data: chartData.negative,
+                            borderColor: '#fca5a5',
+                            backgroundColor: 'rgba(252, 165, 165, 0.1)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Neutral',
+                            data: chartData.neutral,
+                            borderColor: '#94a3b8',
+                            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Mixed',
+                            data: chartData.mixed,
+                            borderColor: '#fcd34d',
+                            backgroundColor: 'rgba(252, 211, 77, 0.1)',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e2e8f0'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: '#334155'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: '#334155'
+                            }
+                        }
+                    }
+                }
+            });
+        });
     </script>
 </head>
 <body>
@@ -38,7 +112,7 @@
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-12 13:51 UTC</p>
+            <p class="date">2025-11-12 13:57 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -50,13 +124,19 @@
 
     <main>
         <section class="sentiment-box">
-            <h3>Sentiment Breakdown</h3>
-            <ul class="sentiment-list">
-                <li><span class="sentiment-neutral">neutral</span>: 28</li>
-                <li><span class="sentiment-mixed">mixed</span>: 23</li>
-                <li><span class="sentiment-positive">positive</span>: 23</li>
-                <li><span class="sentiment-negative">negative</span>: 8</li>
-            </ul>
+            <h3>Sentiment Trend (Last 30 Days)</h3>
+            <div class="chart-container">
+                <canvas id="sentimentChart"></canvas>
+            </div>
+            <div class="sentiment-current">
+                <h4>Today's Breakdown</h4>
+                <ul class="sentiment-list">
+                    <li><span class="sentiment-neutral">neutral</span>: 28</li>
+                    <li><span class="sentiment-mixed">mixed</span>: 23</li>
+                    <li><span class="sentiment-positive">positive</span>: 23</li>
+                    <li><span class="sentiment-negative">negative</span>: 8</li>
+                </ul>
+            </div>
         </section>
 
         <section class="events material-events">

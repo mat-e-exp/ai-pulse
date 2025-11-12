@@ -204,7 +204,7 @@ section h2 {
 
 .sentiment-box {
     background: var(--card-bg);
-    padding: 25px;
+    padding: 30px;
     border-radius: 12px;
     border: 1px solid var(--border-color);
     margin-bottom: 40px;
@@ -214,9 +214,26 @@ section h2 {
 }
 
 .sentiment-box h3 {
-    font-size: 1.2rem;
-    margin-bottom: 15px;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
     color: var(--pastel-pink);
+}
+
+.sentiment-box h4 {
+    font-size: 1.1rem;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: var(--pastel-blue);
+}
+
+.chart-container {
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+.sentiment-current {
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
 }
 
 .sentiment-list {
