@@ -37,8 +37,8 @@ class HTMLReporter:
         hours_back = days_back * 24
         all_events = self.db.get_recent_events(hours=hours_back, limit=1000)
 
-        # Filter out duplicates
-        all_events = [e for e in all_events if not getattr(e, 'is_duplicate', False)]
+        # Filter out duplicates (both string and semantic)
+        all_events = [e for e in all_events if not getattr(e, 'is_duplicate', False) and not getattr(e, 'is_semantic_duplicate', False)]
 
         # Filter analyzed events only
         analyzed_events = [e for e in all_events if e.significance_score is not None]

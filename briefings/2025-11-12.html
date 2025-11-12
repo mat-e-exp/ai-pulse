@@ -22,7 +22,7 @@
         // Initialize chart when page loads
         window.addEventListener('DOMContentLoaded', function() {
             const ctx = document.getElementById('sentimentChart').getContext('2d');
-            const chartData = {"dates": ["2025-11-11", "2025-11-12"], "positive": [34.4, 18.4], "negative": [9.8, 13.2], "neutral": [34.4, 39.5], "mixed": [21.3, 28.9], "totals": [61, 38]};
+            const chartData = {"dates": ["2025-11-11", "2025-11-12"], "positive": [35.1, 17.6], "negative": [10.5, 14.7], "neutral": [36.8, 44.1], "mixed": [17.5, 23.5], "totals": [57, 34]};
 
             // If we have data, generate labels from first data date to 30 days ahead
             let labels = chartData.dates;
@@ -157,22 +157,22 @@
     <header>
         <div class="header-stats">
             <div class="stat-item">
-                <span class="stat-value-small">38</span>
+                <span class="stat-value-small">34</span>
                 <span class="stat-label-small">Events</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value-small">38</span>
+                <span class="stat-value-small">34</span>
                 <span class="stat-label-small">Analyzed</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value-small">20</span>
+                <span class="stat-value-small">16</span>
                 <span class="stat-label-small">Significant</span>
             </div>
         </div>
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-12 18:03 UTC</p>
+            <p class="date">2025-11-12 19:20 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -192,8 +192,8 @@
                 <h4>Today's Breakdown</h4>
                 <ul class="sentiment-list">
                     <li><span class="sentiment-neutral">neutral</span>: 15</li>
-                    <li><span class="sentiment-mixed">mixed</span>: 11</li>
-                    <li><span class="sentiment-positive">positive</span>: 7</li>
+                    <li><span class="sentiment-mixed">mixed</span>: 8</li>
+                    <li><span class="sentiment-positive">positive</span>: 6</li>
                     <li><span class="sentiment-negative">negative</span>: 5</li>
                 </ul>
             </div>
@@ -241,42 +241,6 @@
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">75.0</span>
-                    <h3 class="event-title-compact">SoftBank rides the AI wave as OpenAI lifts Vision Fund to $19 billion gain</h3>
-                    <button class="expand-btn" id="btn-82" onclick="toggleEvent(82)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-82" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                         | OpenAI
-                        <span> | 2025-11-11 06:43</span>
-                        <span> | Marginal The $19 billion gain magnitude and OpenAI connection provides concrete validation of AI investment returns, though bubble timing concerns create actionable risk/reward considerations for position sizing.</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This reinforces that AI investments can generate exceptional returns for early investors, but also highlights potential valuation risks as bubble concerns mount. The scale of gains may attract more institutional capital to AI while simultaneously raising questions about whether current valuations are sustainable across the sector.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Benefits:** SoftBank shareholders, AI startups seeking funding, OpenAI and portfolio companies **Potential harm:** Late-stage AI investors if bubble concerns materialize, traditional tech companies without strong AI positioning **Neutral impact:** Established AI players (NVDA, MSFT, GOOGL) already well-positioned</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This mirrors the dot-com era pattern where massive early gains preceded broader market corrections. SoftBank's Vision Fund historically experienced similar boom-bust cycles (WeWork, ride-sharing investments), making the AI bubble concerns particularly relevant for risk assessment.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.cnbc.com/2025/11/11/softbank-earnings-report-2q.html" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">75.0</span>
                     <h3 class="event-title-compact">Google’s Gemini 3.0 Pro : Features, Applications & Industry Impact Overview</h3>
                     <button class="expand-btn" id="btn-79" onclick="toggleEvent(79)">▶</button>
                 </div>
@@ -306,78 +270,6 @@
 
                     <div class="event-link">
                         <a href="https://www.geeky-gadgets.com/gemini-3-0-pro-ai-model-overview/" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">75.0</span>
-                    <h3 class="event-title-compact">SoftBank unloads Nvidia stake for $5.8 billion in surprise move</h3>
-                    <button class="expand-btn" id="btn-77" onclick="toggleEvent(77)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-77" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                         | OpenAI, NVIDIA
-                        <span> | 2025-11-11 07:21</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This validates the AI sector's maturation beyond just chip makers, suggesting investors should diversify across the AI value chain rather than concentrating in semiconductor plays. SoftBank's massive capital redeployment ($1 trillion AI manufacturing plans) indicates we're entering a new phase where AI infrastructure and applications may outperform pure hardware plays.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>Beneficiaries: OpenAI, Oracle (mentioned partnerships), AI application companies, alternative AI infrastructure plays Harmed: NVIDIA (short-term selling pressure), other pure semiconductor AI plays like AMD Neutral: MSFT, GOOGL, META (diversified AI exposure)</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This echoes SoftBank's historical pattern of taking profits at peaks before major sector rotations (similar to their early Alibaba exit). The timing coincides with NVIDIA's ~900% run since early 2023, suggesting smart institutional money is rotating from appreciated hardware into next-generation AI infrastructure and applications where the real value creation may occur.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://economictimes.indiatimes.com/markets/stocks/news/softbank-unloads-nvidia-stake-for-5-8-billion-in-surprise-move/articleshow/125243270.cms" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">75.0</span>
-                    <h3 class="event-title-compact">SoftBank profits more than double as AI valuations soar</h3>
-                    <button class="expand-btn" id="btn-75" onclick="toggleEvent(75)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-75" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📈 positive</span>
-                         | OpenAI
-                        <span> | 2025-11-11 07:28</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This reinforces the positive investment narrative around AI companies and could attract more institutional capital to the sector. The strong returns from AI investments may encourage other large investors to increase AI allocations, potentially driving further valuation expansion across public AI stocks.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>Benefits: OpenAI (directly mentioned), MSFT (OpenAI partner), NVDA (AI infrastructure), other AI-focused companies, SoftBank portfolio companies Neutral/Mixed: GOOGL, META (competitive pressure from OpenAI success), AMD (indirect benefit from AI momentum)</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>SoftBank's Vision Fund has historically been a bellwether for tech valuations, and their significant AI gains come amid broader market enthusiasm for AI investments. This follows a pattern of strong AI-related returns across the investment landscape in 2024-2025, suggesting sustained institutional appetite for AI exposure rather than speculative bubble behavior.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://biztoc.com/x/ea42690b1f427a72" target="_blank">Read full article →</a>
                     </div>
                 </div>
             </article>
@@ -594,42 +486,6 @@
 
                     <div class="event-link">
                         <a href="https://www.forbes.com/sites/johnkang/2025/11/11/us-vcs-join-260-million-round-for-korean-ai-chip-unicorn-rebellions/" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">72.0</span>
-                    <h3 class="event-title-compact">Intel's AI Leader Sachin Katti Joins OpenAI, To Focus On Artificial General Intelligence</h3>
-                    <button class="expand-btn" id="btn-64" onclick="toggleEvent(64)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-64" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                         | OpenAI
-                        <span> | 2025-11-11 07:54</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This reinforces OpenAI's competitive positioning in the AGI race, which could benefit Microsoft (MSFT) given their strategic partnership and cloud infrastructure advantage. The focus on computing infrastructure suggests continued strong demand for AI chips, benefiting NVIDIA (NVDA) and potentially AMD. Intel faces both a talent loss and validation that top AI talent sees better opportunities elsewhere.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Benefits:** OpenAI, Microsoft (OpenAI partner), NVIDIA/AMD (infrastructure demand), AI infrastructure companies **Harmed:** Intel (talent/leadership loss), competing AGI efforts at Google/Meta</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This follows a pattern of high-profile AI talent mobility, similar to Ilya Sutskever's departure from OpenAI earlier in 2024. The specific focus on AGI and computing infrastructure comes as the industry faces increasing computational requirements and infrastructure bottlenecks. Intel's struggle to retain AI leadership talent reflects broader challenges in competing with AI-first companies for top-...</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.ndtvprofit.com/technology/intels-ai-leader-sachin-katti-joins-openai-to-focus-on-artificial-general-intelligence" target="_blank">Read full article →</a>
                     </div>
                 </div>
             </article>

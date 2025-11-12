@@ -64,6 +64,8 @@ class AnalyzerAgent:
         cursor.execute("""
             SELECT * FROM events
             WHERE significance_score IS NULL
+              AND (is_duplicate IS NULL OR is_duplicate = 0)
+              AND (is_semantic_duplicate IS NULL OR is_semantic_duplicate = 0)
             ORDER BY collected_at DESC
             LIMIT ?
         """, (limit * 2,))  # Fetch extra in case some fail

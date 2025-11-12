@@ -16,7 +16,7 @@ Investment decisions depend on this data being correct.
 - ✅ **Phase 1 Complete**: Basic news collector working
 - ✅ **Phase 2 Complete**: Agentic significance analysis with Claude API
 - ✅ **Phase 2.5 Complete**: Web publishing with sentiment tracking and deduplication (2025-11-12)
-- ⚠️ **Known Issue**: String-based dedup misses semantic duplicates, skewing sentiment counts (needs semantic dedup before Phase 3)
+- ✅ **Phase 2.6 Complete**: Semantic deduplication with Claude for accurate sentiment (2025-11-12)
 
 ## Project Vision
 
@@ -124,18 +124,15 @@ ALPHA_VANTAGE_API_KEY=...
 ## Commands
 
 ```bash
-# PHASE 1: Data Collection (all 5 sources, now with deduplication)
+# RECOMMENDED DAILY WORKFLOW (accurate sentiment)
 python3.9 agents/collector.py --hn-limit 20 --news-limit 30 --sec-days 7 --github-days 7 --github-stars 500 --ir-days 7
-
-# PHASE 2: Agentic Analysis
+python3.9 agents/semantic_deduplicator.py --days 7  # NEW: Claude-powered semantic dedup
 python3.9 agents/analyzer.py --limit 10
-
-# PHASE 2.5: Web Publishing (RECOMMENDED DAILY WORKFLOW)
 python3.9 publish_briefing.py --days 1 --min-score 40
-# This generates HTML briefing, updates index.html, saves sentiment history
 
-# Retroactive deduplication (run once after setup or when needed)
-python3.9 retroactive_dedup.py --days 30 --threshold 0.75
+# ONE-TIME SETUP: Retroactive deduplication for existing data
+python3.9 retroactive_dedup.py --days 30 --threshold 0.75  # String-based
+python3.9 retroactive_semantic_dedup.py --days 30  # Semantic (Claude-powered)
 
 # Show top events by significance
 python3.9 agents/analyzer.py --top --limit 10
@@ -192,11 +189,13 @@ python3.9 cost_tracking/tracker.py --set-budget 50.0
 - ✅ Automatic publishing workflow (briefings/ + index.html + archive.html)
 - ✅ Git-based hosting (push to GitHub, view on GitHub Pages)
 
-### Phase 2.6: Semantic Deduplication (REQUIRED FOR ACCURACY) - NEXT
-- ⚠️ String dedup misses semantic duplicates, skewing sentiment by 5-15%
-- 🎯 Claude-powered semantic dedup before analysis
-- 🎯 Ensures each unique story analyzed once
-- 🎯 Trustworthy sentiment percentages for investment decisions
+### Phase 2.6: Semantic Deduplication ✅ COMPLETE (2025-11-12)
+- ✅ Claude-powered semantic dedup using Haiku (cheap, fast)
+- ✅ Identifies duplicates string matching misses (e.g., "sells Nvidia" vs "profits double")
+- ✅ Runs before analysis to prevent waste and ensure accuracy
+- ✅ Tested on 2025-11-11: Found 4 semantic duplicates (SoftBank group, Intel CTO group)
+- ✅ Sentiment recalculated: 61 events → 57 unique events
+- ✅ Trustworthy sentiment percentages for investment decisions
 
 ### Phase 3: Narrative Tracking (AFTER PHASE 2.6)
 - Track sentiment over time
@@ -212,11 +211,14 @@ python3.9 cost_tracking/tracker.py --set-budget 50.0
 
 ## How It Works
 
-### Daily Workflow (Manual)
-1. **Collect Data**: `python3.9 agents/collector.py` fetches from 5 sources with automatic content deduplication
-2. **Analyze Events**: `python3.9 agents/analyzer.py` uses Claude to score significance and sentiment
-3. **Publish Briefing**: `python3.9 publish_briefing.py` generates HTML, updates index.html, saves sentiment history
-4. **Push to Git**: `git add . && git commit && git push` publishes to GitHub Pages
+### Daily Workflow (Manual - For Accurate Sentiment)
+1. **Collect Data**: `python3.9 agents/collector.py` fetches from 5 sources with string deduplication
+2. **Semantic Dedup**: `python3.9 agents/semantic_deduplicator.py` uses Claude to catch semantic duplicates
+3. **Analyze Events**: `python3.9 agents/analyzer.py` uses Claude to score significance and sentiment (skips duplicates)
+4. **Publish Briefing**: `python3.9 publish_briefing.py` generates HTML, updates index.html, saves sentiment history
+5. **Push to Git**: `git add . && git commit && git push` publishes to GitHub Pages
+
+**Critical**: Step 2 (semantic dedup) must run BEFORE step 3 (analysis) for trustworthy sentiment data.
 
 ### Web Publishing System
 
@@ -316,19 +318,27 @@ String matching misses these duplicates (all about same event):
 - Each counted in sentiment (inflates by 3-6 votes)
 - Percentages skewed by 5-15%
 
-**Required Next Step: Semantic Deduplication (Phase 2.6)**
+**Solution Implemented: Semantic Deduplication (Phase 2.6) ✅**
 
-**Must run BEFORE analyzer.py** to ensure accuracy:
+**How it works**:
 1. After collection, before analysis
-2. Group events by date
-3. Send titles to Claude (Haiku, cheap): "Which report the same event?"
-4. Claude returns semantic duplicate groups
-5. Mark `is_semantic_duplicate = 1` in database
+2. `agents/semantic_deduplicator.py` groups events by date
+3. Sends titles to Claude Haiku: "Which report the same event?"
+4. Claude returns semantic duplicate groups using understanding not string matching
+5. Marks `is_semantic_duplicate = 1` in database
 6. Analyzer skips semantic duplicates
 7. Each unique story analyzed once
 8. Sentiment counts accurate
 
-**This is required for trustworthy sentiment data** - without it, percentages reflect data collection artifacts, not market reality.
+**Results on 2025-11-11**:
+- Found 2 duplicate groups (4 events total):
+  - SoftBank group: "sells Nvidia" + "profits double" + "unloads stake" + "rides AI wave"
+  - Intel CTO group: "Sachin Katti departs" + "Sachin Katti joins"
+- Before: 61 events analyzed
+- After: 57 unique events
+- Sentiment percentages now trustworthy
+
+**Cost**: ~$0.002 per date with Haiku (very cheap), saves ~$0.20 in wasted Sonnet analysis calls.
 
 ### Database Schema
 
@@ -349,8 +359,9 @@ daily_sentiment (
 ```
 
 **Deduplication Fields**:
-- `is_duplicate`: 0 = unique event, 1 = duplicate of earlier event
-- Reports query: `WHERE (is_duplicate IS NULL OR is_duplicate = 0)`
+- `is_duplicate`: 0 = unique, 1 = string duplicate (75% title similarity)
+- `is_semantic_duplicate`: 0 = unique, 1 = semantic duplicate (Claude-identified)
+- Reports query: `WHERE (is_duplicate IS NULL OR is_duplicate = 0) AND (is_semantic_duplicate IS NULL OR is_semantic_duplicate = 0)`
 
 ## GitHub Pages Hosting
 
@@ -412,11 +423,13 @@ git push
 ## Key Files Reference
 
 **Core Scripts**:
-- `agents/collector.py` - Fetch events from sources, deduplicate content
-- `agents/analyzer.py` - Analyze events with Claude API
+- `agents/collector.py` - Fetch events from sources, string deduplication
+- `agents/semantic_deduplicator.py` - Claude-powered semantic deduplication
+- `agents/analyzer.py` - Analyze events with Claude API (skips duplicates)
 - `agents/html_reporter.py` - Generate HTML briefings
 - `publish_briefing.py` - Orchestrate publishing workflow
-- `retroactive_dedup.py` - Mark historical duplicates
+- `retroactive_dedup.py` - Mark historical string duplicates
+- `retroactive_semantic_dedup.py` - Mark historical semantic duplicates
 
 **Data Files**:
 - `ai_pulse.db` - SQLite database with events and sentiment history

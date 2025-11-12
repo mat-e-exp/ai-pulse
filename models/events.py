@@ -89,7 +89,8 @@ class Event:
     key_context: Optional[str] = None  # Historical comparisons, context
 
     # Deduplication
-    is_duplicate: bool = False  # Is this a duplicate of another event?
+    is_duplicate: bool = False  # Is this a duplicate of another event? (string-based)
+    is_semantic_duplicate: bool = False  # Is this a semantic duplicate? (Claude-based)
 
     def __post_init__(self):
         """Initialize defaults"""
@@ -152,6 +153,7 @@ class Event:
             investment_relevance=data.get('investment_relevance'),
             key_context=data.get('key_context'),
             is_duplicate=bool(data.get('is_duplicate', 0)),
+            is_semantic_duplicate=bool(data.get('is_semantic_duplicate', 0)),
         )
 
     def __repr__(self):
