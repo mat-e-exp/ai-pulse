@@ -130,38 +130,59 @@ class HTMLReporter:
             const ctx = document.getElementById('sentimentChart').getContext('2d');
             const chartData = {chart_data};
 
+            // Generate 30 days of labels starting from 30 days ago
+            const labels = [];
+            const today = new Date();
+            for (let i = 29; i >= 0; i--) {{
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                labels.push(date.toISOString().split('T')[0]);
+            }}
+
+            // Map actual data to 30-day scale (fill with null for missing dates)
+            const mapDataTo30Days = (dates, values) => {{
+                return labels.map(label => {{
+                    const index = dates.indexOf(label);
+                    return index >= 0 ? values[index] : null;
+                }});
+            }};
+
             new Chart(ctx, {{
                 type: 'line',
                 data: {{
-                    labels: chartData.dates,
+                    labels: labels,
                     datasets: [
                         {{
                             label: 'Positive',
-                            data: chartData.positive,
+                            data: mapDataTo30Days(chartData.dates, chartData.positive),
                             borderColor: '#6ee7b7',
                             backgroundColor: 'rgba(110, 231, 183, 0.1)',
-                            tension: 0.3
+                            tension: 0.3,
+                            spanGaps: true
                         }},
                         {{
                             label: 'Negative',
-                            data: chartData.negative,
+                            data: mapDataTo30Days(chartData.dates, chartData.negative),
                             borderColor: '#fca5a5',
                             backgroundColor: 'rgba(252, 165, 165, 0.1)',
-                            tension: 0.3
+                            tension: 0.3,
+                            spanGaps: true
                         }},
                         {{
                             label: 'Neutral',
-                            data: chartData.neutral,
+                            data: mapDataTo30Days(chartData.dates, chartData.neutral),
                             borderColor: '#94a3b8',
                             backgroundColor: 'rgba(148, 163, 184, 0.1)',
-                            tension: 0.3
+                            tension: 0.3,
+                            spanGaps: true
                         }},
                         {{
                             label: 'Mixed',
-                            data: chartData.mixed,
+                            data: mapDataTo30Days(chartData.dates, chartData.mixed),
                             borderColor: '#fcd34d',
                             backgroundColor: 'rgba(252, 211, 77, 0.1)',
-                            tension: 0.3
+                            tension: 0.3,
+                            spanGaps: true
                         }}
                     ]
                 }},
@@ -187,7 +208,9 @@ class HTMLReporter:
                         }},
                         x: {{
                             ticks: {{
-                                color: '#94a3b8'
+                                color: '#94a3b8',
+                                maxRotation: 45,
+                                minRotation: 45
                             }},
                             grid: {{
                                 color: '#334155'
