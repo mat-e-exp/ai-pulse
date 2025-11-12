@@ -37,6 +37,9 @@ class HTMLReporter:
         hours_back = days_back * 24
         all_events = self.db.get_recent_events(hours=hours_back, limit=1000)
 
+        # Filter out duplicates
+        all_events = [e for e in all_events if not getattr(e, 'is_duplicate', False)]
+
         # Filter analyzed events only
         analyzed_events = [e for e in all_events if e.significance_score is not None]
 
@@ -136,6 +139,7 @@ class HTMLReporter:
             let negativeData = chartData.negative;
             let neutralData = chartData.neutral;
             let mixedData = chartData.mixed;
+            let totalData = chartData.totals;
 
             // If we have at least one data point, extend to show future 30 days
             if (chartData.dates.length > 0) {{
@@ -164,6 +168,7 @@ class HTMLReporter:
                 negativeData = mapData(chartData.dates, chartData.negative);
                 neutralData = mapData(chartData.dates, chartData.neutral);
                 mixedData = mapData(chartData.dates, chartData.mixed);
+                totalData = mapData(chartData.dates, chartData.totals);
             }}
 
             new Chart(ctx, {{
@@ -213,13 +218,29 @@ class HTMLReporter:
                             labels: {{
                                 color: '#e2e8f0'
                             }}
+                        }},
+                        tooltip: {{
+                            callbacks: {{
+                                title: function(context) {{
+                                    const index = context[0].dataIndex;
+                                    const total = totalData[index];
+                                    return context[0].label + ' (Total: ' + (total || 0) + ' events)';
+                                }},
+                                label: function(context) {{
+                                    return context.dataset.label + ': ' + context.parsed.y + '%';
+                                }}
+                            }}
                         }}
                     }},
                     scales: {{
                         y: {{
                             beginAtZero: true,
+                            max: 100,
                             ticks: {{
-                                color: '#94a3b8'
+                                color: '#94a3b8',
+                                callback: function(value) {{
+                                    return value + '%';
+                                }}
                             }},
                             grid: {{
                                 color: '#334155'
@@ -409,12 +430,37 @@ class HTMLReporter:
         # Reverse to get chronological order (oldest to newest)
         history = list(reversed(sentiment_history))
 
+        # Calculate percentages and keep totals
+        dates = []
+        positive_pct = []
+        negative_pct = []
+        neutral_pct = []
+        mixed_pct = []
+        totals = []
+
+        for row in history:
+            total = row['positive'] + row['negative'] + row['neutral'] + row['mixed']
+            dates.append(row['date'])
+            totals.append(total)
+
+            if total > 0:
+                positive_pct.append(round((row['positive'] / total) * 100, 1))
+                negative_pct.append(round((row['negative'] / total) * 100, 1))
+                neutral_pct.append(round((row['neutral'] / total) * 100, 1))
+                mixed_pct.append(round((row['mixed'] / total) * 100, 1))
+            else:
+                positive_pct.append(0)
+                negative_pct.append(0)
+                neutral_pct.append(0)
+                mixed_pct.append(0)
+
         chart_data = {
-            'dates': [row['date'] for row in history],
-            'positive': [row['positive'] for row in history],
-            'negative': [row['negative'] for row in history],
-            'neutral': [row['neutral'] for row in history],
-            'mixed': [row['mixed'] for row in history]
+            'dates': dates,
+            'positive': positive_pct,
+            'negative': negative_pct,
+            'neutral': neutral_pct,
+            'mixed': mixed_pct,
+            'totals': totals
         }
 
         return json.dumps(chart_data)

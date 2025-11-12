@@ -22,6 +22,7 @@ from sources.github_trending import GitHubTrendingSource
 from sources.company_ir import CompanyIRSource
 from storage.db import EventDatabase
 from models.events import Event
+from difflib import SequenceMatcher
 
 # DISABLED SOURCES (2025-11-11):
 # - Google News RSS: Feed structure incompatible, returns no results
@@ -81,6 +82,89 @@ class DataCollector:
         # Company IR (always available)
         self.sources['company_ir'] = CompanyIRSource()
 
+    def deduplicate_events(self, events: list[Event], similarity_threshold: float = 0.75) -> tuple[list[Event], int]:
+        """
+        Remove duplicate events based on title similarity and date.
+
+        Args:
+            events: List of events to deduplicate
+            similarity_threshold: Minimum similarity (0-1) to consider duplicates
+
+        Returns:
+            Tuple of (deduplicated_events, num_duplicates_removed)
+        """
+        if not events:
+            return [], 0
+
+        # Group events by date (same day)
+        from collections import defaultdict
+        by_date = defaultdict(list)
+
+        for event in events:
+            # Extract date from published_at or use today
+            date = event.published_at.date() if event.published_at else datetime.utcnow().date()
+            by_date[date].append(event)
+
+        deduplicated = []
+        duplicates_removed = 0
+
+        # Process each date group
+        for date, date_events in by_date.items():
+            # Track which events to keep
+            to_keep = []
+            marked_as_duplicate = set()
+
+            for i, event1 in enumerate(date_events):
+                if i in marked_as_duplicate:
+                    continue
+
+                # Compare with remaining events
+                is_duplicate_of_earlier = False
+
+                for j in range(i):
+                    if j in marked_as_duplicate:
+                        continue
+
+                    event2 = date_events[j]
+
+                    # Calculate title similarity
+                    similarity = self._calculate_similarity(event1.title, event2.title)
+
+                    # Check if same companies mentioned
+                    companies_match = False
+                    if event1.companies and event2.companies:
+                        common_companies = set(event1.companies) & set(event2.companies)
+                        companies_match = len(common_companies) > 0
+
+                    # Consider duplicate if high similarity or (moderate similarity + same companies)
+                    if similarity >= similarity_threshold or (similarity >= 0.6 and companies_match):
+                        # This is a duplicate of an earlier event
+                        is_duplicate_of_earlier = True
+                        marked_as_duplicate.add(i)
+                        duplicates_removed += 1
+                        break
+
+                if not is_duplicate_of_earlier:
+                    to_keep.append(event1)
+
+            deduplicated.extend(to_keep)
+
+        return deduplicated, duplicates_removed
+
+    def _calculate_similarity(self, text1: str, text2: str) -> float:
+        """
+        Calculate similarity between two text strings.
+
+        Returns:
+            Similarity score between 0 and 1
+        """
+        # Normalize texts (lowercase, strip)
+        t1 = text1.lower().strip()
+        t2 = text2.lower().strip()
+
+        # Use SequenceMatcher for similarity
+        return SequenceMatcher(None, t1, t2).ratio()
+
     def collect_from_hackernews(self, limit: int = 20) -> dict:
         """
         Collect from Hacker News.
@@ -98,9 +182,14 @@ class DataCollector:
         source = self.sources['hackernews']
         events = source.fetch_ai_stories(limit=limit, top_n=200)
 
+        # Deduplicate before saving
+        events, content_dupes = self.deduplicate_events(events)
+        if content_dupes > 0:
+            print(f"  ⚡ Removed {content_dupes} content duplicates")
+
         result = self.db.save_events(events)
 
-        print(f"\n✓ Hacker News: {result['saved']} new, {result['duplicates']} duplicates")
+        print(f"\n✓ Hacker News: {result['saved']} new, {result['duplicates']} URL duplicates, {content_dupes} content duplicates")
         return result
 
     def collect_from_newsapi(self, days_back: int = 1, limit: int = 30) -> dict:
@@ -125,9 +214,14 @@ class DataCollector:
         source = self.sources['newsapi']
         events = source.fetch_ai_news(days_back=days_back, limit=limit)
 
+        # Deduplicate before saving
+        events, content_dupes = self.deduplicate_events(events)
+        if content_dupes > 0:
+            print(f"  ⚡ Removed {content_dupes} content duplicates")
+
         result = self.db.save_events(events)
 
-        print(f"\n✓ NewsAPI: {result['saved']} new, {result['duplicates']} duplicates")
+        print(f"\n✓ NewsAPI: {result['saved']} new, {result['duplicates']} URL duplicates, {content_dupes} content duplicates")
         return result
 
     def collect_from_sec_edgar(self, filing_type: str = '8-K', days_back: int = 7) -> dict:
@@ -148,9 +242,14 @@ class DataCollector:
         source = self.sources['sec_edgar']
         events = source.fetch_all_companies(filing_type=filing_type, days_back=days_back)
 
+        # Deduplicate before saving
+        events, content_dupes = self.deduplicate_events(events)
+        if content_dupes > 0:
+            print(f"  ⚡ Removed {content_dupes} content duplicates")
+
         result = self.db.save_events(events)
 
-        print(f"\n✓ SEC EDGAR: {result['saved']} new, {result['duplicates']} duplicates")
+        print(f"\n✓ SEC EDGAR: {result['saved']} new, {result['duplicates']} URL duplicates, {content_dupes} content duplicates")
         return result
 
     def collect_from_github(self, days_back: int = 7, min_stars: int = 500) -> dict:
@@ -171,9 +270,14 @@ class DataCollector:
         source = self.sources['github']
         events = source.fetch_trending_ai(days_back=days_back, min_stars=min_stars)
 
+        # Deduplicate before saving
+        events, content_dupes = self.deduplicate_events(events)
+        if content_dupes > 0:
+            print(f"  ⚡ Removed {content_dupes} content duplicates")
+
         result = self.db.save_events(events)
 
-        print(f"\n✓ GitHub: {result['saved']} new, {result['duplicates']} duplicates")
+        print(f"\n✓ GitHub: {result['saved']} new, {result['duplicates']} URL duplicates, {content_dupes} content duplicates")
         return result
 
     def collect_from_company_ir(self, days_back: int = 7) -> dict:
@@ -193,9 +297,14 @@ class DataCollector:
         source = self.sources['company_ir']
         events = source.fetch_all_companies(days_back=days_back)
 
+        # Deduplicate before saving
+        events, content_dupes = self.deduplicate_events(events)
+        if content_dupes > 0:
+            print(f"  ⚡ Removed {content_dupes} content duplicates")
+
         result = self.db.save_events(events)
 
-        print(f"\n✓ Company IR: {result['saved']} new, {result['duplicates']} duplicates")
+        print(f"\n✓ Company IR: {result['saved']} new, {result['duplicates']} URL duplicates, {content_dupes} content duplicates")
         return result
 
     def collect_all(self, hn_limit: int = 20, news_days: int = 1, news_limit: int = 30,

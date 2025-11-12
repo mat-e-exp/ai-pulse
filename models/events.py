@@ -88,6 +88,9 @@ class Event:
     investment_relevance: Optional[str] = None  # Material/Marginal/Noise
     key_context: Optional[str] = None  # Historical comparisons, context
 
+    # Deduplication
+    is_duplicate: bool = False  # Is this a duplicate of another event?
+
     def __post_init__(self):
         """Initialize defaults"""
         if self.companies is None:
@@ -148,6 +151,7 @@ class Event:
             affected_parties=data.get('affected_parties'),
             investment_relevance=data.get('investment_relevance'),
             key_context=data.get('key_context'),
+            is_duplicate=bool(data.get('is_duplicate', 0)),
         )
 
     def __repr__(self):
