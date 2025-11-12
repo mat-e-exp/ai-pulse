@@ -5,64 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-Pulse Briefing - 2025-11-12</title>
     <link rel="stylesheet" href="style.css">
+    <script>
+        function toggleEvent(id) {
+            const content = document.getElementById('content-' + id);
+            const button = document.getElementById('btn-' + id);
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                button.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                button.textContent = '▶';
+            }
+        }
+    </script>
 </head>
 <body>
     <header>
-        <h1>🧠 AI-Pulse Intelligence Briefing</h1>
-        <p class="date">2025-11-12 09:05 UTC</p>
-        <nav>
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-value-small">82</span>
+                <span class="stat-label-small">Events</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value-small">82</span>
+                <span class="stat-label-small">Analyzed</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value-small">46</span>
+                <span class="stat-label-small">Significant</span>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <h1>🧠 AI-Pulse</h1>
+            <p class="date">2025-11-12 13:51 UTC</p>
+        </div>
+
+        <nav class="header-nav">
             <a href="index.html">Latest</a>
             <a href="archive.html">Archive</a>
-            <a href="https://github.com/YOUR_USERNAME/ai-pulse">GitHub</a>
+            <a href="https://github.com/mat-e-exp/ai-pulse">GitHub</a>
         </nav>
     </header>
 
     <main>
-        <section class="summary">
-            <h2>📊 Summary</h2>
-            <div class="stats">
-                <div class="stat">
-                    <span class="stat-value">82</span>
-                    <span class="stat-label">Events Collected</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value">82</span>
-                    <span class="stat-label">Analyzed</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value">46</span>
-                    <span class="stat-label">Significant (≥40)</span>
-                </div>
-            </div>
-
-            <div class="sentiment-breakdown">
-                <h3>Sentiment Breakdown</h3>
-                <ul>
-                    <li><span class="sentiment-neutral">neutral</span>: 28</li>
-                    <li><span class="sentiment-mixed">mixed</span>: 23</li>
-                    <li><span class="sentiment-positive">positive</span>: 23</li>
-                    <li><span class="sentiment-negative">negative</span>: 8</li>
-                </ul>
-            </div>
+        <section class="sentiment-box">
+            <h3>Sentiment Breakdown</h3>
+            <ul class="sentiment-list">
+                <li><span class="sentiment-neutral">neutral</span>: 28</li>
+                <li><span class="sentiment-mixed">mixed</span>: 23</li>
+                <li><span class="sentiment-positive">positive</span>: 23</li>
+                <li><span class="sentiment-negative">negative</span>: 8</li>
+            </ul>
         </section>
 
         <section class="events material-events">
             <h2>🔴 Material Events</h2>
 
-            <article class="event-card score-8.00">
-                <div class="event-header">
-                    <span class="score">85.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>OpenAI reports $20B annual recurring revenue and $1.4T data center investments</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">85.0</span>
+                    <h3 class="event-title-compact">OpenAI reports $20B annual recurring revenue and $1.4T data center investments</h3>
+                    <button class="expand-btn" id="btn-26" onclick="toggleEvent(26)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-10 15:30</span>
-                    <span class="relevance">Marginal Material - This provides concrete revenue validation for AI investments and multi-year visibility into infrastructure spending that directly impacts public company earnings.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-26" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | OpenAI
+                        <span> | 2025-11-10 15:30</span>
+                        <span> | Marginal Material - This provides concrete revenue validation for AI investments and multi-year visibility into infrastructure spending that directly impacts public company earnings.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -85,20 +98,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>Majestic Labs, which makes patent-pending server architecture that promises more memory capacity, raised $100M, including a $71M Series A led by Bow Wave</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">Majestic Labs, which makes patent-pending server architecture that promises more memory capacity, raised $100M, including a $71M Series A led by Bow Wave</h3>
+                    <button class="expand-btn" id="btn-18" onclick="toggleEvent(18)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-10 14:21</span>
-                    <span class="relevance">Marginal Material - Large funding rounds in AI infrastructure indicate sector maturation and identify potential supply chain evolution that could affect major AI players' costs and capabilities.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-18" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                        
+                        <span> | 2025-11-10 14:21</span>
+                        <span> | Marginal Material - Large funding rounds in AI infrastructure indicate sector maturation and identify potential supply chain evolution that could affect major AI players' costs and capabilities.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -121,20 +134,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>NVIDIA Corporation (NVDA) Rallied On Heightened Investor Confidence In AI Infrastructure Expansion</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">NVIDIA Corporation (NVDA) Rallied On Heightened Investor Confidence In AI Infrastructure Expansion</h3>
+                    <button class="expand-btn" id="btn-15" onclick="toggleEvent(15)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: NVIDIA</span>
-                    <span class="published">Published: 2025-11-10 14:29</span>
-                    <span class="relevance">Marginal Marginal - This is primarily noise for active traders as it lacks new fundamental data or material business developments that would drive significant position changes.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-15" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | NVIDIA
+                        <span> | 2025-11-10 14:29</span>
+                        <span> | Marginal Marginal - This is primarily noise for active traders as it lacks new fundamental data or material business developments that would drive significant position changes.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -161,20 +174,20 @@
         <section class="events marginal-events">
             <h2>🟡 Marginal Events</h2>
 
-            <article class="event-card score-8.00">
-                <div class="event-header">
-                    <span class="score">85.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>SoftBank Group’s Profit Doubles on OpenAI Investment</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">85.0</span>
+                    <h3 class="event-title-compact">SoftBank Group’s Profit Doubles on OpenAI Investment</h3>
+                    <button class="expand-btn" id="btn-65" onclick="toggleEvent(65)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 07:50</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-65" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | OpenAI
+                        <span> | 2025-11-11 07:50</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -197,20 +210,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-8.00">
-                <div class="event-header">
-                    <span class="score">85.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Yann LeCun to depart Meta and launch AI startup focused on 'world models'</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">85.0</span>
+                    <h3 class="event-title-compact">Yann LeCun to depart Meta and launch AI startup focused on 'world models'</h3>
+                    <button class="expand-btn" id="btn-36" onclick="toggleEvent(36)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-12 07:25</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-36" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                        
+                        <span> | 2025-11-12 07:25</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -233,20 +246,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>SoftBank rides the AI wave as OpenAI lifts Vision Fund to $19 billion gain</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">SoftBank rides the AI wave as OpenAI lifts Vision Fund to $19 billion gain</h3>
+                    <button class="expand-btn" id="btn-82" onclick="toggleEvent(82)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 06:43</span>
-                    <span class="relevance">Marginal The $19 billion gain magnitude and OpenAI connection provides concrete validation of AI investment returns, though bubble timing concerns create actionable risk/reward considerations for position sizing.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-82" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI
+                        <span> | 2025-11-11 06:43</span>
+                        <span> | Marginal The $19 billion gain magnitude and OpenAI connection provides concrete validation of AI investment returns, though bubble timing concerns create actionable risk/reward considerations for position sizing.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -269,20 +282,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>SoftBank rides the AI wave as OpenAI lifts Vision Fund to $19 billion gain</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">SoftBank rides the AI wave as OpenAI lifts Vision Fund to $19 billion gain</h3>
+                    <button class="expand-btn" id="btn-81" onclick="toggleEvent(81)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 06:54</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-81" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | OpenAI
+                        <span> | 2025-11-11 06:54</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -305,20 +318,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>Google’s Gemini 3.0 Pro : Features, Applications & Industry Impact Overview</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">Google’s Gemini 3.0 Pro : Features, Applications & Industry Impact Overview</h3>
+                    <button class="expand-btn" id="btn-79" onclick="toggleEvent(79)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: Google</span>
-                    <span class="published">Published: 2025-11-11 07:09</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-79" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | Google
+                        <span> | 2025-11-11 07:09</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -341,20 +354,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>SoftBank unloads Nvidia stake for $5.8 billion in surprise move</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">SoftBank unloads Nvidia stake for $5.8 billion in surprise move</h3>
+                    <button class="expand-btn" id="btn-77" onclick="toggleEvent(77)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI, NVIDIA</span>
-                    <span class="published">Published: 2025-11-11 07:21</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-77" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI, NVIDIA
+                        <span> | 2025-11-11 07:21</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -377,20 +390,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>SoftBank sells entire Nvidia stake for $5.8 billion in surprise move</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">SoftBank sells entire Nvidia stake for $5.8 billion in surprise move</h3>
+                    <button class="expand-btn" id="btn-76" onclick="toggleEvent(76)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI, NVIDIA</span>
-                    <span class="published">Published: 2025-11-11 07:21</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-76" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI, NVIDIA
+                        <span> | 2025-11-11 07:21</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -413,20 +426,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>SoftBank profits more than double as AI valuations soar</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">SoftBank profits more than double as AI valuations soar</h3>
+                    <button class="expand-btn" id="btn-75" onclick="toggleEvent(75)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 07:28</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-75" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | OpenAI
+                        <span> | 2025-11-11 07:28</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -449,20 +462,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>SoftBank sells its entire stake in Nvidia for $5.83 billion</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">SoftBank sells its entire stake in Nvidia for $5.83 billion</h3>
+                    <button class="expand-btn" id="btn-73" onclick="toggleEvent(73)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: NVIDIA</span>
-                    <span class="published">Published: 2025-11-11 07:29</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-73" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | NVIDIA
+                        <span> | 2025-11-11 07:29</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -485,20 +498,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>SoftBank Group posts $16.6 billion Q2 profit on OpenAI gains</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">SoftBank Group posts $16.6 billion Q2 profit on OpenAI gains</h3>
+                    <button class="expand-btn" id="btn-69" onclick="toggleEvent(69)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 07:36</span>
-                    <span class="relevance">Marginal This validates the AI investment thesis at institutional scale and could drive increased capital allocation to AI sectors. The magnitude of gains suggests AI valuations have room to run higher.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-69" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | OpenAI
+                        <span> | 2025-11-11 07:36</span>
+                        <span> | Marginal This validates the AI investment thesis at institutional scale and could drive increased capital allocation to AI sectors. The magnitude of gains suggests AI valuations have room to run higher.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -521,20 +534,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Japan's SoftBank sells its shares in Nvidia for $5.8 billion</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">Japan's SoftBank sells its shares in Nvidia for $5.8 billion</h3>
+                    <button class="expand-btn" id="btn-67" onclick="toggleEvent(67)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: NVIDIA</span>
-                    <span class="published">Published: 2025-11-11 07:40</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-67" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | NVIDIA
+                        <span> | 2025-11-11 07:40</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -557,20 +570,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>AI stock boom delivers bumper quarter for Japan's SoftBank</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">AI stock boom delivers bumper quarter for Japan's SoftBank</h3>
+                    <button class="expand-btn" id="btn-62" onclick="toggleEvent(62)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 07:59</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-62" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI
+                        <span> | 2025-11-11 07:59</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -593,20 +606,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">📉</span>
-                    <h3>Who Will End Up Paying for the AI Spending Spree?</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">Who Will End Up Paying for the AI Spending Spree?</h3>
+                    <button class="expand-btn" id="btn-60" onclick="toggleEvent(60)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-11 08:13</span>
-                    <span class="relevance">Marginal This addresses a fundamental question about AI investment sustainability that could trigger sector-wide revaluation if bailout discussions gain momentum or AI spending fails to show ROI.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-60" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📉 negative</span>
+                        
+                        <span> | 2025-11-11 08:13</span>
+                        <span> | Marginal This addresses a fundamental question about AI investment sustainability that could trigger sector-wide revaluation if bailout discussions gain momentum or AI spending fails to show ROI.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -629,20 +642,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Japan's SoftBank says it has sold its shares in Nvidia for $5.8 billion</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">Japan's SoftBank says it has sold its shares in Nvidia for $5.8 billion</h3>
+                    <button class="expand-btn" id="btn-59" onclick="toggleEvent(59)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: NVIDIA</span>
-                    <span class="published">Published: 2025-11-11 08:13</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-59" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | NVIDIA
+                        <span> | 2025-11-11 08:13</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -665,20 +678,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>SoftBank unloads Nvidia stake for $5.8 billion in surprise move</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">SoftBank unloads Nvidia stake for $5.8 billion in surprise move</h3>
+                    <button class="expand-btn" id="btn-55" onclick="toggleEvent(55)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI, NVIDIA</span>
-                    <span class="published">Published: 2025-11-11 08:46</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-55" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI, NVIDIA
+                        <span> | 2025-11-11 08:46</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -701,20 +714,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">📉</span>
-                    <h3>Bank of America Just Issued a Stark Warning: AI Boom Is Hitting a Cash Crunch</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">Bank of America Just Issued a Stark Warning: AI Boom Is Hitting a Cash Crunch</h3>
+                    <button class="expand-btn" id="btn-52" onclick="toggleEvent(52)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-12 05:04</span>
-                    <span class="relevance">Marginal This warning could catalyze near-term sector rotation and repricing, making it highly actionable for portfolio positioning and risk management decisions.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-52" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📉 negative</span>
+                        
+                        <span> | 2025-11-12 05:04</span>
+                        <span> | Marginal This warning could catalyze near-term sector rotation and repricing, making it highly actionable for portfolio positioning and risk management decisions.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -737,20 +750,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>On theCUBE Pod: The AI infrastructure gold rush, big tech’s power problem and AI platform turf wars</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">On theCUBE Pod: The AI infrastructure gold rush, big tech’s power problem and AI platform turf wars</h3>
+                    <button class="expand-btn" id="btn-30" onclick="toggleEvent(30)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI, Amazon</span>
-                    <span class="published">Published: 2025-11-10 15:28</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-30" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | OpenAI, Amazon
+                        <span> | 2025-11-10 15:28</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -773,20 +786,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Critics call proposed changes to landmark EU privacy law 'death by a thousand cuts'</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">Critics call proposed changes to landmark EU privacy law 'death by a thousand cuts'</h3>
+                    <button class="expand-btn" id="btn-23" onclick="toggleEvent(23)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-10 15:07</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-23" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                        
+                        <span> | 2025-11-10 15:07</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -809,20 +822,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>2025 Was The Year Of The AI Budget Explosion: If Your Team Didn’t Capture Any, They Failed</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">2025 Was The Year Of The AI Budget Explosion: If Your Team Didn’t Capture Any, They Failed</h3>
+                    <button class="expand-btn" id="btn-22" onclick="toggleEvent(22)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-10 15:10</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-22" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                        
+                        <span> | 2025-11-10 15:10</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -845,20 +858,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Sam Altman’s bet: Can OpenAI’s profits keep pace with industry’s soaring costs?</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">Sam Altman’s bet: Can OpenAI’s profits keep pace with industry’s soaring costs?</h3>
+                    <button class="expand-btn" id="btn-14" onclick="toggleEvent(14)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-10 14:32</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-14" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI
+                        <span> | 2025-11-10 14:32</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -881,20 +894,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">75.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>SoftBank sells its entire stake in Nvidia for $5.83B</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">75.0</span>
+                    <h3 class="event-title-compact">SoftBank sells its entire stake in Nvidia for $5.83B</h3>
+                    <button class="expand-btn" id="btn-10" onclick="toggleEvent(10)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-11 07:32</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-10" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                        
+                        <span> | 2025-11-11 07:32</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -917,20 +930,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Silicon Valley’s AI boom splits as Anthropic nears profitability while OpenAI lags</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">Silicon Valley’s AI boom splits as Anthropic nears profitability while OpenAI lags</h3>
+                    <button class="expand-btn" id="btn-78" onclick="toggleEvent(78)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI, Anthropic</span>
-                    <span class="published">Published: 2025-11-11 07:11</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-78" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI, Anthropic
+                        <span> | 2025-11-11 07:11</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -953,20 +966,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>U.S. VCs Join $260 Million Round For Korean AI Chip Unicorn Rebellions</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">U.S. VCs Join $260 Million Round For Korean AI Chip Unicorn Rebellions</h3>
+                    <button class="expand-btn" id="btn-71" onclick="toggleEvent(71)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-11 07:30</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-71" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                        
+                        <span> | 2025-11-11 07:30</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -989,20 +1002,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Intel's AI Leader Sachin Katti Joins OpenAI, To Focus On Artificial General Intelligence</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">Intel's AI Leader Sachin Katti Joins OpenAI, To Focus On Artificial General Intelligence</h3>
+                    <button class="expand-btn" id="btn-64" onclick="toggleEvent(64)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 07:54</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-64" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI
+                        <span> | 2025-11-11 07:54</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1025,20 +1038,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>AI stock boom delivers bumper quarter for Japan’s SoftBank</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">AI stock boom delivers bumper quarter for Japan’s SoftBank</h3>
+                    <button class="expand-btn" id="btn-63" onclick="toggleEvent(63)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 07:57</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-63" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI
+                        <span> | 2025-11-11 07:57</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1061,20 +1074,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>SoftBank unloads Nvidia stake for $5.8 billion in surprise move</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">SoftBank unloads Nvidia stake for $5.8 billion in surprise move</h3>
+                    <button class="expand-btn" id="btn-61" onclick="toggleEvent(61)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI, NVIDIA</span>
-                    <span class="published">Published: 2025-11-11 08:02</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-61" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI, NVIDIA
+                        <span> | 2025-11-11 08:02</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1097,20 +1110,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Intel CTO and AI Chief Sachin Katti Departs for OpenAI</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">Intel CTO and AI Chief Sachin Katti Departs for OpenAI</h3>
+                    <button class="expand-btn" id="btn-57" onclick="toggleEvent(57)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 08:23</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-57" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | OpenAI
+                        <span> | 2025-11-11 08:23</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1133,20 +1146,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>This Is Hotels’ iPhone Moment</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">This Is Hotels’ iPhone Moment</h3>
+                    <button class="expand-btn" id="btn-54" onclick="toggleEvent(54)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-11 08:55</span>
-                    <span class="relevance">Marginal This represents a clear monetization pathway for conversational AI and could influence OpenAI's valuation in private markets, with spillover effects to public AI stocks.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-54" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                        
+                        <span> | 2025-11-11 08:55</span>
+                        <span> | Marginal This represents a clear monetization pathway for conversational AI and could influence OpenAI's valuation in private markets, with spillover effects to public AI stocks.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1169,20 +1182,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Hard drives on backorder for two years as AI data centers trigger HDD shortage</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">Hard drives on backorder for two years as AI data centers trigger HDD shortage</h3>
+                    <button class="expand-btn" id="btn-44" onclick="toggleEvent(44)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-12 05:36</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-44" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                        
+                        <span> | 2025-11-12 05:36</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1205,20 +1218,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>SoftBank and OpenAI launch joint venture for AI tools in Japan</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">SoftBank and OpenAI launch joint venture for AI tools in Japan</h3>
+                    <button class="expand-btn" id="btn-28" onclick="toggleEvent(28)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-10 15:29</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-28" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | OpenAI
+                        <span> | 2025-11-10 15:29</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1241,20 +1254,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-7.00">
-                <div class="event-header">
-                    <span class="score">72.0/100</span>
-                    <span class="sentiment">📉</span>
-                    <h3>ChatGPT leaks suggest OpenAI’s data scraping practices raise concerns</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">72.0</span>
+                    <h3 class="event-title-compact">ChatGPT leaks suggest OpenAI’s data scraping practices raise concerns</h3>
+                    <button class="expand-btn" id="btn-27" onclick="toggleEvent(27)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI, Google</span>
-                    <span class="published">Published: 2025-11-10 15:30</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-27" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📉 negative</span>
+                         | OpenAI, Google
+                        <span> | 2025-11-10 15:30</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1277,20 +1290,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-6.00">
-                <div class="event-header">
-                    <span class="score">65.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>Japan's SoftBank says it has sold its shares in Nvidia for $5.8 billion</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">65.0</span>
+                    <h3 class="event-title-compact">Japan's SoftBank says it has sold its shares in Nvidia for $5.8 billion</h3>
+                    <button class="expand-btn" id="btn-68" onclick="toggleEvent(68)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: NVIDIA</span>
-                    <span class="published">Published: 2025-11-11 07:40</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-68" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                         | NVIDIA
+                        <span> | 2025-11-11 07:40</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1313,20 +1326,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-6.00">
-                <div class="event-header">
-                    <span class="score">65.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>DigitalOcean's AI pivot nets new stock price target</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">65.0</span>
+                    <h3 class="event-title-compact">DigitalOcean's AI pivot nets new stock price target</h3>
+                    <button class="expand-btn" id="btn-34" onclick="toggleEvent(34)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-10 15:37</span>
-                    <span class="relevance">Marginal The upgrade represents institutional validation of AI infrastructure expansion beyond mega-cap players, which could influence broader sector rotation and valuation multiples for AI-adjacent stocks.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-34" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                        
+                        <span> | 2025-11-10 15:37</span>
+                        <span> | Marginal The upgrade represents institutional validation of AI infrastructure expansion beyond mega-cap players, which could influence broader sector rotation and valuation multiples for AI-adjacent stocks.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1349,20 +1362,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-6.00">
-                <div class="event-header">
-                    <span class="score">65.0/100</span>
-                    <span class="sentiment">📉</span>
-                    <h3>OpenAI may not use lyrics without license, German court rules</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">65.0</span>
+                    <h3 class="event-title-compact">OpenAI may not use lyrics without license, German court rules</h3>
+                    <button class="expand-btn" id="btn-4" onclick="toggleEvent(4)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-11 11:20</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-4" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📉 negative</span>
+                        
+                        <span> | 2025-11-11 11:20</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1385,20 +1398,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>CNBC Daily Open: Days of declines won't keep AI trade down</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">CNBC Daily Open: Days of declines won't keep AI trade down</h3>
+                    <button class="expand-btn" id="btn-72" onclick="toggleEvent(72)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-11 07:30</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-72" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                        
+                        <span> | 2025-11-11 07:30</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1421,20 +1434,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">📉</span>
-                    <h3>Scott Galloway Warns Of Potential OpenAI Collapse Triggering An 'Ugly' Market Shock: 'Going To Be Nowhere To Hide'</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">Scott Galloway Warns Of Potential OpenAI Collapse Triggering An 'Ugly' Market Shock: 'Going To Be Nowhere To Hide'</h3>
+                    <button class="expand-btn" id="btn-53" onclick="toggleEvent(53)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-11 08:57</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-53" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📉 negative</span>
+                         | OpenAI
+                        <span> | 2025-11-11 08:57</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1457,20 +1470,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">📉</span>
-                    <h3>Sam Altman got served with a subpoena onstage at a live event</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">Sam Altman got served with a subpoena onstage at a live event</h3>
+                    <button class="expand-btn" id="btn-50" onclick="toggleEvent(50)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-12 05:07</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-50" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📉 negative</span>
+                        
+                        <span> | 2025-11-12 05:07</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1493,20 +1506,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>Adk-go: code-first Go toolkit for building, evaluating, and deploying AI agents</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">Adk-go: code-first Go toolkit for building, evaluating, and deploying AI agents</h3>
+                    <button class="expand-btn" id="btn-45" onclick="toggleEvent(45)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-11 19:52</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-45" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                        
+                        <span> | 2025-11-11 19:52</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1529,20 +1542,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">➡️</span>
-                    <h3>Are AI Chatbots Changing How We Shop?</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">Are AI Chatbots Changing How We Shop?</h3>
+                    <button class="expand-btn" id="btn-35" onclick="toggleEvent(35)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-10 15:33</span>
-                    <span class="relevance">Marginal Marginal - This is more academic commentary than market-moving news, useful for understanding long-term trends but not immediately actionable for trading decisions.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-35" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">➡️ neutral</span>
+                        
+                        <span> | 2025-11-10 15:33</span>
+                        <span> | Marginal Marginal - This is more academic commentary than market-moving news, useful for understanding long-term trends but not immediately actionable for trading decisions.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1565,20 +1578,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>Trending: CaviraOSS/OpenMemory (1830 stars)</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">Trending: CaviraOSS/OpenMemory (1830 stars)</h3>
+                    <button class="expand-btn" id="btn-31" onclick="toggleEvent(31)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-10-19 16:12</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-31" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                        
+                        <span> | 2025-10-19 16:12</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1601,20 +1614,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">↕️</span>
-                    <h3>How Zero Trust can help organizations manage mounting agentic AI security risk</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">How Zero Trust can help organizations manage mounting agentic AI security risk</h3>
+                    <button class="expand-btn" id="btn-21" onclick="toggleEvent(21)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-10 15:17</span>
-                    <span class="relevance">Marginal Marginal - This reinforces known themes about AI security challenges but lacks specific catalysts or new information that would drive immediate trading decisions.</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-21" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                        
+                        <span> | 2025-11-10 15:17</span>
+                        <span> | Marginal Marginal - This reinforces known themes about AI security challenges but lacks specific catalysts or new information that would drive immediate trading decisions.</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1637,20 +1650,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>How OpenAI Built a Global CS Organization in 18 Months: Vanessa Gutiehi’s Playbook for AI-Powered Customer Success</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">How OpenAI Built a Global CS Organization in 18 Months: Vanessa Gutiehi’s Playbook for AI-Powered Customer Success</h3>
+                    <button class="expand-btn" id="btn-13" onclick="toggleEvent(13)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    <span class='companies'>Companies: OpenAI</span>
-                    <span class="published">Published: 2025-11-10 14:37</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-13" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                         | OpenAI
+                        <span> | 2025-11-10 14:37</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>
@@ -1673,20 +1686,20 @@
                 </div>
             </article>
 
-            <article class="event-card score-4.00">
-                <div class="event-header">
-                    <span class="score">45.0/100</span>
-                    <span class="sentiment">📈</span>
-                    <h3>Asus Ascent GX10</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">45.0</span>
+                    <h3 class="event-title-compact">Asus Ascent GX10</h3>
+                    <button class="expand-btn" id="btn-9" onclick="toggleEvent(9)">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    
-                    <span class="published">Published: 2025-11-10 15:56</span>
-                    <span class="relevance">Marginal</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-9" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">📈 positive</span>
+                        
+                        <span> | 2025-11-10 15:56</span>
+                        <span> | Marginal</span>
+                    </div>
 
                     <div class="implications">
                         <h4>💡 Implications</h4>

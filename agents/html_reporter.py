@@ -86,46 +86,59 @@ class HTMLReporter:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-Pulse Briefing - {date_str}</title>
     <link rel="stylesheet" href="../style.css">
+    <script>
+        function toggleEvent(id) {{
+            const content = document.getElementById('content-' + id);
+            const button = document.getElementById('btn-' + id);
+            if (content.style.display === 'none' || content.style.display === '') {{
+                content.style.display = 'block';
+                button.textContent = '▼';
+            }} else {{
+                content.style.display = 'none';
+                button.textContent = '▶';
+            }}
+        }}
+    </script>
 </head>
 <body>
     <header>
-        <h1>🧠 AI-Pulse Intelligence Briefing</h1>
-        <p class="date">{date_str} {time_str}</p>
-        <nav>
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-value-small">{total_collected}</span>
+                <span class="stat-label-small">Events</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value-small">{total_analyzed}</span>
+                <span class="stat-label-small">Analyzed</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value-small">{len(events)}</span>
+                <span class="stat-label-small">Significant</span>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <h1>🧠 AI-Pulse</h1>
+            <p class="date">{date_str} {time_str}</p>
+        </div>
+
+        <nav class="header-nav">
             <a href="../index.html">Latest</a>
             <a href="../archive.html">Archive</a>
-            <a href="https://github.com/YOUR_USERNAME/ai-pulse">GitHub</a>
+            <a href="https://github.com/mat-e-exp/ai-pulse">GitHub</a>
         </nav>
     </header>
 
     <main>
-        <section class="summary">
-            <h2>📊 Summary</h2>
-            <div class="stats">
-                <div class="stat">
-                    <span class="stat-value">{total_collected}</span>
-                    <span class="stat-label">Events Collected</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value">{total_analyzed}</span>
-                    <span class="stat-label">Analyzed</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value">{len(events)}</span>
-                    <span class="stat-label">Significant (≥{min_score})</span>
-                </div>
-            </div>
-
-            <div class="sentiment-breakdown">
-                <h3>Sentiment Breakdown</h3>
-                <ul>
+        <section class="sentiment-box">
+            <h3>Sentiment Breakdown</h3>
+            <ul class="sentiment-list">
 """
 
         for sentiment, count in sorted(sentiment_counts.items(), key=lambda x: x[1], reverse=True):
-            html += f'                    <li><span class="sentiment-{sentiment}">{sentiment}</span>: {count}</li>\n'
+            html += f'                <li><span class="sentiment-{sentiment}">{sentiment}</span>: {count}</li>\n'
 
-        html += """                </ul>
-            </div>
+        html += """            </ul>
         </section>
 """
 
@@ -174,7 +187,7 @@ class HTMLReporter:
         return html
 
     def _generate_event_card(self, event: Event) -> str:
-        """Generate HTML for single event"""
+        """Generate HTML for single event - collapsed by default"""
 
         sentiment_emoji = {
             'positive': '📈',
@@ -185,25 +198,28 @@ class HTMLReporter:
 
         companies_html = ''
         if event.companies:
-            companies_html = f"<span class='companies'>Companies: {', '.join(event.companies)}</span>"
+            companies_html = f" | {', '.join(event.companies)}"
 
         published_str = event.published_at.strftime('%Y-%m-%d %H:%M') if event.published_at else 'Unknown'
 
+        # Generate unique ID for this event
+        event_id = event.id or hash(event.title)
+
         html = f"""
-            <article class="event-card score-{event.significance_score//10}0">
-                <div class="event-header">
-                    <span class="score">{event.significance_score}/100</span>
-                    <span class="sentiment">{sentiment_emoji}</span>
-                    <h3>{event.title}</h3>
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <span class="score-compact">{event.significance_score}</span>
+                    <h3 class="event-title-compact">{event.title}</h3>
+                    <button class="expand-btn" id="btn-{event_id}" onclick="toggleEvent({event_id})">▶</button>
                 </div>
 
-                <div class="event-meta">
-                    {companies_html}
-                    <span class="published">Published: {published_str}</span>
-                    <span class="relevance">{event.investment_relevance or 'N/A'}</span>
-                </div>
-
-                <div class="event-content">
+                <div class="event-content-expanded" id="content-{event_id}" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">{sentiment_emoji} {event.sentiment or 'neutral'}</span>
+                        {companies_html}
+                        <span> | {published_str}</span>
+                        <span> | {event.investment_relevance or 'N/A'}</span>
+                    </div>
 """
 
         if event.implications:
