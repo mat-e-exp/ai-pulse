@@ -22,7 +22,7 @@
         // Initialize chart when page loads
         window.addEventListener('DOMContentLoaded', function() {
             const ctx = document.getElementById('sentimentChart').getContext('2d');
-            const chartData = {"dates": ["2025-11-12"], "positive": [23], "negative": [8], "neutral": [28], "mixed": [23]};
+            const chartData = {"dates": ["2025-11-11", "2025-11-12"], "positive": [14, 23], "negative": [3, 8], "neutral": [13, 28], "mixed": [5, 23]};
 
             new Chart(ctx, {
                 type: 'line',
@@ -112,7 +112,7 @@
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-12 13:59 UTC</p>
+            <p class="date">2025-11-12 14:00 UTC</p>
         </div>
 
         <nav class="header-nav">
