@@ -3,10 +3,20 @@
 ## What This Does
 Real-time intelligence agent for the AI sector - tracks product launches, funding, technical breakthroughs, market sentiment, and competitive dynamics to provide actionable insights for AI investment decisions.
 
+## Primary Goal: ACCURACY
+**Accuracy is the highest priority** - above speed, cost, or features. The system must provide trustworthy data for investment decisions. This means:
+- **No duplicate stories** inflating sentiment counts
+- **Accurate sentiment distribution** - each unique story counted once
+- **Reliable significance scores** - no re-analyzing the same event
+- **Trustworthy percentages** - chart reflects reality, not data collection artifacts
+
+Investment decisions depend on this data being correct.
+
 ## Current Status
 - ✅ **Phase 1 Complete**: Basic news collector working
 - ✅ **Phase 2 Complete**: Agentic significance analysis with Claude API
 - ✅ **Phase 2.5 Complete**: Web publishing with sentiment tracking and deduplication (2025-11-12)
+- ⚠️ **Known Issue**: String-based dedup misses semantic duplicates, skewing sentiment counts (needs semantic dedup before Phase 3)
 
 ## Project Vision
 
@@ -182,7 +192,13 @@ python3.9 cost_tracking/tracker.py --set-budget 50.0
 - ✅ Automatic publishing workflow (briefings/ + index.html + archive.html)
 - ✅ Git-based hosting (push to GitHub, view on GitHub Pages)
 
-### Phase 3: Narrative Tracking (NEXT)
+### Phase 2.6: Semantic Deduplication (REQUIRED FOR ACCURACY) - NEXT
+- ⚠️ String dedup misses semantic duplicates, skewing sentiment by 5-15%
+- 🎯 Claude-powered semantic dedup before analysis
+- 🎯 Ensures each unique story analyzed once
+- 🎯 Trustworthy sentiment percentages for investment decisions
+
+### Phase 3: Narrative Tracking (AFTER PHASE 2.6)
 - Track sentiment over time
 - Detect narrative shifts
 - Historical pattern matching
@@ -249,12 +265,16 @@ ai-pulse/
 
 ### Deduplication System
 
-**Problem**: Same story reported by multiple sources (e.g., "SoftBank sells Nvidia stake" appeared 4+ times)
-- Inflates sentiment counts (one story counted 4 times)
-- Wastes Claude API calls (analyzing same story multiple times)
-- Clutters briefing display
+**Critical for Accuracy**: Duplicates skew sentiment counts and waste analysis costs.
 
-**Solution: Two-Phase Deduplication**
+**Problem**: Same story reported by multiple sources
+- Example: "SoftBank sells Nvidia stake" appeared 6+ times on 2025-11-11
+- Each duplicate analyzed separately by Claude
+- Each gets sentiment score (e.g., all "mixed")
+- Inflates that sentiment in daily count: "mixed: 38%" instead of true "mixed: 20%"
+- **Result**: Untrustworthy sentiment percentages
+
+**Current Implementation: String-Based Deduplication (Partial Solution)**
 
 **Phase 1: Collection-Time (Forward)**:
 - Location: `agents/collector.py` - `deduplicate_events()` function
@@ -265,7 +285,7 @@ ai-pulse/
   - Title similarity ≥ 75%, OR
   - Title similarity ≥ 60% AND same companies mentioned
 - Keeps first occurrence, discards duplicates
-- Prevents duplicates from entering database
+- **Limitation**: Misses semantic duplicates with different wording
 
 **Phase 2: Retroactive (Historical)**:
 - Location: `retroactive_dedup.py` script
@@ -282,10 +302,33 @@ ai-pulse/
 - Sentiment counts only include non-duplicate events
 - Chart displays accurate sentiment distribution
 
-**Example Results (2025-11-11)**:
-- Before: 43 events with 10+ SoftBank/Nvidia duplicates
-- After: 33 unique events, accurate sentiment percentages
-- Duplicates marked but preserved in database
+**Known Gap: Semantic Duplicates Still Slip Through**
+
+String matching misses these duplicates (all about same event):
+- "SoftBank sells entire Nvidia stake for $5.8B"
+- "SoftBank profits double on AI investments"
+- "Japan's SoftBank exits Nvidia position"
+→ All <75% string similarity but **same underlying event**
+
+**Impact on Accuracy**:
+- 3-6 semantic duplicates per major news day
+- Each analyzed separately (~$0.15 wasted)
+- Each counted in sentiment (inflates by 3-6 votes)
+- Percentages skewed by 5-15%
+
+**Required Next Step: Semantic Deduplication (Phase 2.6)**
+
+**Must run BEFORE analyzer.py** to ensure accuracy:
+1. After collection, before analysis
+2. Group events by date
+3. Send titles to Claude (Haiku, cheap): "Which report the same event?"
+4. Claude returns semantic duplicate groups
+5. Mark `is_semantic_duplicate = 1` in database
+6. Analyzer skips semantic duplicates
+7. Each unique story analyzed once
+8. Sentiment counts accurate
+
+**This is required for trustworthy sentiment data** - without it, percentages reflect data collection artifacts, not market reality.
 
 ### Database Schema
 
