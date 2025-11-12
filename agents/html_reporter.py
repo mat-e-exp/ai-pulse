@@ -130,22 +130,41 @@ class HTMLReporter:
             const ctx = document.getElementById('sentimentChart').getContext('2d');
             const chartData = {chart_data};
 
-            // Generate 30 days of labels starting from 30 days ago
-            const labels = [];
-            const today = new Date();
-            for (let i = 29; i >= 0; i--) {{
-                const date = new Date(today);
-                date.setDate(date.getDate() - i);
-                labels.push(date.toISOString().split('T')[0]);
-            }}
+            // If we have data, generate labels from first data date to 30 days ahead
+            let labels = chartData.dates;
+            let positiveData = chartData.positive;
+            let negativeData = chartData.negative;
+            let neutralData = chartData.neutral;
+            let mixedData = chartData.mixed;
 
-            // Map actual data to 30-day scale (fill with null for missing dates)
-            const mapDataTo30Days = (dates, values) => {{
-                return labels.map(label => {{
-                    const index = dates.indexOf(label);
-                    return index >= 0 ? values[index] : null;
-                }});
-            }};
+            // If we have at least one data point, extend to show future 30 days
+            if (chartData.dates.length > 0) {{
+                const firstDate = new Date(chartData.dates[0]);
+                const today = new Date();
+                const endDate = new Date(today);
+                endDate.setDate(endDate.getDate() + 30);
+
+                // Generate all dates from first data point to 30 days ahead
+                labels = [];
+                const current = new Date(firstDate);
+                while (current <= endDate) {{
+                    labels.push(current.toISOString().split('T')[0]);
+                    current.setDate(current.getDate() + 1);
+                }}
+
+                // Map data to full date range
+                const mapData = (dates, values) => {{
+                    return labels.map(label => {{
+                        const index = dates.indexOf(label);
+                        return index >= 0 ? values[index] : null;
+                    }});
+                }};
+
+                positiveData = mapData(chartData.dates, chartData.positive);
+                negativeData = mapData(chartData.dates, chartData.negative);
+                neutralData = mapData(chartData.dates, chartData.neutral);
+                mixedData = mapData(chartData.dates, chartData.mixed);
+            }}
 
             new Chart(ctx, {{
                 type: 'line',
@@ -154,7 +173,7 @@ class HTMLReporter:
                     datasets: [
                         {{
                             label: 'Positive',
-                            data: mapDataTo30Days(chartData.dates, chartData.positive),
+                            data: positiveData,
                             borderColor: '#6ee7b7',
                             backgroundColor: 'rgba(110, 231, 183, 0.1)',
                             tension: 0.3,
@@ -162,7 +181,7 @@ class HTMLReporter:
                         }},
                         {{
                             label: 'Negative',
-                            data: mapDataTo30Days(chartData.dates, chartData.negative),
+                            data: negativeData,
                             borderColor: '#fca5a5',
                             backgroundColor: 'rgba(252, 165, 165, 0.1)',
                             tension: 0.3,
@@ -170,7 +189,7 @@ class HTMLReporter:
                         }},
                         {{
                             label: 'Neutral',
-                            data: mapDataTo30Days(chartData.dates, chartData.neutral),
+                            data: neutralData,
                             borderColor: '#94a3b8',
                             backgroundColor: 'rgba(148, 163, 184, 0.1)',
                             tension: 0.3,
@@ -178,7 +197,7 @@ class HTMLReporter:
                         }},
                         {{
                             label: 'Mixed',
-                            data: mapDataTo30Days(chartData.dates, chartData.mixed),
+                            data: mixedData,
                             borderColor: '#fcd34d',
                             backgroundColor: 'rgba(252, 211, 77, 0.1)',
                             tension: 0.3,
