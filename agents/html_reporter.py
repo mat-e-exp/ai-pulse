@@ -55,8 +55,26 @@ class HTMLReporter:
             sent = event.sentiment or 'unknown'
             sentiment_counts[sent] = sentiment_counts.get(sent, 0) + 1
 
-        # Get sentiment history for chart
+        # Get sentiment history for chart (past data)
         sentiment_history = self.db.get_sentiment_history(days=30)
+
+        # Add today's data to history for chart
+        now = datetime.utcnow()
+        date_str = now.strftime('%Y-%m-%d')
+        today_data = {
+            'date': date_str,
+            'positive': sentiment_counts.get('positive', 0),
+            'negative': sentiment_counts.get('negative', 0),
+            'neutral': sentiment_counts.get('neutral', 0),
+            'mixed': sentiment_counts.get('mixed', 0),
+            'total_analyzed': sum(sentiment_counts.values())
+        }
+
+        # Remove today's date from history if it exists (will be replaced with fresh data)
+        sentiment_history = [row for row in sentiment_history if row['date'] != date_str]
+
+        # Insert today at the beginning (most recent)
+        full_history = [today_data] + sentiment_history
 
         # Generate HTML
         html = self._generate_html(
@@ -64,7 +82,7 @@ class HTMLReporter:
             total_collected=total_collected,
             total_analyzed=total_analyzed,
             sentiment_counts=sentiment_counts,
-            sentiment_history=sentiment_history,
+            sentiment_history=full_history,
             days_back=days_back,
             min_score=min_score
         )
