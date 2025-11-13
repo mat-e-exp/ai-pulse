@@ -29,9 +29,11 @@ SYMBOLS = {
         'GOOGL': 'Alphabet',
         'META': 'Meta',
         'AMD': 'AMD',
+        'PLTR': 'Palantir',
     },
     'etfs': {
         'BOTZ': 'AI/Robotics ETF',
+        'AIQ': 'AI Analytics ETF',
     }
 }
 

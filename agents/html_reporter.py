@@ -348,7 +348,9 @@ class HTMLReporter:
                 {{symbol: 'GOOGL', label: 'Alphabet', color: '#fbbf24'}},
                 {{symbol: 'META', label: 'Meta', color: '#f87171'}},
                 {{symbol: 'AMD', label: 'AMD', color: '#fb923c'}},
-                {{symbol: 'BOTZ', label: 'AI/Robotics ETF', color: '#a78bfa'}}
+                {{symbol: 'PLTR', label: 'Palantir', color: '#34d399'}},
+                {{symbol: 'BOTZ', label: 'AI/Robotics ETF', color: '#a78bfa'}},
+                {{symbol: 'AIQ', label: 'AI Analytics ETF', color: '#f472b6'}}
             ];
 
             // Map market data to full date range (align with sentiment chart dates)
@@ -556,7 +558,9 @@ class HTMLReporter:
             ('Alphabet', '#fbbf24'),
             ('Meta', '#f87171'),
             ('AMD', '#fb923c'),
-            ('AI/Robotics ETF', '#a78bfa')
+            ('Palantir', '#34d399'),
+            ('AI/Robotics ETF', '#a78bfa'),
+            ('AI Analytics ETF', '#f472b6')
         ]
 
         for idx, (label, color) in enumerate(symbol_labels):
