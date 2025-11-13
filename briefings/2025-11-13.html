@@ -23,7 +23,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             // Sentiment Chart
             const ctx = document.getElementById('sentimentChart').getContext('2d');
-            const chartData = {"dates": ["2025-11-11", "2025-11-12", "2025-11-13"], "positive": [35.1, 17.6, 19.7], "negative": [10.5, 14.7, 14.5], "neutral": [36.8, 44.1, 40.8], "mixed": [17.5, 23.5, 25.0], "totals": [57, 34, 76]};
+            const chartData = {"dates": ["2025-11-11", "2025-11-12", "2025-11-13"], "positive": [35.1, 17.6, 21.4], "negative": [10.5, 14.7, 14.3], "neutral": [36.8, 44.1, 38.1], "mixed": [17.5, 23.5, 26.2], "totals": [57, 34, 42]};
 
             // If we have data, generate labels from first data date to 30 days ahead
             let labels = chartData.dates;
@@ -319,18 +319,34 @@
             // Checkbox toggle functionality
             document.querySelectorAll('.market-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
-                    const datasetIndex = parseInt(this.dataset.index);
-                    window.marketChart.data.datasets[datasetIndex].hidden = !this.checked;
-                    window.marketChart.update();
+                    const symbol = this.dataset.symbol;
+                    // Find dataset index by matching the symbol in the data
+                    const datasetIndex = window.marketChart.data.datasets.findIndex(ds => {
+                        // Match by comparing dataset data with market data for this symbol
+                        return marketData[symbol] && ds.label === symbolConfig.find(c => c.symbol === symbol)?.label;
+                    });
+
+                    if (datasetIndex !== -1) {
+                        window.marketChart.data.datasets[datasetIndex].hidden = !this.checked;
+                        window.marketChart.update();
+                    }
                 });
             });
         });
 
         // Toggle all market symbols on/off
         function toggleAllMarketSymbols(checked) {
-            document.querySelectorAll('.market-checkbox').forEach((checkbox, index) => {
+            document.querySelectorAll('.market-checkbox').forEach(checkbox => {
                 checkbox.checked = checked;
-                window.marketChart.data.datasets[index].hidden = !checked;
+
+                const symbol = checkbox.dataset.symbol;
+                const datasetIndex = window.marketChart.data.datasets.findIndex(ds => {
+                    return marketData[symbol] && ds.label === symbolConfig.find(c => c.symbol === symbol)?.label;
+                });
+
+                if (datasetIndex !== -1) {
+                    window.marketChart.data.datasets[datasetIndex].hidden = !checked;
+                }
             });
             window.marketChart.update();
         }
@@ -347,22 +363,22 @@
     <header>
         <div class="header-stats">
             <div class="stat-item">
-                <span class="stat-value-small">76</span>
+                <span class="stat-value-small">42</span>
                 <span class="stat-label-small">Events</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value-small">76</span>
+                <span class="stat-value-small">42</span>
                 <span class="stat-label-small">Analyzed</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value-small">40</span>
+                <span class="stat-value-small">24</span>
                 <span class="stat-label-small">Significant</span>
             </div>
         </div>
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-13 07:37 UTC</p>
+            <p class="date">2025-11-13 09:10 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -425,52 +441,52 @@
                 <div class="checkbox-grid">
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-0" class="market-checkbox" data-index="0">
+                        <input type="checkbox" id="symbol-0" class="market-checkbox" data-symbol="^IXIC">
                         <span style="color: #6ee7b7">■</span> NASDAQ
                     </label>
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-1" class="market-checkbox" data-index="1">
+                        <input type="checkbox" id="symbol-1" class="market-checkbox" data-symbol="^GSPC">
                         <span style="color: #94a3b8">■</span> S&P 500
                     </label>
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-2" class="market-checkbox" data-index="2">
+                        <input type="checkbox" id="symbol-2" class="market-checkbox" data-symbol="NVDA">
                         <span style="color: #c084fc">■</span> NVIDIA
                     </label>
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-3" class="market-checkbox" data-index="3">
+                        <input type="checkbox" id="symbol-3" class="market-checkbox" data-symbol="MSFT">
                         <span style="color: #60a5fa">■</span> Microsoft
                     </label>
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-4" class="market-checkbox" data-index="4">
+                        <input type="checkbox" id="symbol-4" class="market-checkbox" data-symbol="GOOGL">
                         <span style="color: #fbbf24">■</span> Alphabet
                     </label>
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-5" class="market-checkbox" data-index="5">
+                        <input type="checkbox" id="symbol-5" class="market-checkbox" data-symbol="META">
                         <span style="color: #f87171">■</span> Meta
                     </label>
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-6" class="market-checkbox" data-index="6">
+                        <input type="checkbox" id="symbol-6" class="market-checkbox" data-symbol="AMD">
                         <span style="color: #fb923c">■</span> AMD
                     </label>
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-7" class="market-checkbox" data-index="7">
+                        <input type="checkbox" id="symbol-7" class="market-checkbox" data-symbol="PLTR">
                         <span style="color: #34d399">■</span> Palantir
                     </label>
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-8" class="market-checkbox" data-index="8">
+                        <input type="checkbox" id="symbol-8" class="market-checkbox" data-symbol="BOTZ">
                         <span style="color: #a78bfa">■</span> AI/Robotics ETF
                     </label>
 
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-9" class="market-checkbox" data-index="9">
+                        <input type="checkbox" id="symbol-9" class="market-checkbox" data-symbol="AIQ">
                         <span style="color: #f472b6">■</span> AI Analytics ETF
                     </label>
 
@@ -478,44 +494,20 @@
             </div>
         </section>
 
+        <section class="sentiment-box">
+            <h3>🎯 Prediction Insights</h3>
+            <div style="background: #1e293b; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">
+                    Analysis based on 3 days of historical data (last updated: 2025-11-13)
+                </p>
+                <div style="line-height: 1.8; color: #e2e8f0;">
+                    <p># AI Sentiment vs Market Performance Analysis</p><p>## 1. Pattern Recognition</p><p><strong>High-Impact Event Types:<strong><br>- <strong>Regulation events<strong> show the highest significance (avg 70.0) - both mixed (75.0) and negative (65.0) regulatory news create substantial market reactions<br>- <strong>Funding events<strong> demonstrate strong predictive value (avg 69.4 significance) across all sentiment types, with mixed funding news showing highest impact (74.0)<br>- <strong>Partnership announcements<strong> show high significance (72.0) when positive</p><p><strong>Low-Impact Event Types:<strong><br>- <strong>News events with neutral sentiment<strong> are least predictive (avg 20.0 significance)<br>- <strong>Product launches<strong> show minimal market impact when sentiment is neutral (15.0)<br>- <strong>Research developments<strong> have mixed reliability (15.0-45.0 range)</p><p>## 2. Sentiment Reliability</p><p><strong>Most Predictive Sentiment Types:<strong><br>1. <strong>Mixed sentiment<strong> (avg 65.3 significance) - indicates market uncertainty leading to higher volatility<br>2. <strong>Negative sentiment<strong> (avg 63.25 significance) - clear directional signal with strong market response<br>3. <strong>Positive sentiment<strong> (avg 59.7 significance) - generally reliable but varies by event type</p><p><strong>Least Predictive:<strong><br>- <strong>Neutral sentiment<strong> (avg 21.4 significance) - too ambiguous for reliable predictions</p><p><strong>Sentiment Strength Analysis:<strong><br>The recent predictions show neutral sentiment with strengths of 44.12 and 36.84, both correctly predicting minimal market movement (-0.26% and -0.25% NASDAQ). This suggests sentiment strength below 50 correlates with low market volatility.</p><p>## 3. Symbol Responsiveness</p><p><strong>Top Performers (3-day average):<strong><br>1. <strong>AMD (+3.61%)<strong> - Most responsive to AI sentiment, likely due to AI chip exposure<br>2. <strong>NVDA (+1.06%)<strong> - Consistent positive performance, strong AI correlation<br>3. <strong>GOOGL (+0.96%)<strong> - Moderate responsiveness to AI developments<br>4. <strong>MSFT (+0.95%)<strong> - Stable performer with AI exposure</p><p><strong>Underperformer:<strong><br>- <strong>META (-0.67%)<strong> - Negative performance despite AI investments, suggesting other factors dominating</p><p>## 4. Momentum Patterns</p><p>With only 2 days of prediction data showing consecutive neutral sentiment and flat market performance, there's evidence of <strong>continuation patterns<strong> in low-volatility environments. Both days showed similar sentiment strength (36-44 range) and nearly identical market responses (-0.25% to -0.26%).</p><p>## 5. Confidence Factors</p><p><strong>High Confidence (>70%):<strong><br>- Regulatory events with mixed/negative sentiment (significance >65)<br>- Funding announcements with any sentiment (significance >68)<br>- Sentiment strength <45 predicting neutral market movement<br>- AMD responsiveness to positive AI sentiment</p><p><strong>Medium Confidence (50-70%):<strong><br>- Positive sentiment on partnerships/product launches (significance 45-72)<br>- NVDA, GOOGL, MSFT performance predictions with clear sentiment direction<br>- Mixed sentiment events across all categories</p><p><strong>Low Confidence (<50%):<strong><br>- Neutral sentiment news events (significance ~20)<br>- META performance predictions (inconsistent with AI sentiment)<br>- Research developments (highly variable significance 15-45)<br>- Single-day reversal predictions without strong event catalysts</p><p>## 6. Recommendations</p><p>### Immediate Improvements:<br>1. <strong>Weight event types differently<strong> - Apply 2x multiplier to regulatory and funding events in prediction algorithms<br>2. <strong>Enhance sentiment strength thresholds<strong> - Use <45 strength for neutral predictions, >60 for strong directional calls<br>3. <strong>Symbol-specific models<strong> - Create separate confidence intervals for META given its disconnect from AI sentiment</p><p>### Data Collection Enhancements:<br>4. <strong>Expand tracking period<strong> - Current 2-day prediction history is insufficient; need minimum 20-30 days for reliable pattern analysis<br>5. <strong>Add volatility metrics<strong> - Track VIX or sector-specific volatility indices alongside sentiment<br>6. <strong>Incorporate trading volume<strong> - High sentiment with low volume may indicate false signals</p><p>### Algorithm Adjustments:<br>7. <strong>Multi-factor weighting<strong> - Combine event type significance with sentiment strength: `Prediction_Confidence = (Event_Significance × Sentiment_Strength) / 100`<br>8. <strong>Momentum indicators<strong> - Add 3-day moving averages for sentiment strength to identify trend continuations<br>9. <strong>Sector rotation analysis<strong> - Track whether AI sentiment affects broader tech sector or just AI-focused stocks</p><p>### Validation Framework:<br>10. <strong>Weekly accuracy reviews<strong> - Assess prediction accuracy by event type and sentiment combination<br>11. <strong>Benchmark against market<strong> - Compare AI sentiment predictions to simple technical indicators for baseline performance</p><p>The current 100% accuracy over 2 days is encouraging but statistically insignificant. Focus on building a larger dataset while implementing these refinements to create a more robust prediction framework.</p>
+                </div>
+            </div>
+        </section>
+
         <section class="events marginal-events">
             <h2>🟡 Marginal Events</h2>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">85.0</span>
-                    <h3 class="event-title-compact">Yann LeCun to depart Meta and launch AI startup focused on 'world models'</h3>
-                    <button class="expand-btn" id="btn-36" onclick="toggleEvent(36)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-36" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                        
-                        <span> | 2025-11-12 07:25</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This creates both opportunity and risk for AI sector investors. Meta loses a key AI visionary who helped establish their research credibility, potentially weakening their long-term AI strategy. However, LeCun's new startup could become a high-value acquisition target or licensing partner for major tech companies seeking advanced AI capabilities. The "world models" focus indicates potential applications in autonomous systems, robotics, and advanced AI reasoning.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>- **Harmed**: META (talent loss, potential competitive disadvantage) - **Benefited**: NVDA, AMD (new startup likely needs compute infrastructure), venture capital firms, potential acquirers like MSFT, GOOGL seeking AI talent/technology - **Neutral**: Broader AI sector gains from continued innovation</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>Similar to Geoffrey Hinton's departure from Google in 2023, top AI researchers leaving Big Tech to pursue independent ventures often signals important technological inflection points. LeCun co-won the 2018 Turing Award and is considered a founding father of deep learning, making his departure particularly notable. "World models" represent next-generation AI that could enable more autonomous and re...</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.nasdaq.com/articles/metas-chief-ai-scientist-yann-lecun-depart-and-launch-ai-start-focused-world-models" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
 
             <article class="event-card-compact">
                 <div class="event-header-compact">
@@ -843,186 +835,6 @@
 
             <article class="event-card-compact">
                 <div class="event-header-compact">
-                    <span class="score-compact">75.0</span>
-                    <h3 class="event-title-compact">Google’s Gemini 3.0 Pro : Features, Applications & Industry Impact Overview</h3>
-                    <button class="expand-btn" id="btn-79" onclick="toggleEvent(79)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-79" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📈 positive</span>
-                         | Google
-                        <span> | 2025-11-11 07:09</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This development signals intensifying competition in foundation models, potentially pressuring pricing across the industry while expanding market adoption. Investors should expect increased R&D spending across major AI players as they race to match Google's performance claims, with particular focus on efficiency gains that could improve profit margins long-term.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Benefits:** GOOGL (Alphabet), NVDA (increased compute demand), cloud infrastructure providers **Potential pressure:** MSFT (OpenAI partnership), META (AI competitive positioning), smaller AI model companies **Broader impact:** Enterprise software companies integrating AI capabilities</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This follows the pattern of rapid model iteration seen since ChatGPT's launch, where each major release has driven significant market movements. Google's emphasis on cost efficiency mirrors the industry's shift from pure performance to commercially viable AI solutions, similar to how cloud computing matured from experimental to enterprise-ready services.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.geeky-gadgets.com/gemini-3-0-pro-ai-model-overview/" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">75.0</span>
-                    <h3 class="event-title-compact">SoftBank sells its entire stake in Nvidia for $5.83 billion</h3>
-                    <button class="expand-btn" id="btn-73" onclick="toggleEvent(73)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-73" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                         | NVIDIA
-                        <span> | 2025-11-11 07:29</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This suggests some institutional investors may be taking profits on AI winners or rotating capital elsewhere, potentially creating buying opportunities for long-term AI bulls. The sale doesn't diminish NVIDIA's AI dominance but may indicate peak institutional euphoria has passed, requiring more fundamental-driven performance going forward.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>Benefited: Potential new institutional buyers seeking NVIDIA exposure at lower prices, AMD and other NVIDIA competitors if sentiment shifts Harmed: NVIDIA shareholders facing selling pressure, other AI infrastructure stocks if this signals broader institutional rotation away from the sector</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>SoftBank historically makes large, strategic tech bets and this exit after massive AI rally gains mirrors their pattern of profit-taking on successful positions (similar to their Alibaba stake reductions). The 32.1 million share sale represents significant institutional flow that could influence near-term trading dynamics for NVDA and broader AI sector sentiment.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.cnbc.com/2025/11/11/softbank-sells-its-entire-stake-in-nvidia-for-5point83-billion.html" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">75.0</span>
-                    <h3 class="event-title-compact">SoftBank Group posts $16.6 billion Q2 profit on OpenAI gains</h3>
-                    <button class="expand-btn" id="btn-69" onclick="toggleEvent(69)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-69" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📈 positive</span>
-                         | OpenAI
-                        <span> | 2025-11-11 07:36</span>
-                        <span> | Marginal This validates the AI investment thesis at institutional scale and could drive increased capital allocation to AI sectors. The magnitude of gains suggests AI valuations have room to run higher.</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This reinforces investor confidence in AI valuations and suggests continued institutional appetite for AI investments at premium valuations. The substantial gains on OpenAI holdings indicate the private AI market is experiencing significant appreciation, which could drive up public AI stock multiples as investors seek exposure to similar growth trajectories.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Benefits:** Microsoft (OpenAI partnership), Nvidia (AI infrastructure demand), other AI-focused investment firms, private AI startups seeking funding **Neutral/Competitive pressure:** Google, Meta (competing with OpenAI in generative AI) **Potential concerns:** Traditional tech companies slower to adopt AI strategies</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>SoftBank's Vision Fund was previously known for overvaluing tech investments (WeWork, others), but this OpenAI success rehabilitates their AI investment credibility. The $16.6B profit rivals some of their best historical quarters and comes amid broader AI sector momentum. This follows OpenAI's recent funding rounds valuing the company at $157 billion, showing continued private market strength.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://economictimes.indiatimes.com/markets/stocks/earnings/softbank-group-posts-16-6-billion-q2-profit-on-openai-gains/articleshow/125243560.cms" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">75.0</span>
-                    <h3 class="event-title-compact">Who Will End Up Paying for the AI Spending Spree?</h3>
-                    <button class="expand-btn" id="btn-60" onclick="toggleEvent(60)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-60" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📉 negative</span>
-                        
-                        <span> | 2025-11-11 08:13</span>
-                        <span> | Marginal This addresses a fundamental question about AI investment sustainability that could trigger sector-wide revaluation if bailout discussions gain momentum or AI spending fails to show ROI.</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>For AI sector investors, this signals potential risks to the current high-valuation environment driven by AI hype. If AI investments fail to deliver expected returns and require government intervention, it could lead to significant corrections in AI-focused stocks, particularly those with the highest AI capex commitments like Meta and Google.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Potentially Harmed:** - META (massive Reality Labs losses, high AI spending) - GOOGL (heavy AI infrastructure investment) - MSFT (significant OpenAI partnership costs) - Cloud infrastructure providers with AI-heavy capex **Potentially Benefited:** - Traditional value stocks as rotation away from AI growth - Companies with more conservative AI spending approaches</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>Parallels the dot-com bubble where massive infrastructure spending preceded corrections when business models proved unsustainable. The mention of potential taxpayer bailouts echoes 2008 financial crisis dynamics, suggesting systemic risk concerns around concentrated AI spending by major tech companies.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.nakedcapitalism.com/2025/11/who-will-end-up-paying-for-the-ai-spending-spree.html" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">75.0</span>
-                    <h3 class="event-title-compact">Bank of America Just Issued a Stark Warning: AI Boom Is Hitting a Cash Crunch</h3>
-                    <button class="expand-btn" id="btn-52" onclick="toggleEvent(52)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-52" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📉 negative</span>
-                        
-                        <span> | 2025-11-12 05:04</span>
-                        <span> | Marginal This warning could catalyze near-term sector rotation and repricing, making it highly actionable for portfolio positioning and risk management decisions.</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>AI sector investors should prepare for potential valuation corrections, particularly in companies with high capital requirements and longer paths to profitability. This could create opportunities for investors to enter quality AI positions at better prices, while also signaling a shift from growth-at-any-cost to profitability-focused investing in the sector.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>HARMED: High-capex AI companies (NVDA data center demand), unprofitable AI startups, speculative AI plays, companies dependent on continued massive AI infrastructure spending BENEFITED: Profitable AI companies with strong cash flows (MSFT, GOOGL), AI efficiency/optimization providers, companies with lower capital requirements</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>Similar warnings from major banks historically preceded tech sector corrections (dot-com bubble, recent growth stock selloffs). The AI sector has seen unprecedented capital deployment in 2023-2024, making cash flow sustainability concerns particularly relevant as easy money conditions tighten and investors demand clearer paths to profitability.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://247wallst.com/investing/2025/11/10/bank-of-america-just-issued-a-stark-warning-the-ai-boom-is-hitting-a-cash-crunch/" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
                     <span class="score-compact">72.0</span>
                     <h3 class="event-title-compact">How Japanese banking giant MUFG is using AI</h3>
                     <button class="expand-btn" id="btn-116" onclick="toggleEvent(116)">▶</button>
@@ -1125,222 +937,6 @@
 
                     <div class="event-link">
                         <a href="https://www.worldlabs.ai/blog/marble-world-model" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">72.0</span>
-                    <h3 class="event-title-compact">Silicon Valley’s AI boom splits as Anthropic nears profitability while OpenAI lags</h3>
-                    <button class="expand-btn" id="btn-78" onclick="toggleEvent(78)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-78" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                         | OpenAI, Anthropic
-                        <span> | 2025-11-11 07:11</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>Investors should reassess AI sector investments based on path-to-profitability metrics rather than just revenue growth. This divergence may signal a maturation phase where business model sustainability becomes more critical for valuations, potentially benefiting companies with clearer monetization strategies.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>Benefits: Anthropic investors, companies with proven AI monetization (MSFT through OpenAI partnership complexity), GOOGL (Anthropic investor) Potential concerns: OpenAI investors, pure-play AI stocks without clear profitability paths Neutral: NVDA, AMD (both companies likely benefit regardless of which AI firms succeed)</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This mirrors historical tech cycles where initial market leaders (like early social media platforms) were eventually overtaken by companies with superior business models. The news is particularly significant as it challenges the assumption that first-mover advantage and largest scale automatically translate to market dominance in AI, similar to search engine wars of the early 2000s.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.wnd.com/2025/11/silicon-valleys-ai-boom-splits-as-anthropic-nears/" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">72.0</span>
-                    <h3 class="event-title-compact">U.S. VCs Join $260 Million Round For Korean AI Chip Unicorn Rebellions</h3>
-                    <button class="expand-btn" id="btn-71" onclick="toggleEvent(71)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-71" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                        
-                        <span> | 2025-11-11 07:30</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This funding highlights the intensifying competition in AI chips beyond traditional leaders, potentially pressuring margins for established players over time. The involvement of U.S. VCs suggests growing investor appetite for diversified AI semiconductor exposure, particularly given geopolitical supply chain concerns around Taiwan and China.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Benefits:** Rebellions, Korean tech ecosystem, alternative AI chip sector, investors seeking NVIDIA alternatives **Potential concerns:** NVIDIA (long-term competitive pressure), AMD (additional competition in AI chips), established semiconductor players facing new entrants</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This follows a pattern of well-funded AI chip challengers emerging globally (Cerebras, Graphcore, SambaNova) as investors seek alternatives to NVIDIA's dominance. The $1.4 billion valuation reflects serious institutional confidence, though most AI chip startups have yet to significantly dent NVIDIA's market share. The timing coincides with peak demand for AI inference chips, where specialized arch...</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.forbes.com/sites/johnkang/2025/11/11/us-vcs-join-260-million-round-for-korean-ai-chip-unicorn-rebellions/" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">72.0</span>
-                    <h3 class="event-title-compact">AI stock boom delivers bumper quarter for Japan’s SoftBank</h3>
-                    <button class="expand-btn" id="btn-63" onclick="toggleEvent(63)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-63" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                         | OpenAI
-                        <span> | 2025-11-11 07:57</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This reinforces the AI sector's strong momentum but signals potential overheating that could lead to increased volatility. Investors should expect continued institutional enthusiasm for AI investments while preparing for possible correction cycles as bubble fears intensify.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>Benefits: NVDA, MSFT, GOOGL, META, AMD (continued institutional backing), OpenAI and AI startups (validated investor confidence), SoftBank portfolio companies Harmed: Value investors seeking entry points, conservative institutions wary of bubble risks</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>SoftBank's Vision Fund was instrumental in the previous tech bubble (WeWork, Uber valuations), making their current AI profits both a positive signal and a warning indicator. The explicit mention of bubble fears by financial media suggests growing mainstream concern about AI valuations, reminiscent of dot-com era dynamics.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.digitaljournal.com/world/ai-stock-boom-delivers-bumper-quarter-for-japans-softbank/article" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">72.0</span>
-                    <h3 class="event-title-compact">Intel CTO and AI Chief Sachin Katti Departs for OpenAI</h3>
-                    <button class="expand-btn" id="btn-57" onclick="toggleEvent(57)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-57" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                         | OpenAI
-                        <span> | 2025-11-11 08:23</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This reinforces OpenAI's position as the premier destination for top AI talent, potentially accelerating their technical capabilities and product development. For AI sector investors, it suggests continued brain drain from traditional tech companies to AI-native firms, indicating where the real innovation momentum lies.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>Benefits: OpenAI (strengthened leadership), Microsoft (OpenAI partner), potentially Nvidia (OpenAI's preferred chip partner) Harmed: Intel (loses key AI leader), AMD (reduced competitive pressure from Intel in AI)</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This follows a pattern of high-profile AI executive migrations to OpenAI, similar to recent departures from Google and Meta. Intel has been struggling to establish credibility in the AI chip market against Nvidia's dominance, making this leadership loss particularly damaging to their AI ambitions at a critical juncture.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.techpowerup.com/342795/intel-cto-and-ai-chief-sachin-katti-departs-for-openai" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">72.0</span>
-                    <h3 class="event-title-compact">This Is Hotels’ iPhone Moment</h3>
-                    <button class="expand-btn" id="btn-54" onclick="toggleEvent(54)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-54" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📈 positive</span>
-                        
-                        <span> | 2025-11-11 08:55</span>
-                        <span> | Marginal This represents a clear monetization pathway for conversational AI and could influence OpenAI's valuation in private markets, with spillover effects to public AI stocks.</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This validates the "AI-as-platform" investment thesis and accelerates the timeline for AI monetization beyond basic subscriptions. Investors should expect increased competition among AI companies to build similar app ecosystems, driving up development costs but also creating new revenue streams. The hotel industry focus suggests vertical-specific AI applications will be a major growth driver.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>Benefits: Microsoft (MSFT) as OpenAI's primary backer, hospitality tech companies, enterprise SaaS providers integrating AI Potential pressure: Google (GOOGL) and Meta (META) to accelerate their own AI platform strategies Neutral: NVIDIA (NVDA) and AMD benefit from increased AI compute demand regardless of platform winner</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>The iPhone App Store comparison is apt - it created a $1.1 trillion app economy. However, ChatGPT's 133x larger launch audience suggests potentially faster adoption curves than historical mobile precedents. This positions OpenAI as the early leader in AI platform economics, similar to Apple's App Store dominance.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.hospitalitynet.org/opinion/4129715.html" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">72.0</span>
-                    <h3 class="event-title-compact">Hard drives on backorder for two years as AI data centers trigger HDD shortage</h3>
-                    <button class="expand-btn" id="btn-44" onclick="toggleEvent(44)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-44" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">↕️ mixed</span>
-                        
-                        <span> | 2025-11-12 05:36</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>AI sector investors should expect continued infrastructure cost inflation and potential deployment delays as hyperscalers compete for limited storage resources. This validates the massive scale of AI buildout but warns of supply chain risks that could constrain growth rates or compress margins for companies heavily investing in data center capacity.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Benefits:** Storage manufacturers (Seagate STX, Western Digital WDC), data center REITs, storage technology companies **Harmed:** Hyperscalers with aggressive expansion plans (MSFT, GOOGL, META, AMZN), smaller AI companies competing for infrastructure resources, enterprise customers facing higher storage costs</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This echoes the 2020-2021 semiconductor shortage pattern where AI/crypto demand created multi-year supply constraints. The shift to QLC SSDs mentioned suggests the industry is adapting with higher-density solutions, similar to how chip shortages drove architectural innovations. Two-year backlogs indicate demand fundamentally outpacing manufacturing capacity expansion timelines.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.tomshardware.com/pc-components/hdds/ai-triggers-hard-drive-shortage-amidst-dram-squeeze-enterprise-hard-drives-on-backorder-by-2-years-as-hyperscalers-switch-to-qlc-ssds" target="_blank">Read full article →</a>
                     </div>
                 </div>
             </article>
@@ -1773,150 +1369,6 @@
 
                     <div class="event-link">
                         <a href="https://android-developers.googleblog.com/2025/11/android-developer-verification-early.html" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">45.0</span>
-                    <h3 class="event-title-compact">CNBC Daily Open: Days of declines won't keep AI trade down</h3>
-                    <button class="expand-btn" id="btn-72" onclick="toggleEvent(72)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-72" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📈 positive</span>
-                        
-                        <span> | 2025-11-11 07:30</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>Short-term relief for AI sector investors after recent weakness, potentially signaling that institutional appetite for AI names remains strong during dips. The analyst commentary suggests continued confidence in AI as a primary equity market driver, which could support further recovery if broader market conditions remain favorable.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Benefits:** NVDA (strongest gainer), BROADCOM, MSFT (ended 8-day losing streak), and likely other AI infrastructure plays **Neutral/Mixed:** Broader AI sector stocks that weren't specifically mentioned but likely participated in the rally</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>Microsoft's eight-day losing streak ending suggests the recent AI stock weakness may have been overdone, creating buying opportunities. This type of "buy the dip" behavior in AI names has been a recurring pattern throughout 2024, indicating the sector maintains strong institutional support during temporary selloffs.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://www.cnbc.com/2025/11/11/cnbc-daily-open-days-of-declines-wont-keep-ai-trade-down.html" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">45.0</span>
-                    <h3 class="event-title-compact">Scott Galloway Warns Of Potential OpenAI Collapse Triggering An 'Ugly' Market Shock: 'Going To Be Nowhere To Hide'</h3>
-                    <button class="expand-btn" id="btn-53" onclick="toggleEvent(53)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-53" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📉 negative</span>
-                         | OpenAI
-                        <span> | 2025-11-11 08:57</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>AI sector investors should note this as part of broader concerns about AI valuations and sustainability, but should focus on concrete fundamentals rather than speculative warnings. The alert highlights potential concentration risk in AI investments if a major player like OpenAI were to fail, which could create ripple effects across the ecosystem.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Potentially Harmed:** Microsoft (major OpenAI investor/partner), AI-focused startups dependent on OpenAI's API, cloud providers hosting AI workloads **Potentially Benefited:** Google/Alphabet (Gemini), Meta (Llama), Anthropic, other OpenAI competitors who could capture market share</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This mirrors historical tech bubble warnings where respected analysts predicted collapses that sometimes materialized (dot-com 2000) and sometimes didn't. Without specific financial data or operational evidence about OpenAI's distress, this remains in the category of market sentiment and risk awareness rather than actionable intelligence. The AI sector has shown resilience despite previous collaps...</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://biztoc.com/x/78576b05a9675684" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">45.0</span>
-                    <h3 class="event-title-compact">Sam Altman got served with a subpoena onstage at a live event</h3>
-                    <button class="expand-btn" id="btn-50" onclick="toggleEvent(50)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-50" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📉 negative</span>
-                        
-                        <span> | 2025-11-12 05:07</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>Creates near-term uncertainty around OpenAI's leadership and potential legal exposure, which could affect Microsoft's AI strategy given their substantial partnership and investment. May introduce governance concerns for investors considering AI sector investments, particularly around regulatory compliance and executive stability.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>**Potentially Harmed:** Microsoft (MSFT) - major OpenAI partner and investor; OpenAI's competitive position **Potentially Benefiting:** Google (GOOGL), Meta (META), Anthropic - competitors may gain if OpenAI faces leadership distraction or legal constraints **Neutral:** NVDA, AMD - hardware demand likely unaffected by legal proceedings</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>Tech CEOs facing legal proceedings historically see temporary stock pressure followed by recovery if underlying business remains strong (see Meta's regulatory battles, Tesla's SEC issues). However, OpenAI's private status means direct impact flows through Microsoft's partnership, making this more of a secondary concern for public market investors unless it signals broader AI regulatory crackdowns.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://qz.com/openai-ceo-sam-altman-served-with-subpoena-onstage-during-san-francisco-event" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-
-            <article class="event-card-compact">
-                <div class="event-header-compact">
-                    <span class="score-compact">45.0</span>
-                    <h3 class="event-title-compact">Adk-go: code-first Go toolkit for building, evaluating, and deploying AI agents</h3>
-                    <button class="expand-btn" id="btn-45" onclick="toggleEvent(45)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-45" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">📈 positive</span>
-                        
-                        <span> | 2025-11-11 19:52</span>
-                        <span> | Marginal</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>This reinforces Google's strategy to build developer ecosystem lock-in around its AI infrastructure, potentially driving long-term cloud and AI service adoption. While not immediately revenue-impactful, it positions Google favorably in the competitive landscape for AI development platforms against Microsoft's GitHub Copilot and other tooling providers.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>Benefits: GOOGL (ecosystem expansion), cloud infrastructure providers Neutral impact: Other major AI players (MSFT, META, NVDA, AMD) as this is primarily a developer tool Minor competitive pressure: Standalone AI tooling companies</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>This follows the broader trend of tech giants releasing open-source AI tools to capture developer mindshare (similar to Meta's LLaMA releases, Microsoft's various AI SDKs). The focus on Go programming language suggests targeting enterprise and infrastructure developers, aligning with Google's cloud strategy. However, developer tools typically have long conversion cycles to meaningful revenue impac...</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://github.com/google/adk-go" target="_blank">Read full article →</a>
                     </div>
                 </div>
             </article>

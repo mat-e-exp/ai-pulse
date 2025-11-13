@@ -85,6 +85,9 @@ class HTMLReporter:
         market_data = self._get_market_data(days=30)
         correlation_data = self._get_correlation_data(days=30)
 
+        # Get latest prediction insights
+        insights = self._get_latest_insights()
+
         # Generate HTML
         html = self._generate_html(
             events=events,
@@ -94,13 +97,14 @@ class HTMLReporter:
             sentiment_history=full_history,
             market_data=market_data,
             correlation_data=correlation_data,
+            insights=insights,
             days_back=days_back,
             min_score=min_score
         )
 
         return html, sentiment_counts
 
-    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, market_data, correlation_data, days_back, min_score) -> str:
+    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, market_data, correlation_data, insights, days_back, min_score) -> str:
         """Generate HTML document"""
 
         now = datetime.utcnow()
@@ -438,18 +442,34 @@ class HTMLReporter:
             // Checkbox toggle functionality
             document.querySelectorAll('.market-checkbox').forEach(checkbox => {{
                 checkbox.addEventListener('change', function() {{
-                    const datasetIndex = parseInt(this.dataset.index);
-                    window.marketChart.data.datasets[datasetIndex].hidden = !this.checked;
-                    window.marketChart.update();
+                    const symbol = this.dataset.symbol;
+                    // Find dataset index by matching the symbol in the data
+                    const datasetIndex = window.marketChart.data.datasets.findIndex(ds => {{
+                        // Match by comparing dataset data with market data for this symbol
+                        return marketData[symbol] && ds.label === symbolConfig.find(c => c.symbol === symbol)?.label;
+                    }});
+
+                    if (datasetIndex !== -1) {{
+                        window.marketChart.data.datasets[datasetIndex].hidden = !this.checked;
+                        window.marketChart.update();
+                    }}
                 }});
             }});
         }});
 
         // Toggle all market symbols on/off
         function toggleAllMarketSymbols(checked) {{
-            document.querySelectorAll('.market-checkbox').forEach((checkbox, index) => {{
+            document.querySelectorAll('.market-checkbox').forEach(checkbox => {{
                 checkbox.checked = checked;
-                window.marketChart.data.datasets[index].hidden = !checked;
+
+                const symbol = checkbox.dataset.symbol;
+                const datasetIndex = window.marketChart.data.datasets.findIndex(ds => {{
+                    return marketData[symbol] && ds.label === symbolConfig.find(c => c.symbol === symbol)?.label;
+                }});
+
+                if (datasetIndex !== -1) {{
+                    window.marketChart.data.datasets[datasetIndex].hidden = !checked;
+                }}
             }});
             window.marketChart.update();
         }}
@@ -563,15 +583,50 @@ class HTMLReporter:
             ('AI Analytics ETF', '#f472b6')
         ]
 
+        # Map labels to symbols for checkbox data attributes
+        symbol_map = {
+            'NASDAQ': '^IXIC',
+            'S&P 500': '^GSPC',
+            'NVIDIA': 'NVDA',
+            'Microsoft': 'MSFT',
+            'Alphabet': 'GOOGL',
+            'Meta': 'META',
+            'AMD': 'AMD',
+            'Palantir': 'PLTR',
+            'AI/Robotics ETF': 'BOTZ',
+            'AI Analytics ETF': 'AIQ'
+        }
+
         for idx, (label, color) in enumerate(symbol_labels):
+            symbol = symbol_map.get(label, '')
             html += f"""
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-{idx}" class="market-checkbox" data-index="{idx}">
+                        <input type="checkbox" id="symbol-{idx}" class="market-checkbox" data-symbol="{symbol}">
                         <span style="color: {color}">■</span> {label}
                     </label>
 """
 
         html += """
+                </div>
+            </div>
+        </section>
+"""
+
+        # Prediction insights section (if available)
+        if insights:
+            # Convert insights text to HTML (preserve markdown-like formatting)
+            insights_html = insights['insights'].replace('\n\n', '</p><p>').replace('\n', '<br>')
+            insights_html = insights_html.replace('**', '<strong>').replace('</strong><strong>', '**')  # Handle markdown bold
+
+            html += f"""
+        <section class="sentiment-box">
+            <h3>🎯 Prediction Insights</h3>
+            <div style="background: #1e293b; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">
+                    Analysis based on {insights['days']} days of historical data (last updated: {insights['date']})
+                </p>
+                <div style="line-height: 1.8; color: #e2e8f0;">
+                    <p>{insights_html}</p>
                 </div>
             </div>
         </section>
@@ -824,6 +879,31 @@ class HTMLReporter:
             'accuracy_pct': accuracy_pct,
             'timeline': timeline
         }
+
+    def _get_latest_insights(self) -> dict:
+        """Get the most recent prediction insights analysis"""
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT analysis_date, days_analyzed, insights, created_at
+            FROM prediction_insights
+            ORDER BY created_at DESC
+            LIMIT 1
+        """)
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            return {
+                'date': row['analysis_date'],
+                'days': row['days_analyzed'],
+                'insights': row['insights'],
+                'created_at': row['created_at']
+            }
+        return None
 
     def close(self):
         """Close database connection"""

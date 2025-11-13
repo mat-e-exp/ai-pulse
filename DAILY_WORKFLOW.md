@@ -95,6 +95,25 @@ git config credential.helper store
 - `archive.html` - List of all past briefings
 - `ai_pulse.db` - Updated with new events and market data
 
+## Optional: Prediction Insights (Weekly/Monthly)
+
+To improve prediction accuracy over time, run the prediction analyst agent:
+
+```bash
+python3.9 agents/prediction_analyst.py --days 30
+```
+
+**What it does:**
+- Analyzes historical sentiment vs market accuracy patterns
+- Identifies which event types are most predictive
+- Generates confidence factors for predictions
+- Insights displayed in daily briefing
+
+**When to run:**
+- Weekly: Analyze last 30 days
+- Monthly: Analyze last 90 days
+- Cost: ~$0.10 per analysis (one Claude API call)
+
 ## Environment Variables Required
 
 Create `.env` file with:
