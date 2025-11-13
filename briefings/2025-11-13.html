@@ -154,8 +154,8 @@
 
             // Market Performance Chart
             const marketCtx = document.getElementById('marketChart').getContext('2d');
-            const marketData = {"dates": []};
-            const correlationData = {"total": 0, "correct": 0, "wrong": 0, "ambiguous": 0, "accuracy_pct": 0, "timeline": []};
+            const marketData = {"dates": ["2025-10-15", "2025-10-16", "2025-10-17", "2025-10-20", "2025-10-21", "2025-10-22", "2025-10-23", "2025-10-24", "2025-10-27", "2025-10-28", "2025-10-29", "2025-10-30", "2025-10-31", "2025-11-03", "2025-11-04", "2025-11-05", "2025-11-06", "2025-11-07", "2025-11-10", "2025-11-11", "2025-11-12"], "^IXIC": {"name": "NASDAQ Composite", "changes": [0.66, -0.47, 0.52, 1.37, -0.16, -0.93, 0.89, 1.15, 1.86, 0.8, 0.55, -1.57, 0.61, 0.46, -2.04, 0.65, -1.9, -0.21, 2.27, -0.25, -0.26]}, "^GSPC": {"name": "S&P 500", "changes": [0.4, -0.63, 0.53, 1.07, 0.0, -0.53, 0.58, 0.79, 1.23, 0.23, -0.0, -0.99, 0.26, 0.17, -1.17, 0.37, -1.12, 0.13, 1.54, 0.21, 0.06]}, "NVDA": {"name": "NVIDIA", "changes": [-0.11, 1.1, 0.78, -0.32, -0.81, -0.49, 1.04, 2.25, 2.81, 4.98, 2.99, -2.0, -0.2, 2.17, -3.96, -1.75, -3.65, 0.04, 5.79, -2.96, 0.33]}, "MSFT": {"name": "Microsoft", "changes": [-0.03, -0.35, 0.39, 0.63, 0.17, 0.56, 0.0, 0.59, 1.51, 1.98, -0.1, -2.92, -1.51, -0.15, -0.52, -1.39, -1.98, -0.06, 1.85, 0.53, 0.48]}, "GOOGL": {"name": "Alphabet", "changes": [2.27, 0.17, 0.73, 1.28, -2.37, 0.49, 0.55, 2.7, 3.6, -0.67, 2.65, 2.52, -0.1, 0.9, -2.18, 2.44, 0.15, -2.08, 4.04, 0.42, -1.58]}, "META": {"name": "Meta", "changes": [1.26, -0.76, 0.68, 2.13, 0.15, 0.02, 0.08, 0.59, 1.69, 0.08, 0.03, -11.33, -2.72, -1.64, -1.63, 1.38, -2.67, 0.45, 1.62, -0.74, -2.88]}, "AMD": {"name": "AMD", "changes": [9.4, -1.69, -0.63, 3.21, -1.05, -3.28, 2.07, 7.63, 2.67, -0.64, 2.45, -3.59, 0.5, 1.38, -3.7, 2.51, -7.27, -1.75, 4.47, -2.65, 9.0]}, "BOTZ": {"name": "AI/Robotics ETF", "changes": [1.07, -1.0, -1.21, 2.8, -0.49, -0.14, 1.44, 0.99, 1.19, -0.31, 0.26, -1.98, 1.14, 1.11, -2.43, -0.86, -2.76, 0.06, 1.58, -0.77, -0.28]}};
+            const correlationData = {"total": 2, "correct": 2, "wrong": 0, "ambiguous": 0, "accuracy_pct": 100, "timeline": [{"date": "2025-11-11", "sentiment": "neutral", "outcome": "neutral", "correct": 1}, {"date": "2025-11-12", "sentiment": "neutral", "outcome": "neutral", "correct": 1}]};
 
             // Define symbol display order and colors
             const symbolConfig = [
@@ -272,7 +272,7 @@
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-13 07:05 UTC</p>
+            <p class="date">2025-11-13 07:06 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -301,6 +301,11 @@
 
         <section class="sentiment-box">
             <h3>Market Performance (Last 30 Days)</h3>
+
+            <div class="accuracy-badge">
+                <span class="badge-label">Sentiment Prediction Accuracy (Last 30 days):</span>
+                <span class="badge-value">✅ 2/2 (100%)</span>
+            </div>
 
             <div class="chart-container">
                 <canvas id="marketChart"></canvas>
