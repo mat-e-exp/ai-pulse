@@ -81,6 +81,8 @@ ai-pulse/
 - SEC EDGAR (unlimited, free) - 8-K filings, material events
 - GitHub API (5000 calls/hour free) - trending AI repos, releases
 - Company IR RSS (unlimited, free) - NVIDIA, AMD press releases
+- Yahoo Finance via yfinance (free) - Market data, primary source
+- Alpha Vantage (500 calls/day free) - Market data, fallback when Yahoo rate limited
 
 **Disabled (2025-11-11)**:
 - Google News RSS - Feed structure incompatible, returns no results
@@ -92,8 +94,6 @@ ai-pulse/
 - Twitter/X API (basic tier)
 - Reddit API (free tier)
 - ArXiv API (unlimited, free)
-- Yahoo Finance via yfinance (free)
-- Alpha Vantage (500 calls/day free)
 
 ## Technology Stack
 
@@ -116,10 +116,13 @@ ai-pulse/
 # Required
 ANTHROPIC_API_KEY=sk-ant-...
 
+# Required for market data correlation
+ALPHA_VANTAGE_API_KEY=...  # Get free key at https://www.alphavantage.co/support/#api-key
+                           # Used as fallback when Yahoo Finance is rate limited
+
 # Optional (for expanded features)
 NEWS_API_KEY=...
 TWITTER_API_KEY=...
-ALPHA_VANTAGE_API_KEY=...
 ```
 
 ## Commands
@@ -340,6 +343,48 @@ String matching misses these duplicates (all about same event):
 - Sentiment percentages now trustworthy
 
 **Cost**: ~$0.002 per date with Haiku (very cheap), saves ~$0.20 in wasted Sonnet analysis calls.
+
+### Market Data Collection with Fallback
+
+**Two-Tier Strategy** (2025-11-13):
+
+**Primary: Yahoo Finance (yfinance)**
+- Fast batch download (all 10 symbols at once)
+- Free and unlimited under normal use
+- Occasionally rate limited after heavy use (backfills, multiple runs)
+- Rate limit resets after ~24 hours
+
+**Fallback: Alpha Vantage**
+- Activates automatically when Yahoo returns "Too Many Requests"
+- Free tier: 500 calls/day, 5 calls/minute
+- Fetches symbols sequentially with rate limiting (waits 60 seconds every 5 calls)
+- Takes ~2 minutes to collect all 10 symbols
+- Requires `ALPHA_VANTAGE_API_KEY` in `.env`
+- **Limitation**: Free tier doesn't support index symbols (^IXIC, ^GSPC) - only stocks/ETFs work
+
+**How Fallback Works**:
+1. `market_collector.py` tries Yahoo Finance batch download first
+2. If Yahoo raises rate limit error, switches to Alpha Vantage
+3. Alpha Vantage fetches each symbol individually with rate limiting
+4. Data stored in same database schema regardless of source
+5. Next run will try Yahoo again (may have reset)
+
+**Symbol Mapping**:
+- Yahoo uses `^IXIC` for NASDAQ, Alpha Vantage uses `IXIC`
+- Yahoo uses `^GSPC` for S&P 500, Alpha Vantage uses `INX`
+- Code handles translation automatically
+
+**Usage**:
+```bash
+# Collect yesterday's data (tries Yahoo, falls back to Alpha Vantage if rate limited)
+python3.9 agents/market_collector.py
+
+# Collect specific date
+python3.9 agents/market_collector.py --date 2025-11-12
+
+# Backfill 7 days (may trigger Yahoo rate limit, will use Alpha Vantage)
+python3.9 agents/market_collector.py --backfill 7
+```
 
 ### Database Schema
 
