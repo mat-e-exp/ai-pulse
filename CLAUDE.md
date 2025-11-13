@@ -412,7 +412,13 @@ daily_sentiment (
 ## GitHub Pages Hosting
 
 **Repository**: `mat-e-exp/ai-pulse`
-**Typical URL**: `https://mat-e-exp.github.io/ai-pulse/` (if Pages enabled)
+**Live URL**: `https://mat-e-exp.github.io/ai-pulse/`
+
+**CRITICAL: Always Push Changes**
+- User ALWAYS views the live GitHub Pages site, NEVER local files
+- After ANY changes to HTML, code, or documentation: commit and push immediately
+- GitHub Pages takes 1-2 minutes to rebuild after push
+- Changes are not visible until pushed to GitHub
 
 **Setup**:
 1. Go to repository Settings → Pages
@@ -420,13 +426,25 @@ daily_sentiment (
 3. Folder: `/ (root)`
 4. Save and wait for deployment
 
-**Publishing**:
+**Publishing Workflow**:
 ```bash
+# 1. Generate briefing
 python3.9 publish_briefing.py --days 1 --min-score 40
+
+# 2. ALWAYS commit and push immediately
 git add briefings/*.html index.html archive.html
 git commit -m "Daily briefing YYYY-MM-DD"
 git push
-# Wait 1-2 minutes for GitHub Pages to rebuild
+
+# 3. Wait 1-2 minutes for GitHub Pages to rebuild
+```
+
+**After Code Changes**:
+```bash
+# Always push code changes immediately so they appear on live site
+git add [changed-files]
+git commit -m "Description of changes"
+git push
 ```
 
 ## Git Commit Security - CRITICAL
