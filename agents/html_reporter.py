@@ -299,18 +299,12 @@ class HTMLReporter:
                     borderColor: config.color,
                     backgroundColor: 'transparent',
                     tension: 0.3,
-                    hidden: false  // All visible by default
+                    hidden: true  // All hidden by default
                 }};
             }}).filter(d => d !== null);
 
-            // Use dates from first available symbol
-            let marketLabels = [];
-            for (const symbol in marketData) {{
-                if (marketData[symbol].dates.length > 0) {{
-                    marketLabels = marketData[symbol].dates;
-                    break;
-                }}
-            }}
+            // Use dates from marketData.dates
+            const marketLabels = marketData.dates || [];
 
             window.marketChart = new Chart(marketCtx, {{
                 type: 'line',
@@ -463,7 +457,7 @@ class HTMLReporter:
         for idx, (label, color) in enumerate(symbol_labels):
             html += f"""
                     <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-{idx}" class="market-checkbox" data-index="{idx}" checked>
+                        <input type="checkbox" id="symbol-{idx}" class="market-checkbox" data-index="{idx}">
                         <span style="color: {color}">■</span> {label}
                     </label>
 """
@@ -648,11 +642,22 @@ class HTMLReporter:
         return text[:max_len] + '...'
 
     def _get_market_data(self, days: int = 30) -> dict:
-        """Get market data for last N days"""
+        """Get market data for last N days, aligned by date"""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
+        # Get all unique dates
+        cursor.execute("""
+            SELECT DISTINCT date
+            FROM market_data
+            WHERE date >= date('now', '-' || ? || ' days')
+            ORDER BY date ASC
+        """, (days,))
+
+        all_dates = [row['date'] for row in cursor.fetchall()]
+
+        # Get data for each symbol
         cursor.execute("""
             SELECT date, symbol, symbol_name, change_pct
             FROM market_data
@@ -663,18 +668,26 @@ class HTMLReporter:
         rows = cursor.fetchall()
         conn.close()
 
-        # Group by symbol
-        data = {}
+        # Group by symbol with aligned dates
+        symbol_data_raw = {}
         for row in rows:
             symbol = row['symbol']
-            if symbol not in data:
-                data[symbol] = {
+            if symbol not in symbol_data_raw:
+                symbol_data_raw[symbol] = {
                     'name': row['symbol_name'],
-                    'dates': [],
-                    'changes': []
+                    'data_by_date': {}
                 }
-            data[symbol]['dates'].append(row['date'])
-            data[symbol]['changes'].append(round(row['change_pct'], 2))
+            symbol_data_raw[symbol]['data_by_date'][row['date']] = round(row['change_pct'], 2)
+
+        # Build final structure with aligned dates (null for missing dates)
+        data = {
+            'dates': all_dates
+        }
+        for symbol, info in symbol_data_raw.items():
+            data[symbol] = {
+                'name': info['name'],
+                'changes': [info['data_by_date'].get(date) for date in all_dates]
+            }
 
         return data
 
