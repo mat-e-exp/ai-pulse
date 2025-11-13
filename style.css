@@ -535,6 +535,31 @@ footer a:hover {
     border-top: 1px solid var(--border-color);
 }
 
+.market-control-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.market-control-btn {
+    padding: 6px 16px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.market-control-btn:hover {
+    background: #667eea;
+}
+
+.market-control-btn:active {
+    transform: scale(0.98);
+}
+
 .checkbox-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

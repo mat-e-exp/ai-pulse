@@ -434,6 +434,15 @@ class HTMLReporter:
             }});
         }});
 
+        // Toggle all market symbols on/off
+        function toggleAllMarketSymbols(checked) {{
+            document.querySelectorAll('.market-checkbox').forEach((checkbox, index) => {{
+                checkbox.checked = checked;
+                window.marketChart.data.datasets[index].hidden = !checked;
+            }});
+            window.marketChart.update();
+        }}
+
         // Toggle visibility function for market checkboxes
         function toggleMarketSymbol(index) {{
             const checkbox = document.getElementById('symbol-' + index);
@@ -519,7 +528,13 @@ class HTMLReporter:
             </div>
 
             <div class="market-controls">
-                <h4>Select Indices & Stocks</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h4 style="margin: 0;">Select Indices & Stocks</h4>
+                    <div class="market-control-buttons">
+                        <button onclick="toggleAllMarketSymbols(true)" class="market-control-btn">All</button>
+                        <button onclick="toggleAllMarketSymbols(false)" class="market-control-btn">None</button>
+                    </div>
+                </div>
                 <div class="checkbox-grid">
 """
 
