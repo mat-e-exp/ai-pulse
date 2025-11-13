@@ -234,6 +234,10 @@ section h2 {
 .sentiment-current {
     padding-top: 20px;
     border-top: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
 }
 
 .sentiment-list {
