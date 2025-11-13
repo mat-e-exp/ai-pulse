@@ -88,25 +88,31 @@ def get_historical_data(db_path: str, days: int):
 def format_data_for_analysis(data: dict, days: int) -> str:
     """Format historical data into a readable prompt."""
 
-    prompt = f"""Analyze the following {days} days of AI sentiment vs market performance data.
+    prompt = f"""Analyze the following {days} days of correlation data between general AI sector sentiment and individual stock performance.
 
-# CORRELATION DATA (Daily Predictions)
+IMPORTANT CONTEXT:
+- Sentiment is GENERAL AI SECTOR mood (aggregated from all AI news)
+- Market data shows INDIVIDUAL stocks/indices
+- We're analyzing correlation, NOT making predictions
+- Different stocks have different sensitivity to AI sector sentiment
+
+# CORRELATION DATA (Sentiment-Market Alignment)
 """
 
     # Add correlation summary
     total_days = len(data['correlations'])
     correct_predictions = sum(1 for c in data['correlations'] if c['prediction_correct'] == 1)
-    accuracy_rate = (correct_predictions / total_days * 100) if total_days > 0 else 0
+    correlation_rate = (correct_predictions / total_days * 100) if total_days > 0 else 0
 
     prompt += f"\nTotal Days Analyzed: {total_days}\n"
-    prompt += f"Correct Predictions: {correct_predictions} ({accuracy_rate:.1f}% accuracy)\n\n"
+    prompt += f"Sentiment-Market Correlation: {correct_predictions}/{total_days} days ({correlation_rate:.1f}%)\n\n"
 
     # Recent examples
-    prompt += "Recent Predictions (Last 10 Days):\n"
+    prompt += "Recent Observations (Last 10 Days):\n"
     for c in data['correlations'][:10]:
         prompt += f"  {c['date']}: Sentiment={c['dominant_sentiment']} (strength {c['sentiment_strength']:.2f})"
         prompt += f" → Market={c['market_outcome']} (NASDAQ {c['nasdaq_change_pct']:+.2f}%)"
-        prompt += f" {'✓' if c['prediction_correct'] else '✗'}\n"
+        prompt += f" {'✓ correlated' if c['prediction_correct'] else '✗ diverged'}\n"
 
     # Event type patterns
     prompt += f"\n# EVENT TYPE PATTERNS\n\n"
@@ -124,30 +130,39 @@ def format_data_for_analysis(data: dict, days: int) -> str:
 
 # ANALYSIS TASKS
 
-Please analyze this data and provide:
+Please provide your analysis in this EXACT format:
+
+## EXECUTIVE SUMMARY
+[3-4 sentence high-level summary that answers:
+- Overall correlation rate and what it means
+- Which stocks show strongest/weakest correlation with general AI sentiment
+- Key insight about what drives correlation vs divergence
+- Cautions about sample size and statistical limitations]
+
+## DETAILED ANALYSIS
 
 1. **Pattern Recognition**: Which types of events (earnings, regulatory, product-launch, etc.)
-   show the strongest correlation with market movements?
+   show the strongest correlation with market movements for specific stocks?
 
 2. **Sentiment Reliability**: Which sentiment types (positive, negative, neutral, mixed)
-   are most predictive? Are there patterns where sentiment strength matters?
+   correlate most reliably with market direction? When does sentiment strength matter?
 
-3. **Symbol Responsiveness**: Which stocks/indices respond most reliably to AI sentiment?
-   Are there symbols that consistently outperform or underperform predictions?
+3. **Symbol-Specific Correlation**: Which stocks/indices show strongest correlation with general AI sector sentiment?
+   Which stocks show weak correlation (likely driven by non-AI factors)?
 
-4. **Momentum Patterns**: Do we see multi-day trends (continuations vs reversals)?
+4. **Momentum Patterns**: Do we see multi-day correlation patterns or divergence patterns?
 
-5. **Confidence Factors**: Based on these patterns, what confidence levels should we
-   assign to different prediction scenarios?
+5. **Correlation Strength Indicators**: Based on these patterns, when is correlation:
 
    Example format:
-   - High confidence (>70%): [describe conditions]
-   - Medium confidence (50-70%): [describe conditions]
-   - Low confidence (<50%): [describe conditions]
+   - Strong correlation (>70%): [describe conditions]
+   - Moderate correlation (50-70%): [describe conditions]
+   - Weak correlation (<50%): [describe conditions and why]
 
-6. **Recommendations**: What adjustments should be made to improve prediction accuracy?
+6. **Limitations & Caveats**: What are the statistical limitations? When should we NOT rely on these correlations?
 
-Please provide specific, actionable insights backed by the data patterns above.
+Please emphasize that this is CORRELATION ANALYSIS (what happened) not PREDICTION (what will happen).
+Focus on explaining which stocks are sensitive to AI sector sentiment vs which are driven by other factors.
 """
 
     return prompt

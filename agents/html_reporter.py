@@ -116,10 +116,10 @@ class HTMLReporter:
         market_chart_data = self._prepare_market_data(market_data)
         correlation_chart_data = self._prepare_correlation_data(correlation_data)
 
-        # Group events by relevance
+        # Group events by relevance (new categories: Material/Notable/Background)
         material_events = [e for e in events if e.investment_relevance and 'material' in e.investment_relevance.lower()]
-        marginal_events = [e for e in events if e.investment_relevance and 'marginal' in e.investment_relevance.lower() and e not in material_events]
-        other_events = [e for e in events if e not in material_events and e not in marginal_events]
+        notable_events = [e for e in events if e.investment_relevance and 'notable' in e.investment_relevance.lower() and e not in material_events]
+        background_events = [e for e in events if e not in material_events and e not in notable_events]
 
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -459,7 +459,7 @@ class HTMLReporter:
 
         // Toggle all market symbols on/off
         function toggleAllMarketSymbols(checked) {{
-            document.querySelectorAll('.market-checkbox').forEach(checkbox => {{
+            document.querySelectorAll('.market-checkbox:not([disabled])').forEach(checkbox => {{
                 checkbox.checked = checked;
 
                 const symbol = checkbox.dataset.symbol;
@@ -599,9 +599,14 @@ class HTMLReporter:
 
         for idx, (label, color) in enumerate(symbol_labels):
             symbol = symbol_map.get(label, '')
+            # Check if this symbol has data
+            has_data = symbol in market_data
+            disabled_attr = '' if has_data else ' disabled'
+            disabled_style = '' if has_data else ' opacity: 0.4;'
+
             html += f"""
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-{idx}" class="market-checkbox" data-symbol="{symbol}">
+                    <label class="checkbox-label" style="{disabled_style}">
+                        <input type="checkbox" id="symbol-{idx}" class="market-checkbox" data-symbol="{symbol}"{disabled_attr}>
                         <span style="color: {color}">■</span> {label}
                     </label>
 """
@@ -614,55 +619,179 @@ class HTMLReporter:
 
         # Prediction insights section (if available)
         if insights:
-            # Convert insights text to HTML (preserve markdown-like formatting)
-            insights_html = insights['insights'].replace('\n\n', '</p><p>').replace('\n', '<br>')
-            insights_html = insights_html.replace('**', '<strong>').replace('</strong><strong>', '**')  # Handle markdown bold
+            full_text = insights['insights']
+            lines = full_text.split('\n')
+
+            # Extract executive summary
+            exec_summary = []
+            in_exec = False
+            for line in lines:
+                if '## EXECUTIVE SUMMARY' in line or 'EXECUTIVE SUMMARY' in line.upper():
+                    in_exec = True
+                    continue
+                if in_exec:
+                    if line.strip().startswith('##'):
+                        break
+                    if line.strip():
+                        exec_summary.append(line.strip())
+
+            exec_summary_text = ' '.join(exec_summary) if exec_summary else 'Analysis of prediction accuracy patterns across historical data.'
+
+            # Extract accuracy stats from text for display
+            import re
+            accuracy_match = re.search(r'(\d+)%\s+accuracy', full_text)
+            accuracy_pct = accuracy_match.group(1) if accuracy_match else '?'
+
+            # Convert full text to HTML with proper formatting
+            full_html = self._format_insights_html(full_text)
 
             html += f"""
         <section class="sentiment-box">
-            <h3>🎯 Prediction Insights</h3>
-            <div style="background: #1e293b; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">
-                    Analysis based on {insights['days']} days of historical data (last updated: {insights['date']})
-                </p>
-                <div style="line-height: 1.8; color: #e2e8f0;">
-                    <p>{insights_html}</p>
+            <h3>📊 Correlation Analysis</h3>
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -5px; margin-bottom: 20px;">
+                Analyzing correlation between general AI sector sentiment and individual stock performance<br>
+                Based on {insights['days']} days of historical data (updated {insights['date']})
+            </p>
+
+            <!-- Card-based summary (default view) -->
+            <div id="insights-summary">
+                <!-- Executive Summary Card -->
+                <div style="background: #1e293b; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid #60a5fa;">
+                    <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px; font-weight: 600;">KEY FINDINGS</div>
+                    <div style="color: #e2e8f0; line-height: 1.7; font-size: 0.95rem;">
+                        {exec_summary_text}
+                    </div>
                 </div>
+
+                <button id="insights-toggle" onclick="toggleInsights()"
+                        style="width: 100%; padding: 12px; background: #1e293b; color: #6ee7b7; border: 1px solid #6ee7b7; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s;">
+                    Show Detailed Analysis →
+                </button>
+            </div>
+
+            <!-- Full analysis view (hidden by default) -->
+            <div id="insights-full" style="display: none;">
+                <div style="background: #1e293b; padding: 25px; border-radius: 10px; border-left: 4px solid #c084fc;">
+                    {full_html}
+                </div>
+
+                <button onclick="toggleInsights()"
+                        style="width: 100%; padding: 12px; background: #1e293b; color: #6ee7b7; border: 1px solid #6ee7b7; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; margin-top: 15px; transition: all 0.2s;">
+                    ← Show Key Findings
+                </button>
             </div>
         </section>
+
+        <script>
+        function toggleInsights() {{
+            const summary = document.getElementById('insights-summary');
+            const full = document.getElementById('insights-full');
+
+            if (full.style.display === 'none') {{
+                summary.style.display = 'none';
+                full.style.display = 'block';
+            }} else {{
+                summary.style.display = 'block';
+                full.style.display = 'none';
+            }}
+        }}
+        </script>
 """
 
-        # Material events
+        # Material events (show top 3, expand for more)
         if material_events:
             html += """
         <section class="events material-events">
-            <h2>🔴 Material Events</h2>
+            <h2>🔴 Material Events <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(thesis-changing)</span></h2>
 """
-            for event in material_events:
-                html += self._generate_event_card(event)
+            for idx, event in enumerate(material_events):
+                if idx < 3:
+                    html += self._generate_event_card(event)
+                else:
+                    # Hidden by default
+                    html += f'<div id="material-hidden-{idx}" style="display: none;">'
+                    html += self._generate_event_card(event)
+                    html += '</div>'
+
+            if len(material_events) > 3:
+                html += f"""
+            <button onclick="toggleEventSection('material', {len(material_events)})" id="material-toggle-btn"
+                    style="margin: 20px auto; display: block; padding: 8px 20px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
+                Show {len(material_events) - 3} More Events
+            </button>
+"""
             html += """        </section>
 """
 
-        # Marginal events
-        if marginal_events:
+        # Notable events (show top 3, expand for more)
+        if notable_events:
             html += """
-        <section class="events marginal-events">
-            <h2>🟡 Marginal Events</h2>
+        <section class="events notable-events">
+            <h2>🟡 Notable Events <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(worth tracking)</span></h2>
 """
-            for event in marginal_events:
-                html += self._generate_event_card(event)
+            for idx, event in enumerate(notable_events):
+                if idx < 3:
+                    html += self._generate_event_card(event)
+                else:
+                    html += f'<div id="notable-hidden-{idx}" style="display: none;">'
+                    html += self._generate_event_card(event)
+                    html += '</div>'
+
+            if len(notable_events) > 3:
+                html += f"""
+            <button onclick="toggleEventSection('notable', {len(notable_events)})" id="notable-toggle-btn"
+                    style="margin: 20px auto; display: block; padding: 8px 20px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
+                Show {len(notable_events) - 3} More Events
+            </button>
+"""
             html += """        </section>
 """
 
-        # Other events
-        if other_events:
+        # Background events (show top 3, expand for more)
+        if background_events:
             html += """
-        <section class="events other-events">
-            <h2>⚪ Other Significant Events</h2>
+        <section class="events background-events">
+            <h2>🔵 Background <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(general awareness)</span></h2>
 """
-            for event in other_events:
-                html += self._generate_event_card(event)
+            for idx, event in enumerate(background_events):
+                if idx < 3:
+                    html += self._generate_event_card(event)
+                else:
+                    html += f'<div id="background-hidden-{idx}" style="display: none;">'
+                    html += self._generate_event_card(event)
+                    html += '</div>'
+
+            if len(background_events) > 3:
+                html += f"""
+            <button onclick="toggleEventSection('background', {len(background_events)})" id="background-toggle-btn"
+                    style="margin: 20px auto; display: block; padding: 8px 20px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
+                Show {len(background_events) - 3} More Events
+            </button>
+"""
             html += """        </section>
+"""
+
+        # JavaScript for expand/collapse event sections
+        html += """
+        <script>
+        function toggleEventSection(section, totalCount) {
+            const button = document.getElementById(section + '-toggle-btn');
+            const isExpanded = button.textContent.includes('Show Less');
+
+            for (let i = 3; i < totalCount; i++) {
+                const elem = document.getElementById(section + '-hidden-' + i);
+                if (elem) {
+                    elem.style.display = isExpanded ? 'none' : 'block';
+                }
+            }
+
+            if (isExpanded) {
+                button.textContent = 'Show ' + (totalCount - 3) + ' More Events';
+            } else {
+                button.textContent = 'Show Less';
+            }
+        }
+        </script>
 """
 
         html += """    </main>
@@ -796,6 +925,71 @@ class HTMLReporter:
         """Prepare correlation data for display"""
         import json
         return json.dumps(correlation_data)
+
+    def _format_insights_html(self, text: str) -> str:
+        """Format insights text to clean HTML with proper visual hierarchy"""
+        lines = text.split('\n')
+        html_parts = []
+        in_list = False
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                if in_list:
+                    html_parts.append('</ul>')
+                    in_list = False
+                continue
+
+            # Skip executive summary section (already displayed separately)
+            if 'EXECUTIVE SUMMARY' in line.upper():
+                continue
+
+            # Main section headers (## DETAILED ANALYSIS, etc.)
+            if line.startswith('## '):
+                if in_list:
+                    html_parts.append('</ul>')
+                    in_list = False
+                header_text = line.replace('## ', '').replace('#', '')
+                html_parts.append(f'<div style="margin-top: 30px; padding-bottom: 10px; border-bottom: 2px solid #334155;"><span style="font-size: 1.2em; color: #6ee7b7; font-weight: 700;">{header_text}</span></div>')
+            # Numbered section headers (1. Pattern Recognition)
+            elif line[0].isdigit() and '. **' in line:
+                if in_list:
+                    html_parts.append('</ul>')
+                    in_list = False
+                section_text = line.split('**')[1] if '**' in line else line
+                html_parts.append(f'<p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">{section_text}</p>')
+            # Bold subsection headers
+            elif line.startswith('**') and line.endswith('**'):
+                if in_list:
+                    html_parts.append('</ul>')
+                    in_list = False
+                subheader_text = line.replace('**', '')
+                html_parts.append(f'<p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">{subheader_text}</p>')
+            # Bullet points
+            elif line.startswith('- '):
+                if not in_list:
+                    html_parts.append('<ul style="margin-left: 20px; line-height: 1.8;">')
+                    in_list = True
+                bullet_text = line[2:].replace('**', '<strong>').replace('</strong><strong>', '**')
+                # Close any unclosed strong tags
+                if bullet_text.count('<strong>') != bullet_text.count('</strong>'):
+                    bullet_text += '</strong>'
+                html_parts.append(f'<li style="color: #e2e8f0; margin-bottom: 8px;">{bullet_text}</li>')
+            # Regular paragraphs
+            else:
+                if in_list:
+                    html_parts.append('</ul>')
+                    in_list = False
+                para_text = line.replace('**', '<strong>').replace('</strong><strong>', '**')
+                if para_text.count('<strong>') != para_text.count('</strong>'):
+                    para_text += '</strong>'
+                html_parts.append(f'<p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 10px;">{para_text}</p>')
+
+        # Close any open list
+        if in_list:
+            html_parts.append('</ul>')
+
+        return ''.join(html_parts)
 
     def _truncate(self, text: str, max_len: int) -> str:
         """Truncate text to max length"""

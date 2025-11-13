@@ -336,7 +336,7 @@
 
         // Toggle all market symbols on/off
         function toggleAllMarketSymbols(checked) {
-            document.querySelectorAll('.market-checkbox').forEach(checkbox => {
+            document.querySelectorAll('.market-checkbox:not([disabled])').forEach(checkbox => {
                 checkbox.checked = checked;
 
                 const symbol = checkbox.dataset.symbol;
@@ -378,7 +378,7 @@
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-13 09:10 UTC</p>
+            <p class="date">2025-11-13 09:51 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -440,53 +440,53 @@
                 </div>
                 <div class="checkbox-grid">
 
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" style="">
                         <input type="checkbox" id="symbol-0" class="market-checkbox" data-symbol="^IXIC">
                         <span style="color: #6ee7b7">■</span> NASDAQ
                     </label>
 
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" style="">
                         <input type="checkbox" id="symbol-1" class="market-checkbox" data-symbol="^GSPC">
                         <span style="color: #94a3b8">■</span> S&P 500
                     </label>
 
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" style="">
                         <input type="checkbox" id="symbol-2" class="market-checkbox" data-symbol="NVDA">
                         <span style="color: #c084fc">■</span> NVIDIA
                     </label>
 
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" style="">
                         <input type="checkbox" id="symbol-3" class="market-checkbox" data-symbol="MSFT">
                         <span style="color: #60a5fa">■</span> Microsoft
                     </label>
 
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" style="">
                         <input type="checkbox" id="symbol-4" class="market-checkbox" data-symbol="GOOGL">
                         <span style="color: #fbbf24">■</span> Alphabet
                     </label>
 
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" style="">
                         <input type="checkbox" id="symbol-5" class="market-checkbox" data-symbol="META">
                         <span style="color: #f87171">■</span> Meta
                     </label>
 
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" style="">
                         <input type="checkbox" id="symbol-6" class="market-checkbox" data-symbol="AMD">
                         <span style="color: #fb923c">■</span> AMD
                     </label>
 
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-7" class="market-checkbox" data-symbol="PLTR">
+                    <label class="checkbox-label" style=" opacity: 0.4;">
+                        <input type="checkbox" id="symbol-7" class="market-checkbox" data-symbol="PLTR" disabled>
                         <span style="color: #34d399">■</span> Palantir
                     </label>
 
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" style="">
                         <input type="checkbox" id="symbol-8" class="market-checkbox" data-symbol="BOTZ">
                         <span style="color: #a78bfa">■</span> AI/Robotics ETF
                     </label>
 
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="symbol-9" class="market-checkbox" data-symbol="AIQ">
+                    <label class="checkbox-label" style=" opacity: 0.4;">
+                        <input type="checkbox" id="symbol-9" class="market-checkbox" data-symbol="AIQ" disabled>
                         <span style="color: #f472b6">■</span> AI Analytics ETF
                     </label>
 
@@ -495,19 +495,58 @@
         </section>
 
         <section class="sentiment-box">
-            <h3>🎯 Prediction Insights</h3>
-            <div style="background: #1e293b; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">
-                    Analysis based on 3 days of historical data (last updated: 2025-11-13)
-                </p>
-                <div style="line-height: 1.8; color: #e2e8f0;">
-                    <p># AI Sentiment vs Market Performance Analysis</p><p>## 1. Pattern Recognition</p><p><strong>High-Impact Event Types:<strong><br>- <strong>Regulation events<strong> show the highest significance (avg 70.0) - both mixed (75.0) and negative (65.0) regulatory news create substantial market reactions<br>- <strong>Funding events<strong> demonstrate strong predictive value (avg 69.4 significance) across all sentiment types, with mixed funding news showing highest impact (74.0)<br>- <strong>Partnership announcements<strong> show high significance (72.0) when positive</p><p><strong>Low-Impact Event Types:<strong><br>- <strong>News events with neutral sentiment<strong> are least predictive (avg 20.0 significance)<br>- <strong>Product launches<strong> show minimal market impact when sentiment is neutral (15.0)<br>- <strong>Research developments<strong> have mixed reliability (15.0-45.0 range)</p><p>## 2. Sentiment Reliability</p><p><strong>Most Predictive Sentiment Types:<strong><br>1. <strong>Mixed sentiment<strong> (avg 65.3 significance) - indicates market uncertainty leading to higher volatility<br>2. <strong>Negative sentiment<strong> (avg 63.25 significance) - clear directional signal with strong market response<br>3. <strong>Positive sentiment<strong> (avg 59.7 significance) - generally reliable but varies by event type</p><p><strong>Least Predictive:<strong><br>- <strong>Neutral sentiment<strong> (avg 21.4 significance) - too ambiguous for reliable predictions</p><p><strong>Sentiment Strength Analysis:<strong><br>The recent predictions show neutral sentiment with strengths of 44.12 and 36.84, both correctly predicting minimal market movement (-0.26% and -0.25% NASDAQ). This suggests sentiment strength below 50 correlates with low market volatility.</p><p>## 3. Symbol Responsiveness</p><p><strong>Top Performers (3-day average):<strong><br>1. <strong>AMD (+3.61%)<strong> - Most responsive to AI sentiment, likely due to AI chip exposure<br>2. <strong>NVDA (+1.06%)<strong> - Consistent positive performance, strong AI correlation<br>3. <strong>GOOGL (+0.96%)<strong> - Moderate responsiveness to AI developments<br>4. <strong>MSFT (+0.95%)<strong> - Stable performer with AI exposure</p><p><strong>Underperformer:<strong><br>- <strong>META (-0.67%)<strong> - Negative performance despite AI investments, suggesting other factors dominating</p><p>## 4. Momentum Patterns</p><p>With only 2 days of prediction data showing consecutive neutral sentiment and flat market performance, there's evidence of <strong>continuation patterns<strong> in low-volatility environments. Both days showed similar sentiment strength (36-44 range) and nearly identical market responses (-0.25% to -0.26%).</p><p>## 5. Confidence Factors</p><p><strong>High Confidence (>70%):<strong><br>- Regulatory events with mixed/negative sentiment (significance >65)<br>- Funding announcements with any sentiment (significance >68)<br>- Sentiment strength <45 predicting neutral market movement<br>- AMD responsiveness to positive AI sentiment</p><p><strong>Medium Confidence (50-70%):<strong><br>- Positive sentiment on partnerships/product launches (significance 45-72)<br>- NVDA, GOOGL, MSFT performance predictions with clear sentiment direction<br>- Mixed sentiment events across all categories</p><p><strong>Low Confidence (<50%):<strong><br>- Neutral sentiment news events (significance ~20)<br>- META performance predictions (inconsistent with AI sentiment)<br>- Research developments (highly variable significance 15-45)<br>- Single-day reversal predictions without strong event catalysts</p><p>## 6. Recommendations</p><p>### Immediate Improvements:<br>1. <strong>Weight event types differently<strong> - Apply 2x multiplier to regulatory and funding events in prediction algorithms<br>2. <strong>Enhance sentiment strength thresholds<strong> - Use <45 strength for neutral predictions, >60 for strong directional calls<br>3. <strong>Symbol-specific models<strong> - Create separate confidence intervals for META given its disconnect from AI sentiment</p><p>### Data Collection Enhancements:<br>4. <strong>Expand tracking period<strong> - Current 2-day prediction history is insufficient; need minimum 20-30 days for reliable pattern analysis<br>5. <strong>Add volatility metrics<strong> - Track VIX or sector-specific volatility indices alongside sentiment<br>6. <strong>Incorporate trading volume<strong> - High sentiment with low volume may indicate false signals</p><p>### Algorithm Adjustments:<br>7. <strong>Multi-factor weighting<strong> - Combine event type significance with sentiment strength: `Prediction_Confidence = (Event_Significance × Sentiment_Strength) / 100`<br>8. <strong>Momentum indicators<strong> - Add 3-day moving averages for sentiment strength to identify trend continuations<br>9. <strong>Sector rotation analysis<strong> - Track whether AI sentiment affects broader tech sector or just AI-focused stocks</p><p>### Validation Framework:<br>10. <strong>Weekly accuracy reviews<strong> - Assess prediction accuracy by event type and sentiment combination<br>11. <strong>Benchmark against market<strong> - Compare AI sentiment predictions to simple technical indicators for baseline performance</p><p>The current 100% accuracy over 2 days is encouraging but statistically insignificant. Focus on building a larger dataset while implementing these refinements to create a more robust prediction framework.</p>
+            <h3>📊 Correlation Analysis</h3>
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -5px; margin-bottom: 20px;">
+                Analyzing correlation between general AI sector sentiment and individual stock performance<br>
+                Based on 3 days of historical data (updated 2025-11-13)
+            </p>
+
+            <!-- Card-based summary (default view) -->
+            <div id="insights-summary">
+                <!-- Executive Summary Card -->
+                <div style="background: #1e293b; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid #60a5fa;">
+                    <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px; font-weight: 600;">KEY FINDINGS</div>
+                    <div style="color: #e2e8f0; line-height: 1.7; font-size: 0.95rem;">
+                        Analysis of prediction accuracy patterns across historical data.
+                    </div>
                 </div>
+
+                <button id="insights-toggle" onclick="toggleInsights()"
+                        style="width: 100%; padding: 12px; background: #1e293b; color: #6ee7b7; border: 1px solid #6ee7b7; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s;">
+                    Show Detailed Analysis →
+                </button>
+            </div>
+
+            <!-- Full analysis view (hidden by default) -->
+            <div id="insights-full" style="display: none;">
+                <div style="background: #1e293b; padding: 25px; border-radius: 10px; border-left: 4px solid #c084fc;">
+                    <p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 10px;"># AI Sentiment vs Market Performance Analysis</p><div style="margin-top: 30px; padding-bottom: 10px; border-bottom: 2px solid #334155;"><span style="font-size: 1.2em; color: #6ee7b7; font-weight: 700;">1. Pattern Recognition</span></div><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">High-Impact Event Types:</p><ul style="margin-left: 20px; line-height: 1.8;"><li style="color: #e2e8f0; margin-bottom: 8px;"><strong>Regulation events<strong> show the highest significance (avg 70.0) - both mixed (75.0) and negative (65.0) regulatory news create substantial market reactions</strong></li><li style="color: #e2e8f0; margin-bottom: 8px;"><strong>Funding events<strong> demonstrate strong predictive value (avg 69.4 significance) across all sentiment types, with mixed funding news showing highest impact (74.0)</strong></li><li style="color: #e2e8f0; margin-bottom: 8px;"><strong>Partnership announcements<strong> show high significance (72.0) when positive</strong></li></ul><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">Low-Impact Event Types:</p><ul style="margin-left: 20px; line-height: 1.8;"><li style="color: #e2e8f0; margin-bottom: 8px;"><strong>News events with neutral sentiment<strong> are least predictive (avg 20.0 significance)</strong></li><li style="color: #e2e8f0; margin-bottom: 8px;"><strong>Product launches<strong> show minimal market impact when sentiment is neutral (15.0)</strong></li><li style="color: #e2e8f0; margin-bottom: 8px;"><strong>Research developments<strong> have mixed reliability (15.0-45.0 range)</strong></li></ul><div style="margin-top: 30px; padding-bottom: 10px; border-bottom: 2px solid #334155;"><span style="font-size: 1.2em; color: #6ee7b7; font-weight: 700;">2. Sentiment Reliability</span></div><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">Most Predictive Sentiment Types:</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Mixed sentiment</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Negative sentiment</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Positive sentiment</p><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">Least Predictive:</p><ul style="margin-left: 20px; line-height: 1.8;"><li style="color: #e2e8f0; margin-bottom: 8px;"><strong>Neutral sentiment<strong> (avg 21.4 significance) - too ambiguous for reliable predictions</strong></li></ul><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">Sentiment Strength Analysis:</p><p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 10px;">The recent predictions show neutral sentiment with strengths of 44.12 and 36.84, both correctly predicting minimal market movement (-0.26% and -0.25% NASDAQ). This suggests sentiment strength below 50 correlates with low market volatility.</p><div style="margin-top: 30px; padding-bottom: 10px; border-bottom: 2px solid #334155;"><span style="font-size: 1.2em; color: #6ee7b7; font-weight: 700;">3. Symbol Responsiveness</span></div><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">Top Performers (3-day average):</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">AMD (+3.61%)</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">NVDA (+1.06%)</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">GOOGL (+0.96%)</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">MSFT (+0.95%)</p><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">Underperformer:</p><ul style="margin-left: 20px; line-height: 1.8;"><li style="color: #e2e8f0; margin-bottom: 8px;"><strong>META (-0.67%)<strong> - Negative performance despite AI investments, suggesting other factors dominating</strong></li></ul><div style="margin-top: 30px; padding-bottom: 10px; border-bottom: 2px solid #334155;"><span style="font-size: 1.2em; color: #6ee7b7; font-weight: 700;">4. Momentum Patterns</span></div><p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 10px;">With only 2 days of prediction data showing consecutive neutral sentiment and flat market performance, there's evidence of <strong>continuation patterns<strong> in low-volatility environments. Both days showed similar sentiment strength (36-44 range) and nearly identical market responses (-0.25% to -0.26%).</strong></p><div style="margin-top: 30px; padding-bottom: 10px; border-bottom: 2px solid #334155;"><span style="font-size: 1.2em; color: #6ee7b7; font-weight: 700;">5. Confidence Factors</span></div><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">High Confidence (>70%):</p><ul style="margin-left: 20px; line-height: 1.8;"><li style="color: #e2e8f0; margin-bottom: 8px;">Regulatory events with mixed/negative sentiment (significance >65)</li><li style="color: #e2e8f0; margin-bottom: 8px;">Funding announcements with any sentiment (significance >68)</li><li style="color: #e2e8f0; margin-bottom: 8px;">Sentiment strength <45 predicting neutral market movement</li><li style="color: #e2e8f0; margin-bottom: 8px;">AMD responsiveness to positive AI sentiment</li></ul><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">Medium Confidence (50-70%):</p><ul style="margin-left: 20px; line-height: 1.8;"><li style="color: #e2e8f0; margin-bottom: 8px;">Positive sentiment on partnerships/product launches (significance 45-72)</li><li style="color: #e2e8f0; margin-bottom: 8px;">NVDA, GOOGL, MSFT performance predictions with clear sentiment direction</li><li style="color: #e2e8f0; margin-bottom: 8px;">Mixed sentiment events across all categories</li></ul><p style="margin-top: 15px; color: #fbbf24; font-weight: 600;">Low Confidence (<50%):</p><ul style="margin-left: 20px; line-height: 1.8;"><li style="color: #e2e8f0; margin-bottom: 8px;">Neutral sentiment news events (significance ~20)</li><li style="color: #e2e8f0; margin-bottom: 8px;">META performance predictions (inconsistent with AI sentiment)</li><li style="color: #e2e8f0; margin-bottom: 8px;">Research developments (highly variable significance 15-45)</li><li style="color: #e2e8f0; margin-bottom: 8px;">Single-day reversal predictions without strong event catalysts</li></ul><div style="margin-top: 30px; padding-bottom: 10px; border-bottom: 2px solid #334155;"><span style="font-size: 1.2em; color: #6ee7b7; font-weight: 700;">6. Recommendations</span></div><p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 10px;">### Immediate Improvements:</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Weight event types differently</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Enhance sentiment strength thresholds</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Symbol-specific models</p><p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 10px;">### Data Collection Enhancements:</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Expand tracking period</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Add volatility metrics</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Incorporate trading volume</p><p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 10px;">### Algorithm Adjustments:</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Multi-factor weighting</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Momentum indicators</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Sector rotation analysis</p><p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 10px;">### Validation Framework:</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Weekly accuracy reviews</p><p style="margin-top: 25px; font-size: 1.1em; color: #60a5fa; font-weight: 600;">Benchmark against market</p><p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 10px;">The current 100% accuracy over 2 days is encouraging but statistically insignificant. Focus on building a larger dataset while implementing these refinements to create a more robust prediction framework.</p>
+                </div>
+
+                <button onclick="toggleInsights()"
+                        style="width: 100%; padding: 12px; background: #1e293b; color: #6ee7b7; border: 1px solid #6ee7b7; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; margin-top: 15px; transition: all 0.2s;">
+                    ← Show Key Findings
+                </button>
             </div>
         </section>
 
-        <section class="events marginal-events">
-            <h2>🟡 Marginal Events</h2>
+        <script>
+        function toggleInsights() {
+            const summary = document.getElementById('insights-summary');
+            const full = document.getElementById('insights-full');
+
+            if (full.style.display === 'none') {
+                summary.style.display = 'none';
+                full.style.display = 'block';
+            } else {
+                summary.style.display = 'block';
+                full.style.display = 'none';
+            }
+        }
+        </script>
+
+        <section class="events background-events">
+            <h2>🔵 Background <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(general awareness)</span></h2>
 
             <article class="event-card-compact">
                 <div class="event-header-compact">
@@ -616,7 +655,7 @@
                     </div>
                 </div>
             </article>
-
+<div id="background-hidden-3" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">75.0</span>
@@ -652,7 +691,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-4" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">75.0</span>
@@ -688,7 +727,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-5" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">75.0</span>
@@ -724,7 +763,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-6" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">75.0</span>
@@ -760,7 +799,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-7" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">75.0</span>
@@ -796,7 +835,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-8" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">75.0</span>
@@ -832,7 +871,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-9" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">72.0</span>
@@ -868,7 +907,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-10" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">72.0</span>
@@ -904,7 +943,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-11" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">72.0</span>
@@ -940,7 +979,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-12" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">65.0</span>
@@ -976,7 +1015,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-13" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">65.0</span>
@@ -1012,7 +1051,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-14" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">65.0</span>
@@ -1048,7 +1087,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-15" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">65.0</span>
@@ -1084,7 +1123,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-16" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">65.0</span>
@@ -1120,7 +1159,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-17" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">62.0</span>
@@ -1156,7 +1195,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-18" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">45.0</span>
@@ -1192,7 +1231,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-19" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">45.0</span>
@@ -1228,7 +1267,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-20" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">45.0</span>
@@ -1264,7 +1303,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-21" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">45.0</span>
@@ -1300,7 +1339,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-22" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">45.0</span>
@@ -1336,7 +1375,7 @@
                     </div>
                 </div>
             </article>
-
+</div><div id="background-hidden-23" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <span class="score-compact">45.0</span>
@@ -1372,7 +1411,32 @@
                     </div>
                 </div>
             </article>
+</div>
+            <button onclick="toggleEventSection('background', 24)" id="background-toggle-btn"
+                    style="margin: 20px auto; display: block; padding: 8px 20px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
+                Show 21 More Events
+            </button>
         </section>
+
+        <script>
+        function toggleEventSection(section, totalCount) {
+            const button = document.getElementById(section + '-toggle-btn');
+            const isExpanded = button.textContent.includes('Show Less');
+
+            for (let i = 3; i < totalCount; i++) {
+                const elem = document.getElementById(section + '-hidden-' + i);
+                if (elem) {
+                    elem.style.display = isExpanded ? 'none' : 'block';
+                }
+            }
+
+            if (isExpanded) {
+                button.textContent = 'Show ' + (totalCount - 3) + ' More Events';
+            } else {
+                button.textContent = 'Show Less';
+            }
+        }
+        </script>
     </main>
 
     <footer>

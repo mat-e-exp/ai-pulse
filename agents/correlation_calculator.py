@@ -1,7 +1,8 @@
 """
 Calculate correlation between sentiment and market outcomes.
 
-Tracks prediction accuracy: Did morning sentiment match the market close?
+Tracks correlation: Does general AI sector sentiment align with market direction?
+Note: This analyzes correlation patterns, not predictive accuracy.
 """
 
 import sys
@@ -219,12 +220,12 @@ def calculate_correlation_range(days_back: int = 30, db_path: str = "ai_pulse.db
     total, correct, wrong, ambiguous = stats
 
     if total > 0:
-        accuracy = (correct / (correct + wrong)) * 100 if (correct + wrong) > 0 else 0
+        correlation_rate = (correct / (correct + wrong)) * 100 if (correct + wrong) > 0 else 0
         print(f"\nTotal days analyzed: {total}")
-        print(f"✅ Correct predictions: {correct}")
-        print(f"❌ Wrong predictions: {wrong}")
+        print(f"✅ Correlated (sentiment aligned with market): {correct}")
+        print(f"❌ Diverged (sentiment didn't align): {wrong}")
         print(f"⚠️ Ambiguous (mixed sentiment): {ambiguous}")
-        print(f"\nAccuracy: {accuracy:.1f}% ({correct}/{correct + wrong})")
+        print(f"\nCorrelation rate: {correlation_rate:.1f}% ({correct}/{correct + wrong})")
     else:
         print("\nNo correlation data available")
 

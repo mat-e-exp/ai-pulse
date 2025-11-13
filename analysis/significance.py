@@ -152,16 +152,20 @@ AFFECTED PARTIES:
 [List companies/sectors that benefit or are harmed]
 
 INVESTMENT RELEVANCE:
-[How actionable is this for traders? Material/Marginal/Noise]
+[Does this change investment thesis? Material/Notable/Background]
+
+- Material: Affects valuation models, competitive positioning, or strategic investment decisions
+- Notable: Worth tracking but doesn't fundamentally change investment thesis
+- Background: General sector awareness, no direct investment impact
 
 KEY CONTEXT:
 [Any historical comparisons or important context]
 
 Scoring guide:
-- 90-100: Major breakthrough, major funding, significant regulatory action
-- 70-89: Important product launch, notable strategic move
-- 50-69: Interesting development, moderate news value
-- 30-49: Minor news, limited impact
+- 90-100: Thesis-changing (major revenue announcements, key executive departures, major regulation)
+- 70-89: Notable strategic moves (important products, significant partnerships, competitive shifts)
+- 50-69: Interesting developments (competitive intelligence, market signals, technical advances)
+- 30-49: Background information (minor updates, opinion pieces, general news)
 - 0-29: Noise, low relevance
 
 Focus on investment implications for public AI stocks (NVDA, MSFT, GOOGL, META, AMD)
@@ -187,7 +191,7 @@ and broader AI sector trends."""
             'reasoning': '',
             'implications': '',
             'affected_parties': '',
-            'investment_relevance': 'Marginal',
+            'investment_relevance': 'Notable',
             'key_context': '',
             'full_analysis': analysis_text,
         }
