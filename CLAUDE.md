@@ -429,6 +429,26 @@ git push
 # Wait 1-2 minutes for GitHub Pages to rebuild
 ```
 
+## Git Commit Security - CRITICAL
+
+**NEVER commit files containing secrets or credentials:**
+- NEVER include `.env` files in `git add` commands
+- NEVER commit files with API keys (ANTHROPIC_API_KEY, NEWS_API_KEY, ALPHA_VANTAGE_API_KEY)
+- NEVER use `git add .` - always specify files explicitly
+- ALWAYS verify .gitignore is protecting sensitive files
+- Before any git commit, verify you are NOT adding:
+  - .env or *.env files
+  - ai_pulse.db (database with collected data)
+  - config files with credentials
+  - Any file containing API keys or tokens
+- If uncertain about a file, ASK the user before committing it
+
+**Safe files to commit:**
+- Python source code (*.py)
+- HTML/CSS/JS files (briefings/*.html, index.html, style.css)
+- Documentation (*.md, README)
+- Configuration templates (.env.example - without actual keys)
+
 ## Related Projects
 - None (standalone project)
 
