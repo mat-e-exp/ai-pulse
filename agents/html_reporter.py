@@ -400,6 +400,15 @@ class HTMLReporter:
                     scales: {{
                         y: {{
                             beginAtZero: false,  // Dynamic scaling
+                            afterDataLimits: function(axis) {{
+                                // Ensure minimum scale of ±1%
+                                const range = axis.max - axis.min;
+                                if (range < 2) {{
+                                    const center = (axis.max + axis.min) / 2;
+                                    axis.max = center + 1;
+                                    axis.min = center - 1;
+                                }}
+                            }},
                             ticks: {{
                                 color: '#94a3b8',
                                 callback: function(value) {{
