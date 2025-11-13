@@ -192,17 +192,29 @@ If no duplicates found, return:
             # Parse response
             response_text = response.content[0].text.strip()
 
-            # Extract JSON from response (handle markdown code blocks)
-            if "```json" in response_text:
-                json_start = response_text.find("```json") + 7
-                json_end = response_text.find("```", json_start)
-                response_text = response_text[json_start:json_end].strip()
-            elif "```" in response_text:
-                json_start = response_text.find("```") + 3
-                json_end = response_text.find("```", json_start)
-                response_text = response_text[json_start:json_end].strip()
+            # Extract JSON - find first { and last }
+            json_start = response_text.find('{')
+            json_end = response_text.rfind('}')
 
-            result = json.loads(response_text)
+            if json_start != -1 and json_end != -1 and json_end > json_start:
+                response_text = response_text[json_start:json_end+1]
+            else:
+                # Try markdown code blocks as fallback
+                if "```json" in response_text:
+                    json_start = response_text.find("```json") + 7
+                    json_end = response_text.find("```", json_start)
+                    response_text = response_text[json_start:json_end].strip()
+                elif "```" in response_text:
+                    json_start = response_text.find("```") + 3
+                    json_end = response_text.find("```", json_start)
+                    response_text = response_text[json_start:json_end].strip()
+
+            try:
+                result = json.loads(response_text)
+            except json.JSONDecodeError as e:
+                print(f"  ✗ Error parsing Claude response: {e}")
+                print(f"  Response was: {response_text[:200]}...")
+                return []
 
             duplicate_groups = result.get('duplicate_groups', [])
             reasoning = result.get('reasoning', 'no reasoning provided')
