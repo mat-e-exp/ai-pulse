@@ -310,6 +310,9 @@ class HTMLReporter:
             const marketData = {market_chart_data};
             const correlationData = {correlation_chart_data};
 
+            // Use same date range as sentiment chart (reuse labels from sentiment chart)
+            const marketLabels = labels;
+
             // Define symbol display order and colors
             const symbolConfig = [
                 {{symbol: '^IXIC', label: 'NASDAQ', color: '#6ee7b7'}},
@@ -322,6 +325,15 @@ class HTMLReporter:
                 {{symbol: 'BOTZ', label: 'AI/Robotics ETF', color: '#a78bfa'}}
             ];
 
+            // Map market data to full date range (align with sentiment chart dates)
+            const mapMarketData = (symbolDates, symbolChanges) => {{
+                const dataMap = {{}};
+                symbolDates.forEach((date, idx) => {{
+                    dataMap[date] = symbolChanges[idx];
+                }});
+                return marketLabels.map(label => dataMap[label] !== undefined ? dataMap[label] : null);
+            }};
+
             // Build datasets for each symbol
             const marketDatasets = symbolConfig.map(config => {{
                 const symbolData = marketData[config.symbol];
@@ -329,16 +341,14 @@ class HTMLReporter:
 
                 return {{
                     label: config.label,
-                    data: symbolData.changes,
+                    data: mapMarketData(symbolData.dates, symbolData.changes),
                     borderColor: config.color,
                     backgroundColor: 'transparent',
                     tension: 0.3,
-                    hidden: true  // All hidden by default
+                    hidden: true,  // All hidden by default
+                    spanGaps: true  // Connect across missing data points
                 }};
             }}).filter(d => d !== null);
-
-            // Use dates from marketData.dates
-            const marketLabels = marketData.dates || [];
 
             window.marketChart = new Chart(marketCtx, {{
                 type: 'line',
@@ -700,20 +710,10 @@ class HTMLReporter:
         return text[:max_len] + '...'
 
     def _get_market_data(self, days: int = 30) -> dict:
-        """Get market data for last N days, aligned by date"""
+        """Get market data for last N days, keeping dates with each symbol"""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-
-        # Get all unique dates
-        cursor.execute("""
-            SELECT DISTINCT date
-            FROM market_data
-            WHERE date >= date('now', '-' || ? || ' days')
-            ORDER BY date ASC
-        """, (days,))
-
-        all_dates = [row['date'] for row in cursor.fetchall()]
 
         # Get data for each symbol
         cursor.execute("""
@@ -726,26 +726,18 @@ class HTMLReporter:
         rows = cursor.fetchall()
         conn.close()
 
-        # Group by symbol with aligned dates
-        symbol_data_raw = {}
+        # Group by symbol, keeping dates
+        data = {}
         for row in rows:
             symbol = row['symbol']
-            if symbol not in symbol_data_raw:
-                symbol_data_raw[symbol] = {
+            if symbol not in data:
+                data[symbol] = {
                     'name': row['symbol_name'],
-                    'data_by_date': {}
+                    'dates': [],
+                    'changes': []
                 }
-            symbol_data_raw[symbol]['data_by_date'][row['date']] = round(row['change_pct'], 2)
-
-        # Build final structure with aligned dates (null for missing dates)
-        data = {
-            'dates': all_dates
-        }
-        for symbol, info in symbol_data_raw.items():
-            data[symbol] = {
-                'name': info['name'],
-                'changes': [info['data_by_date'].get(date) for date in all_dates]
-            }
+            data[symbol]['dates'].append(row['date'])
+            data[symbol]['changes'].append(round(row['change_pct'], 2))
 
         return data
 
