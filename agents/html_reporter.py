@@ -373,6 +373,7 @@ class HTMLReporter:
 
                 return {{
                     label: config.label,
+                    symbol: config.symbol,  // Store symbol for lookup
                     data: mapMarketData(symbolData.dates, symbolData.changes),
                     borderColor: config.color,
                     backgroundColor: 'transparent',
@@ -443,11 +444,8 @@ class HTMLReporter:
             document.querySelectorAll('.market-checkbox').forEach(checkbox => {{
                 checkbox.addEventListener('change', function() {{
                     const symbol = this.dataset.symbol;
-                    // Find dataset index by matching the symbol in the data
-                    const datasetIndex = window.marketChart.data.datasets.findIndex(ds => {{
-                        // Match by comparing dataset data with market data for this symbol
-                        return marketData[symbol] && ds.label === symbolConfig.find(c => c.symbol === symbol)?.label;
-                    }});
+                    // Find dataset by matching symbol directly
+                    const datasetIndex = window.marketChart.data.datasets.findIndex(ds => ds.symbol === symbol);
 
                     if (datasetIndex !== -1) {{
                         window.marketChart.data.datasets[datasetIndex].hidden = !this.checked;
@@ -463,9 +461,8 @@ class HTMLReporter:
                 checkbox.checked = checked;
 
                 const symbol = checkbox.dataset.symbol;
-                const datasetIndex = window.marketChart.data.datasets.findIndex(ds => {{
-                    return marketData[symbol] && ds.label === symbolConfig.find(c => c.symbol === symbol)?.label;
-                }});
+                // Find dataset by matching symbol directly
+                const datasetIndex = window.marketChart.data.datasets.findIndex(ds => ds.symbol === symbol);
 
                 if (datasetIndex !== -1) {{
                     window.marketChart.data.datasets[datasetIndex].hidden = !checked;
