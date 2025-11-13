@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from datetime import datetime, timedelta
 from storage.db import EventDatabase
 from models.events import Event
+import sqlite3
 
 
 class HTMLReporter:
@@ -21,6 +22,7 @@ class HTMLReporter:
     def __init__(self, db_path: str = "ai_pulse.db"):
         """Initialize reporter"""
         self.db = EventDatabase(db_path)
+        self.db_path = db_path
 
     def generate_briefing(self, days_back: int = 1, min_score: int = 40):
         """
@@ -79,6 +81,10 @@ class HTMLReporter:
         # Insert today at the beginning (most recent)
         full_history = [today_data] + sentiment_history
 
+        # Get market data and correlation data
+        market_data = self._get_market_data(days=30)
+        correlation_data = self._get_correlation_data(days=30)
+
         # Generate HTML
         html = self._generate_html(
             events=events,
@@ -86,13 +92,15 @@ class HTMLReporter:
             total_analyzed=total_analyzed,
             sentiment_counts=sentiment_counts,
             sentiment_history=full_history,
+            market_data=market_data,
+            correlation_data=correlation_data,
             days_back=days_back,
             min_score=min_score
         )
 
         return html, sentiment_counts
 
-    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, days_back, min_score) -> str:
+    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, market_data, correlation_data, days_back, min_score) -> str:
         """Generate HTML document"""
 
         now = datetime.utcnow()
@@ -101,6 +109,8 @@ class HTMLReporter:
 
         # Prepare chart data (reverse chronological order for chart)
         chart_data = self._prepare_chart_data(sentiment_history)
+        market_chart_data = self._prepare_market_data(market_data)
+        correlation_chart_data = self._prepare_correlation_data(correlation_data)
 
         # Group events by relevance
         material_events = [e for e in events if e.investment_relevance and 'material' in e.investment_relevance.lower()]
@@ -128,8 +138,9 @@ class HTMLReporter:
             }}
         }}
 
-        // Initialize chart when page loads
+        // Initialize charts when page loads
         window.addEventListener('DOMContentLoaded', function() {{
+            // Sentiment Chart
             const ctx = document.getElementById('sentimentChart').getContext('2d');
             const chartData = {chart_data};
 
@@ -259,7 +270,112 @@ class HTMLReporter:
                     }}
                 }}
             }});
+
+            // Market Performance Chart
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            const marketData = {market_chart_data};
+            const correlationData = {correlation_chart_data};
+
+            // Define symbol display order and colors
+            const symbolConfig = [
+                {{symbol: '^IXIC', label: 'NASDAQ', color: '#6ee7b7'}},
+                {{symbol: '^GSPC', label: 'S&P 500', color: '#94a3b8'}},
+                {{symbol: 'NVDA', label: 'NVIDIA', color: '#c084fc'}},
+                {{symbol: 'MSFT', label: 'Microsoft', color: '#60a5fa'}},
+                {{symbol: 'GOOGL', label: 'Alphabet', color: '#fbbf24'}},
+                {{symbol: 'META', label: 'Meta', color: '#f87171'}},
+                {{symbol: 'AMD', label: 'AMD', color: '#fb923c'}},
+                {{symbol: 'BOTZ', label: 'AI/Robotics ETF', color: '#a78bfa'}}
+            ];
+
+            // Build datasets for each symbol
+            const marketDatasets = symbolConfig.map(config => {{
+                const symbolData = marketData[config.symbol];
+                if (!symbolData) return null;
+
+                return {{
+                    label: config.label,
+                    data: symbolData.changes,
+                    borderColor: config.color,
+                    backgroundColor: 'transparent',
+                    tension: 0.3,
+                    hidden: false  // All visible by default
+                }};
+            }}).filter(d => d !== null);
+
+            // Use dates from first available symbol
+            let marketLabels = [];
+            for (const symbol in marketData) {{
+                if (marketData[symbol].dates.length > 0) {{
+                    marketLabels = marketData[symbol].dates;
+                    break;
+                }}
+            }}
+
+            window.marketChart = new Chart(marketCtx, {{
+                type: 'line',
+                data: {{
+                    labels: marketLabels,
+                    datasets: marketDatasets
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {{
+                        legend: {{
+                            display: false  // Using custom checkboxes instead
+                        }},
+                        tooltip: {{
+                            callbacks: {{
+                                label: function(context) {{
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
+                                }}
+                            }}
+                        }}
+                    }},
+                    scales: {{
+                        y: {{
+                            beginAtZero: false,  // Dynamic scaling
+                            ticks: {{
+                                color: '#94a3b8',
+                                callback: function(value) {{
+                                    return value.toFixed(1) + '%';
+                                }}
+                            }},
+                            grid: {{
+                                color: '#334155'
+                            }}
+                        }},
+                        x: {{
+                            ticks: {{
+                                color: '#94a3b8',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }},
+                            grid: {{
+                                color: '#334155'
+                            }}
+                        }}
+                    }}
+                }}
+            }});
+
+            // Checkbox toggle functionality
+            document.querySelectorAll('.market-checkbox').forEach(checkbox => {{
+                checkbox.addEventListener('change', function() {{
+                    const datasetIndex = parseInt(this.dataset.index);
+                    window.marketChart.data.datasets[datasetIndex].hidden = !this.checked;
+                    window.marketChart.update();
+                }});
+            }});
         }});
+
+        // Toggle visibility function for market checkboxes
+        function toggleMarketSymbol(index) {{
+            const checkbox = document.getElementById('symbol-' + index);
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event('change'));
+        }}
     </script>
 </head>
 <body>
@@ -306,6 +422,54 @@ class HTMLReporter:
             html += f'                    <li><span class="sentiment-{sentiment}">{sentiment}</span>: {count}</li>\n'
 
         html += """                </ul>
+            </div>
+        </section>
+
+        <section class="sentiment-box">
+            <h3>Market Performance (Last 30 Days)</h3>
+"""
+
+        # Add accuracy badge if we have correlation data
+        if correlation_data['total'] > 0:
+            html += f"""
+            <div class="accuracy-badge">
+                <span class="badge-label">Sentiment Prediction Accuracy (Last 30 days):</span>
+                <span class="badge-value">✅ {correlation_data['correct']}/{correlation_data['correct'] + correlation_data['wrong']} ({correlation_data['accuracy_pct']}%)</span>
+            </div>
+"""
+
+        html += """
+            <div class="chart-container">
+                <canvas id="marketChart"></canvas>
+            </div>
+
+            <div class="market-controls">
+                <h4>Select Indices & Stocks</h4>
+                <div class="checkbox-grid">
+"""
+
+        # Generate checkboxes for each symbol
+        symbol_labels = [
+            ('NASDAQ', '#6ee7b7'),
+            ('S&P 500', '#94a3b8'),
+            ('NVIDIA', '#c084fc'),
+            ('Microsoft', '#60a5fa'),
+            ('Alphabet', '#fbbf24'),
+            ('Meta', '#f87171'),
+            ('AMD', '#fb923c'),
+            ('AI/Robotics ETF', '#a78bfa')
+        ]
+
+        for idx, (label, color) in enumerate(symbol_labels):
+            html += f"""
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbol-{idx}" class="market-checkbox" data-index="{idx}" checked>
+                        <span style="color: {color}">■</span> {label}
+                    </label>
+"""
+
+        html += """
+                </div>
             </div>
         </section>
 """
@@ -465,6 +629,16 @@ class HTMLReporter:
 
         return json.dumps(chart_data)
 
+    def _prepare_market_data(self, market_data: dict) -> str:
+        """Prepare market data for Chart.js"""
+        import json
+        return json.dumps(market_data)
+
+    def _prepare_correlation_data(self, correlation_data: dict) -> str:
+        """Prepare correlation data for display"""
+        import json
+        return json.dumps(correlation_data)
+
     def _truncate(self, text: str, max_len: int) -> str:
         """Truncate text to max length"""
         if not text:
@@ -472,6 +646,80 @@ class HTMLReporter:
         if len(text) <= max_len:
             return text
         return text[:max_len] + '...'
+
+    def _get_market_data(self, days: int = 30) -> dict:
+        """Get market data for last N days"""
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT date, symbol, symbol_name, change_pct
+            FROM market_data
+            WHERE date >= date('now', '-' || ? || ' days')
+            ORDER BY date ASC
+        """, (days,))
+
+        rows = cursor.fetchall()
+        conn.close()
+
+        # Group by symbol
+        data = {}
+        for row in rows:
+            symbol = row['symbol']
+            if symbol not in data:
+                data[symbol] = {
+                    'name': row['symbol_name'],
+                    'dates': [],
+                    'changes': []
+                }
+            data[symbol]['dates'].append(row['date'])
+            data[symbol]['changes'].append(round(row['change_pct'], 2))
+
+        return data
+
+    def _get_correlation_data(self, days: int = 30) -> dict:
+        """Get sentiment-market correlation data"""
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT date, dominant_sentiment, market_outcome, prediction_correct
+            FROM daily_correlation
+            WHERE date >= date('now', '-' || ? || ' days')
+            ORDER BY date ASC
+        """, (days,))
+
+        rows = cursor.fetchall()
+        conn.close()
+
+        # Build accuracy stats
+        total = len(rows)
+        correct = sum(1 for r in rows if r['prediction_correct'] == 1)
+        wrong = sum(1 for r in rows if r['prediction_correct'] == 0)
+        ambiguous = sum(1 for r in rows if r['prediction_correct'] is None)
+
+        accuracy_pct = round((correct / (correct + wrong)) * 100) if (correct + wrong) > 0 else 0
+
+        # Build timeline data
+        timeline = []
+        for row in rows:
+            timeline.append({
+                'date': row['date'],
+                'sentiment': row['dominant_sentiment'],
+                'outcome': row['market_outcome'],
+                'correct': row['prediction_correct']
+            })
+
+        return {
+            'total': total,
+            'correct': correct,
+            'wrong': wrong,
+            'ambiguous': ambiguous,
+            'accuracy_pct': accuracy_pct,
+            'timeline': timeline
+        }
 
     def close(self):
         """Close database connection"""

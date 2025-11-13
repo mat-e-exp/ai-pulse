@@ -502,6 +502,63 @@ footer a:hover {
     text-decoration: underline;
 }
 
+/* Market Performance Section */
+.accuracy-badge {
+    background: rgba(110, 231, 183, 0.1);
+    border: 1px solid var(--success-color);
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.badge-label {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.badge-value {
+    color: var(--success-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.market-controls {
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.checkbox-label:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.checkbox-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -527,5 +584,9 @@ footer a:hover {
     .event-meta {
         flex-direction: column;
         gap: 10px;
+    }
+
+    .checkbox-grid {
+        grid-template-columns: 1fr;
     }
 }

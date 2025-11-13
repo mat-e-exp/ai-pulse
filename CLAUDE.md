@@ -17,6 +17,7 @@ Investment decisions depend on this data being correct.
 - ✅ **Phase 2 Complete**: Agentic significance analysis with Claude API
 - ✅ **Phase 2.5 Complete**: Web publishing with sentiment tracking and deduplication (2025-11-12)
 - ✅ **Phase 2.6 Complete**: Semantic deduplication with Claude for accurate sentiment (2025-11-12)
+- 🚧 **Phase 2.7 In Progress**: Market correlation tracking (2025-11-13) - code complete, needs HTML visualization
 
 ## Project Vision
 

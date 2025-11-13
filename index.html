@@ -19,8 +19,9 @@
             }
         }
 
-        // Initialize chart when page loads
+        // Initialize charts when page loads
         window.addEventListener('DOMContentLoaded', function() {
+            // Sentiment Chart
             const ctx = document.getElementById('sentimentChart').getContext('2d');
             const chartData = {"dates": ["2025-11-11", "2025-11-12", "2025-11-13"], "positive": [35.1, 17.6, 19.7], "negative": [10.5, 14.7, 14.5], "neutral": [36.8, 44.1, 40.8], "mixed": [17.5, 23.5, 25.0], "totals": [57, 34, 76]};
 
@@ -150,7 +151,112 @@
                     }
                 }
             });
+
+            // Market Performance Chart
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            const marketData = {};
+            const correlationData = {"total": 0, "correct": 0, "wrong": 0, "ambiguous": 0, "accuracy_pct": 0, "timeline": []};
+
+            // Define symbol display order and colors
+            const symbolConfig = [
+                {symbol: '^IXIC', label: 'NASDAQ', color: '#6ee7b7'},
+                {symbol: '^GSPC', label: 'S&P 500', color: '#94a3b8'},
+                {symbol: 'NVDA', label: 'NVIDIA', color: '#c084fc'},
+                {symbol: 'MSFT', label: 'Microsoft', color: '#60a5fa'},
+                {symbol: 'GOOGL', label: 'Alphabet', color: '#fbbf24'},
+                {symbol: 'META', label: 'Meta', color: '#f87171'},
+                {symbol: 'AMD', label: 'AMD', color: '#fb923c'},
+                {symbol: 'BOTZ', label: 'AI/Robotics ETF', color: '#a78bfa'}
+            ];
+
+            // Build datasets for each symbol
+            const marketDatasets = symbolConfig.map(config => {
+                const symbolData = marketData[config.symbol];
+                if (!symbolData) return null;
+
+                return {
+                    label: config.label,
+                    data: symbolData.changes,
+                    borderColor: config.color,
+                    backgroundColor: 'transparent',
+                    tension: 0.3,
+                    hidden: false  // All visible by default
+                };
+            }).filter(d => d !== null);
+
+            // Use dates from first available symbol
+            let marketLabels = [];
+            for (const symbol in marketData) {
+                if (marketData[symbol].dates.length > 0) {
+                    marketLabels = marketData[symbol].dates;
+                    break;
+                }
+            }
+
+            window.marketChart = new Chart(marketCtx, {
+                type: 'line',
+                data: {
+                    labels: marketLabels,
+                    datasets: marketDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false  // Using custom checkboxes instead
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,  // Dynamic scaling
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            },
+                            grid: {
+                                color: '#334155'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94a3b8',
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            grid: {
+                                color: '#334155'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Checkbox toggle functionality
+            document.querySelectorAll('.market-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const datasetIndex = parseInt(this.dataset.index);
+                    window.marketChart.data.datasets[datasetIndex].hidden = !this.checked;
+                    window.marketChart.update();
+                });
+            });
         });
+
+        // Toggle visibility function for market checkboxes
+        function toggleMarketSymbol(index) {
+            const checkbox = document.getElementById('symbol-' + index);
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event('change'));
+        }
     </script>
 </head>
 <body>
@@ -172,7 +278,7 @@
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-13 06:36 UTC</p>
+            <p class="date">2025-11-13 07:02 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -196,6 +302,61 @@
                     <li><span class="sentiment-positive">positive</span>: 15</li>
                     <li><span class="sentiment-negative">negative</span>: 11</li>
                 </ul>
+            </div>
+        </section>
+
+        <section class="sentiment-box">
+            <h3>Market Performance (Last 30 Days)</h3>
+
+            <div class="chart-container">
+                <canvas id="marketChart"></canvas>
+            </div>
+
+            <div class="market-controls">
+                <h4>Select Indices & Stocks</h4>
+                <div class="checkbox-grid">
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbol-0" class="market-checkbox" data-index="0" checked>
+                        <span style="color: #6ee7b7">■</span> NASDAQ
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbol-1" class="market-checkbox" data-index="1" checked>
+                        <span style="color: #94a3b8">■</span> S&P 500
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbol-2" class="market-checkbox" data-index="2" checked>
+                        <span style="color: #c084fc">■</span> NVIDIA
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbol-3" class="market-checkbox" data-index="3" checked>
+                        <span style="color: #60a5fa">■</span> Microsoft
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbol-4" class="market-checkbox" data-index="4" checked>
+                        <span style="color: #fbbf24">■</span> Alphabet
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbol-5" class="market-checkbox" data-index="5" checked>
+                        <span style="color: #f87171">■</span> Meta
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbol-6" class="market-checkbox" data-index="6" checked>
+                        <span style="color: #fb923c">■</span> AMD
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbol-7" class="market-checkbox" data-index="7" checked>
+                        <span style="color: #a78bfa">■</span> AI/Robotics ETF
+                    </label>
+
+                </div>
             </div>
         </section>
 
