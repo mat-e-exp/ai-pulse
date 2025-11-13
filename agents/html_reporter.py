@@ -514,18 +514,6 @@ class HTMLReporter:
 
         <section class="sentiment-box">
             <h3>Market Performance (Last 30 Days)</h3>
-"""
-
-        # Add accuracy badge if we have correlation data
-        if correlation_data['total'] > 0:
-            html += f"""
-            <div class="accuracy-badge">
-                <span class="badge-label">Sentiment Prediction Accuracy (Last 30 days):</span>
-                <span class="badge-value">✅ {correlation_data['correct']}/{correlation_data['correct'] + correlation_data['wrong']} ({correlation_data['accuracy_pct']}%)</span>
-            </div>
-"""
-
-        html += """
             <div class="chart-container">
                 <canvas id="marketChart"></canvas>
             </div>
