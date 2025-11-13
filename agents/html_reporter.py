@@ -224,10 +224,20 @@ class HTMLReporter:
                 options: {{
                     responsive: true,
                     maintainAspectRatio: false,
-                    onHover: function(event, activeElements) {{
-                        if (activeElements.length > 0) {{
-                            const index = activeElements[0].index;
-                            updateSentimentBreakdown(index, labels[index], positiveData[index], negativeData[index], neutralData[index], mixedData[index], totalData[index]);
+                    interaction: {{
+                        mode: 'index',  // Trigger on x-axis position
+                        intersect: false  // Don't require hovering directly on points
+                    }},
+                    onHover: function(event, activeElements, chart) {{
+                        // Get the x-position and find the nearest date index
+                        const canvasPosition = Chart.helpers.getRelativePosition(event, chart);
+                        const dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+
+                        if (dataX !== null && dataX >= 0 && dataX < labels.length) {{
+                            const index = Math.round(dataX);
+                            if (index >= 0 && index < labels.length) {{
+                                updateSentimentBreakdown(index, labels[index], positiveData[index], negativeData[index], neutralData[index], mixedData[index], totalData[index]);
+                            }}
                         }}
                     }},
                     plugins: {{
@@ -280,22 +290,38 @@ class HTMLReporter:
             // Function to update sentiment breakdown display
             function updateSentimentBreakdown(index, date, positive, negative, neutral, mixed, total) {{
                 document.getElementById('breakdown-date').textContent = date;
-                document.getElementById('breakdown-positive-pct').textContent = (positive || 0).toFixed(1) + '%';
-                document.getElementById('breakdown-negative-pct').textContent = (negative || 0).toFixed(1) + '%';
-                document.getElementById('breakdown-neutral-pct').textContent = (neutral || 0).toFixed(1) + '%';
-                document.getElementById('breakdown-mixed-pct').textContent = (mixed || 0).toFixed(1) + '%';
 
-                // Calculate actual counts from percentages
-                const posCount = total > 0 ? Math.round(positive * total / 100) : 0;
-                const negCount = total > 0 ? Math.round(negative * total / 100) : 0;
-                const neuCount = total > 0 ? Math.round(neutral * total / 100) : 0;
-                const mixCount = total > 0 ? Math.round(mixed * total / 100) : 0;
+                // Check if we have data for this date
+                if (!total || total === 0 || positive === null) {{
+                    // No data - show placeholders
+                    document.getElementById('breakdown-positive-pct').textContent = '-';
+                    document.getElementById('breakdown-negative-pct').textContent = '-';
+                    document.getElementById('breakdown-neutral-pct').textContent = '-';
+                    document.getElementById('breakdown-mixed-pct').textContent = '-';
+                    document.getElementById('breakdown-positive-count').textContent = '-';
+                    document.getElementById('breakdown-negative-count').textContent = '-';
+                    document.getElementById('breakdown-neutral-count').textContent = '-';
+                    document.getElementById('breakdown-mixed-count').textContent = '-';
+                    document.getElementById('breakdown-total').textContent = '-';
+                }} else {{
+                    // Has data - show actual values
+                    document.getElementById('breakdown-positive-pct').textContent = (positive || 0).toFixed(1) + '%';
+                    document.getElementById('breakdown-negative-pct').textContent = (negative || 0).toFixed(1) + '%';
+                    document.getElementById('breakdown-neutral-pct').textContent = (neutral || 0).toFixed(1) + '%';
+                    document.getElementById('breakdown-mixed-pct').textContent = (mixed || 0).toFixed(1) + '%';
 
-                document.getElementById('breakdown-positive-count').textContent = posCount;
-                document.getElementById('breakdown-negative-count').textContent = negCount;
-                document.getElementById('breakdown-neutral-count').textContent = neuCount;
-                document.getElementById('breakdown-mixed-count').textContent = mixCount;
-                document.getElementById('breakdown-total').textContent = total || 0;
+                    // Calculate actual counts from percentages
+                    const posCount = total > 0 ? Math.round(positive * total / 100) : 0;
+                    const negCount = total > 0 ? Math.round(negative * total / 100) : 0;
+                    const neuCount = total > 0 ? Math.round(neutral * total / 100) : 0;
+                    const mixCount = total > 0 ? Math.round(mixed * total / 100) : 0;
+
+                    document.getElementById('breakdown-positive-count').textContent = posCount;
+                    document.getElementById('breakdown-negative-count').textContent = negCount;
+                    document.getElementById('breakdown-neutral-count').textContent = neuCount;
+                    document.getElementById('breakdown-mixed-count').textContent = mixCount;
+                    document.getElementById('breakdown-total').textContent = total || 0;
+                }}
 
                 // Highlight the breakdown section
                 const breakdownSection = document.getElementById('sentiment-breakdown');
@@ -456,30 +482,29 @@ class HTMLReporter:
                 <ul class="sentiment-list">
 """
 
-        # Calculate initial percentages for display
-        total_events = sum(sentiment_counts.values()) if sentiment_counts.values() else 1
-        html += f"""                    <li>
+        # Show blank/placeholder state by default
+        html += """                    <li>
                         <span class="sentiment-positive">positive</span>:
-                        <span id="breakdown-positive-pct">{(sentiment_counts.get('positive', 0) / total_events * 100):.1f}%</span>
-                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-positive-count">{sentiment_counts.get('positive', 0)}</span> events)</span>
+                        <span id="breakdown-positive-pct">-</span>
+                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-positive-count">-</span> events)</span>
                     </li>
                     <li>
                         <span class="sentiment-negative">negative</span>:
-                        <span id="breakdown-negative-pct">{(sentiment_counts.get('negative', 0) / total_events * 100):.1f}%</span>
-                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-negative-count">{sentiment_counts.get('negative', 0)}</span> events)</span>
+                        <span id="breakdown-negative-pct">-</span>
+                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-negative-count">-</span> events)</span>
                     </li>
                     <li>
                         <span class="sentiment-neutral">neutral</span>:
-                        <span id="breakdown-neutral-pct">{(sentiment_counts.get('neutral', 0) / total_events * 100):.1f}%</span>
-                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-neutral-count">{sentiment_counts.get('neutral', 0)}</span> events)</span>
+                        <span id="breakdown-neutral-pct">-</span>
+                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-neutral-count">-</span> events)</span>
                     </li>
                     <li>
                         <span class="sentiment-mixed">mixed</span>:
-                        <span id="breakdown-mixed-pct">{(sentiment_counts.get('mixed', 0) / total_events * 100):.1f}%</span>
-                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-mixed-count">{sentiment_counts.get('mixed', 0)}</span> events)</span>
+                        <span id="breakdown-mixed-pct">-</span>
+                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-mixed-count">-</span> events)</span>
                     </li>
                     <li style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155;">
-                        <strong>Total:</strong> <span id="breakdown-total">{sum(sentiment_counts.values())}</span> events analyzed
+                        <strong>Total:</strong> <span id="breakdown-total">-</span> events analyzed
                     </li>
 """
 
