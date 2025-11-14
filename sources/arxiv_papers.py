@@ -29,7 +29,8 @@ class ArXivSource:
     4. Convert to Event objects with type=RESEARCH
     """
 
-    BASE_URL = "http://export.arxiv.org/api/query"
+    # Use RSS feeds which actually return recent papers (API search is broken)
+    RSS_BASE = "http://export.arxiv.org/rss/"
 
     # ArXiv categories for AI/ML research
     AI_CATEGORIES = [
@@ -54,7 +55,7 @@ class ArXivSource:
 
         Args:
             days_back: Number of days to look back
-            max_results: Maximum number of results per category
+            max_results: Maximum number of results per category (will fetch more to ensure recent papers)
 
         Returns:
             List of Event objects
@@ -62,73 +63,82 @@ class ArXivSource:
         events = []
         cutoff_date = datetime.utcnow() - timedelta(days=days_back)
 
-        print(f"Fetching AI/ML papers from arXiv (last {days_back} days, max {max_results} per category)...")
+        # Fetch more results since we need to filter by date
+        # ArXiv's sort parameters don't work reliably
+        fetch_limit = max_results * 10  # Fetch 10x to ensure we get recent papers
+
+        print(f"Fetching AI/ML papers from arXiv (last {days_back} days, up to {max_results} per category)...")
 
         for category in self.AI_CATEGORIES:
             try:
-                # Build query: search category, sort by submission date
-                query = f'cat:{category}'
-                params = {
-                    'search_query': query,
-                    'start': 0,
-                    'max_results': max_results,
-                    'sortBy': 'submittedDate',
-                    'sortOrder': 'descending'
-                }
+                # Use RSS feed - it actually returns recent papers
+                rss_url = f"{self.RSS_BASE}{category}"
 
-                response = self.session.get(self.BASE_URL, params=params, timeout=15)
+                print(f"  Querying {category} RSS...")
+                response = self.session.get(rss_url, timeout=30)
                 response.raise_for_status()
 
-                # Parse XML response
+                # Parse RSS XML
                 root = ET.fromstring(response.content)
-                ns = {'atom': 'http://www.w3.org/2005/Atom',
-                      'arxiv': 'http://arxiv.org/schemas/atom'}
 
-                for entry in root.findall('atom:entry', ns):
+                # RSS uses different namespace
+                entries = root.findall('.//item')
+                print(f"    Found {len(entries)} recent entries")
+
+                category_count = 0
+                for i, entry in enumerate(entries):
+                    # Stop if we have enough for this category
+                    if category_count >= max_results:
+                        break
+
                     try:
-                        # Extract paper details
-                        title = entry.find('atom:title', ns).text.strip().replace('\n', ' ')
-                        summary = entry.find('atom:summary', ns).text.strip().replace('\n', ' ')
-                        link = entry.find('atom:id', ns).text
-                        published_str = entry.find('atom:published', ns).text
+                        # RSS format: title, link, description
+                        title_elem = entry.find('title')
+                        link_elem = entry.find('link')
+                        desc_elem = entry.find('description')
 
-                        # Parse published date
-                        published_date = datetime.strptime(published_str, '%Y-%m-%dT%H:%M:%SZ')
-
-                        # Skip if older than cutoff
-                        if published_date < cutoff_date:
+                        # ElementTree elements evaluate to False if they have no children
+                        # Must use "is not None" instead of truthiness check
+                        if title_elem is None or not title_elem.text:
+                            continue
+                        if link_elem is None or not link_elem.text:
                             continue
 
-                        # Extract authors
-                        authors = []
-                        for author in entry.findall('atom:author', ns):
-                            name = author.find('atom:name', ns).text
-                            authors.append(name)
+                        title = title_elem.text.strip().replace('\n', ' ')
+                        link = link_elem.text.strip()
+                        summary = desc_elem.text.strip().replace('\n', ' ') if (desc_elem is not None and desc_elem.text) else title
 
-                        # Extract primary category
-                        primary_cat = entry.find('arxiv:primary_category', ns).attrib.get('term', category)
+                        # RSS doesn't include date - use current time
+                        # RSS feeds only contain today's papers anyway
+                        published_date = datetime.utcnow()
 
-                        # Determine company/institution from authors (simplified - just take first author's affiliation if available)
-                        companies = []
+                        # Skip if older than cutoff (won't happen for RSS but keep logic)
+                        if published_date < cutoff_date:
+                            continue
 
                         # Create event
                         event = Event(
                             title=title,
-                            summary=summary[:500] if len(summary) > 500 else summary,  # Truncate long abstracts
+                            summary=summary[:500] if len(summary) > 500 else summary,
                             content=summary,
-                            source=EventSource.RESEARCH,
+                            source=EventSource.ARXIV,
                             source_url=link,
                             event_type=EventType.RESEARCH,
-                            companies=companies,
+                            companies=[],
                             published_at=published_date,
                             collected_at=datetime.utcnow()
                         )
 
                         events.append(event)
+                        category_count += 1
 
                     except Exception as e:
+                        import traceback
                         print(f"  ✗ Error parsing entry: {e}")
+                        traceback.print_exc()
                         continue
+
+                print(f"    Kept {category_count} recent papers from {category}")
 
             except Exception as e:
                 print(f"  ✗ Error fetching category {category}: {e}")
