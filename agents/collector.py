@@ -20,6 +20,7 @@ from sources.newsapi import NewsAPISource
 from sources.sec_edgar import SECEdgarSource
 from sources.github_trending import GitHubTrendingSource
 from sources.company_ir import CompanyIRSource
+from sources.arxiv_papers import ArXivSource
 from storage.db import EventDatabase
 from models.events import Event
 from difflib import SequenceMatcher
@@ -41,11 +42,11 @@ class DataCollector:
     - SEC EDGAR (always enabled, no API key)
     - GitHub Trending (always enabled, no API key)
     - Company IR RSS (always enabled, no API key)
+    - ArXiv (always enabled, no API key)
 
     Future sources:
     - Twitter/X
     - Reddit
-    - ArXiv
     """
 
     def __init__(self, db_path: str = "ai_pulse.db"):

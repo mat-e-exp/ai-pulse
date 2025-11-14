@@ -1,11 +1,12 @@
 """
-Market data collector with fallback sources.
+Market data collector with three-tier fallback sources.
 
 Collects end-of-day market data for indices and AI stocks to correlate
 with sentiment analysis.
 
 Primary: Yahoo Finance (free, unlimited, fast)
-Fallback: Alpha Vantage (500 calls/day, reliable when Yahoo is rate limited)
+Fallback 1: Alpha Vantage (500 calls/day, stocks/ETFs only)
+Fallback 2: Twelve Data (800 calls/day, includes indices)
 """
 
 import sys
@@ -119,6 +120,86 @@ def fetch_alpha_vantage_daily(symbol: str, date_str: str, api_key: str) -> dict:
         return None
 
 
+def fetch_twelve_data_daily(symbol: str, date_str: str, api_key: str) -> dict:
+    """
+    Fetch daily OHLCV data from Twelve Data for a specific date.
+
+    Args:
+        symbol: Stock/index symbol (e.g., 'NVDA', 'IXIC')
+        date_str: Date in YYYY-MM-DD format
+        api_key: Twelve Data API key
+
+    Returns:
+        Dictionary with 'open', 'close', 'high', 'low', 'volume', 'change_pct' or None if failed
+    """
+    # Twelve Data uses different format for indices
+    td_symbol = symbol.replace('^', '')
+
+    # Format date for API (needs end date +1 day to include target date)
+    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+    start_date = (date_obj - timedelta(days=7)).strftime('%Y-%m-%d')
+    end_date = (date_obj + timedelta(days=1)).strftime('%Y-%m-%d')
+
+    url = f'https://api.twelvedata.com/time_series?symbol={td_symbol}&interval=1day&start_date={start_date}&end_date={end_date}&apikey={api_key}'
+
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        # Check for errors
+        if 'status' in data and data['status'] == 'error':
+            return None
+        if 'code' in data and data['code'] == 429:  # Rate limit
+            print(f"  ⚠️ Twelve Data rate limit hit")
+            return None
+
+        # Extract time series
+        values = data.get('values', [])
+        if not values:
+            return None
+
+        # Find target date
+        target_data = None
+        prev_data = None
+        for i, day in enumerate(values):
+            if day['datetime'] == date_str:
+                target_data = day
+                if i < len(values) - 1:
+                    prev_data = values[i + 1]
+                break
+
+        if not target_data:
+            return None
+
+        open_price = float(target_data['open'])
+        close_price = float(target_data['close'])
+        high_price = float(target_data['high'])
+        low_price = float(target_data['low'])
+        volume = int(target_data['volume'])
+
+        # Calculate change from previous close
+        if prev_data:
+            prev_close = float(prev_data['close'])
+            change_pct = ((close_price - prev_close) / prev_close) * 100
+        else:
+            # Fallback: use open to close
+            change_pct = ((close_price - open_price) / open_price) * 100
+
+        return {
+            'open': open_price,
+            'close': close_price,
+            'high': high_price,
+            'low': low_price,
+            'volume': volume,
+            'change_pct': change_pct
+        }
+
+    except Exception as e:
+        print(f"  ✗ Twelve Data error for {symbol}: {e}")
+        return None
+
+
 def ensure_market_table(db_path: str):
     """Create market_data table if it doesn't exist"""
     conn = sqlite3.connect(db_path)
@@ -221,6 +302,7 @@ def collect_market_data(date_str: str, db_path: str = "ai_pulse.db"):
 
         collected = 0
         errors = 0
+        failed_indices = []  # Track indices that Alpha Vantage can't handle
 
         for idx, (symbol, name) in enumerate(all_symbols.items()):
             # Rate limiting: Alpha Vantage allows 5 calls/min
@@ -241,14 +323,39 @@ def collect_market_data(date_str: str, db_path: str = "ai_pulse.db"):
                 print(f"  ✓ {symbol}: ${av_data['close']:.2f} ({av_data['change_pct']:+.2f}%)")
                 collected += 1
             else:
+                # Alpha Vantage free tier doesn't support indices
+                if symbol.startswith('^'):
+                    failed_indices.append((symbol, name))
                 print(f"  ✗ {symbol}: No data available")
                 errors += 1
+
+        # Try Twelve Data for failed indices (supports indices unlike Alpha Vantage)
+        if failed_indices:
+            td_api_key = os.getenv('TWELVE_DATA_API_KEY')
+            if td_api_key:
+                print(f"\n  Trying Twelve Data for {len(failed_indices)} indices...")
+                for symbol, name in failed_indices:
+                    td_data = fetch_twelve_data_daily(symbol, date_str, td_api_key)
+
+                    if td_data:
+                        cursor.execute("""
+                            INSERT OR REPLACE INTO market_data
+                            (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """, (date_str, symbol, name, td_data['open'], td_data['close'],
+                              td_data['high'], td_data['low'], td_data['volume'], td_data['change_pct']))
+
+                        print(f"  ✓ {symbol}: ${td_data['close']:.2f} ({td_data['change_pct']:+.2f}%)")
+                        collected += 1
+                        errors -= 1
+                    else:
+                        print(f"  ✗ {symbol}: No data available from Twelve Data")
 
         conn.commit()
         conn.close()
 
         print("\n" + "=" * 80)
-        print(f"COMPLETE (Alpha Vantage): {collected} symbols collected, {errors} errors")
+        print(f"COMPLETE (Fallback): {collected} symbols collected, {errors} errors")
         print("=" * 80)
         return
 
