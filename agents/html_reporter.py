@@ -662,9 +662,10 @@ class HTMLReporter:
 
             html += f"""
         <section class="sentiment-box">
-            <h3>📊 Correlation Analysis</h3>
+            <h3>📊 Predictive Correlation Analysis</h3>
             <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -5px; margin-bottom: 20px;">
-                Analyzing correlation between general AI sector sentiment and individual stock performance<br>
+                Analyzing if overnight AI sector sentiment predicts same-day market performance<br>
+                <strong>Workflow:</strong> Overnight news (previous close 9pm GMT → 1pm GMT analysis) → Today's market movement (2:30pm-9pm GMT)<br>
                 Based on {insights['days']} days of historical data (updated {insights['date']})
             </p>
 

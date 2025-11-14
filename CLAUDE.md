@@ -215,14 +215,36 @@ python3.9 cost_tracking/tracker.py --set-budget 50.0
 
 ## How It Works
 
+### Predictive Model - Overnight News → Same-Day Market (Model B)
+
+**Goal**: Use overnight AI sector sentiment to predict same-day US market performance.
+
+**Workflow Timing (UK Time)**:
+1. **9pm GMT (previous day)**: US market closes
+2. **1pm GMT (today)**: Run analysis workflow
+   - Collect overnight news (published from previous 9pm → now)
+   - Deduplicate and analyze sentiment
+   - Generate briefing with sentiment analysis
+3. **2:30pm GMT**: US market opens
+4. **9pm GMT**: US market closes
+5. **After 9pm GMT**: Collect today's market data
+6. **Correlation**: Compare overnight sentiment → today's market movement
+
+**Question answered**: "Does overnight AI news sentiment predict same-day market behavior?"
+
 ### Daily Workflow (Manual - For Accurate Sentiment)
-1. **Collect Data**: `python3.9 agents/collector.py` fetches from 5 sources with string deduplication
+1. **Collect Data**: `python3.9 agents/collector.py` fetches from 6 sources with string deduplication
 2. **Semantic Dedup**: `python3.9 agents/semantic_deduplicator.py` uses Claude to catch semantic duplicates
 3. **Analyze Events**: `python3.9 agents/analyzer.py` uses Claude to score significance and sentiment (skips duplicates)
-4. **Publish Briefing**: `python3.9 publish_briefing.py` generates HTML, updates index.html, saves sentiment history
-5. **Push to Git**: `git add . && git commit && git push` publishes to GitHub Pages
+4. **Collect Market Data**: `python3.9 agents/market_collector.py` (after 9pm GMT, after US market close)
+5. **Publish Briefing**: `python3.9 publish_briefing.py` generates HTML, updates index.html, saves sentiment history
+6. **Push to Git**: `git add . && git commit && git push` publishes to GitHub Pages
 
-**Critical**: Step 2 (semantic dedup) must run BEFORE step 3 (analysis) for trustworthy sentiment data.
+**Critical Notes**:
+- Step 2 (semantic dedup) must run BEFORE step 3 (analysis) for trustworthy sentiment data
+- Run steps 1-3 at 1pm GMT to capture overnight news
+- Run step 4 after 9pm GMT when market closes
+- Step 5 correlates overnight sentiment with same-day market performance
 
 ### Web Publishing System
 

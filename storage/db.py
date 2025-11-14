@@ -171,9 +171,15 @@ class EventDatabase:
         Uses published_at instead of collected_at to ensure events are dated
         by when they were published, not when they were fetched.
 
+        For predictive model (Model B):
+        - Run at 1pm GMT: Captures overnight news (previous 9pm → now)
+        - Compare with today's market close (collected later at 9pm GMT)
+        - Question: "Does overnight news predict today's market movement?"
+
         Args:
             limit: Maximum number of events to return
             hours: Only return events published in last N hours
+                   Default 24 captures overnight window when run at 1pm GMT
 
         Returns:
             List of Event objects
