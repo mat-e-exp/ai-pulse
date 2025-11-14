@@ -20,6 +20,7 @@ import sqlite3
 import os
 import time
 import requests
+import json
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -45,6 +46,92 @@ SYMBOLS = {
         'AIQ': 'AI Analytics ETF',
     }
 }
+
+
+def fetch_yahoo_direct(symbol: str, date_str: str) -> dict:
+    """
+    Fetch daily data directly from Yahoo API (bypasses yfinance rate limit).
+
+    Uses query2.finance.yahoo.com with browser-like headers to avoid rate limiting.
+
+    Args:
+        symbol: Stock/index symbol (e.g., 'NVDA', '^IXIC')
+        date_str: Date in YYYY-MM-DD format
+
+    Returns:
+        Dictionary with 'open', 'close', 'high', 'low', 'volume', 'change_pct' or None if failed
+    """
+    try:
+        # URL encode the symbol (^ becomes %5E)
+        import urllib.parse
+        encoded_symbol = urllib.parse.quote(symbol)
+
+        url = f'https://query2.finance.yahoo.com/v8/finance/chart/{encoded_symbol}?range=10d&interval=1d'
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Accept-Language': 'en-US,en;q=0.9',
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        data = response.json()
+
+        if 'chart' not in data or 'result' not in data['chart'] or not data['chart']['result']:
+            return None
+
+        result = data['chart']['result'][0]
+        timestamps = result['timestamp']
+        quotes = result['indicators']['quote'][0]
+
+        # Find the target date
+        target_date = datetime.strptime(date_str, '%Y-%m-%d')
+        target_idx = None
+        prev_idx = None
+
+        for i, ts in enumerate(timestamps):
+            dt = datetime.fromtimestamp(ts)
+            if dt.strftime('%Y-%m-%d') == date_str:
+                target_idx = i
+                if i > 0:
+                    prev_idx = i - 1
+                break
+
+        if target_idx is None:
+            return None
+
+        open_price = quotes['open'][target_idx]
+        close_price = quotes['close'][target_idx]
+        high_price = quotes['high'][target_idx]
+        low_price = quotes['low'][target_idx]
+        volume = quotes['volume'][target_idx]
+
+        if None in [open_price, close_price, high_price, low_price, volume]:
+            return None
+
+        # Calculate change from previous close
+        if prev_idx is not None:
+            prev_close = quotes['close'][prev_idx]
+            if prev_close:
+                change_pct = ((close_price - prev_close) / prev_close) * 100
+            else:
+                change_pct = ((close_price - open_price) / open_price) * 100
+        else:
+            change_pct = ((close_price - open_price) / open_price) * 100
+
+        return {
+            'open': float(open_price),
+            'close': float(close_price),
+            'high': float(high_price),
+            'low': float(low_price),
+            'volume': int(volume),
+            'change_pct': change_pct
+        }
+
+    except Exception as e:
+        print(f"  ✗ Direct Yahoo API error for {symbol}: {e}")
+        return None
 
 
 def fetch_alpha_vantage_daily(symbol: str, date_str: str, api_key: str) -> dict:
@@ -329,27 +416,49 @@ def collect_market_data(date_str: str, db_path: str = "ai_pulse.db"):
                 print(f"  ✗ {symbol}: No data available")
                 errors += 1
 
-        # Try Twelve Data for failed indices (supports indices unlike Alpha Vantage)
+        # Try Direct Yahoo API for failed indices (bypasses yfinance rate limit)
         if failed_indices:
-            td_api_key = os.getenv('TWELVE_DATA_API_KEY')
-            if td_api_key:
-                print(f"\n  Trying Twelve Data for {len(failed_indices)} indices...")
-                for symbol, name in failed_indices:
-                    td_data = fetch_twelve_data_daily(symbol, date_str, td_api_key)
+            print(f"\n  Trying Direct Yahoo API for {len(failed_indices)} indices...")
+            still_failed = []
 
-                    if td_data:
-                        cursor.execute("""
-                            INSERT OR REPLACE INTO market_data
-                            (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """, (date_str, symbol, name, td_data['open'], td_data['close'],
-                              td_data['high'], td_data['low'], td_data['volume'], td_data['change_pct']))
+            for symbol, name in failed_indices:
+                yahoo_data = fetch_yahoo_direct(symbol, date_str)
 
-                        print(f"  ✓ {symbol}: ${td_data['close']:.2f} ({td_data['change_pct']:+.2f}%)")
-                        collected += 1
-                        errors -= 1
-                    else:
-                        print(f"  ✗ {symbol}: No data available from Twelve Data")
+                if yahoo_data:
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO market_data
+                        (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (date_str, symbol, name, yahoo_data['open'], yahoo_data['close'],
+                          yahoo_data['high'], yahoo_data['low'], yahoo_data['volume'], yahoo_data['change_pct']))
+
+                    print(f"  ✓ {symbol}: ${yahoo_data['close']:.2f} ({yahoo_data['change_pct']:+.2f}%)")
+                    collected += 1
+                    errors -= 1
+                else:
+                    still_failed.append((symbol, name))
+
+            # Try Twelve Data for any still-failed indices (as last resort)
+            if still_failed:
+                td_api_key = os.getenv('TWELVE_DATA_API_KEY')
+                if td_api_key:
+                    print(f"\n  Trying Twelve Data for {len(still_failed)} remaining indices...")
+                    for symbol, name in still_failed:
+                        td_data = fetch_twelve_data_daily(symbol, date_str, td_api_key)
+
+                        if td_data:
+                            cursor.execute("""
+                                INSERT OR REPLACE INTO market_data
+                                (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """, (date_str, symbol, name, td_data['open'], td_data['close'],
+                                  td_data['high'], td_data['low'], td_data['volume'], td_data['change_pct']))
+
+                            print(f"  ✓ {symbol}: ${td_data['close']:.2f} ({td_data['change_pct']:+.2f}%)")
+                            collected += 1
+                            errors -= 1
+                        else:
+                            print(f"  ✗ {symbol}: No data available from Twelve Data")
 
         conn.commit()
         conn.close()
