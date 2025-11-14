@@ -166,11 +166,14 @@ class EventDatabase:
 
     def get_recent_events(self, limit: int = 50, hours: int = 24) -> List[Event]:
         """
-        Get recent events.
+        Get recent events by published date.
+
+        Uses published_at instead of collected_at to ensure events are dated
+        by when they were published, not when they were fetched.
 
         Args:
             limit: Maximum number of events to return
-            hours: Only return events from last N hours
+            hours: Only return events published in last N hours
 
         Returns:
             List of Event objects
@@ -182,8 +185,8 @@ class EventDatabase:
 
         cursor.execute("""
             SELECT * FROM events
-            WHERE collected_at >= ?
-            ORDER BY collected_at DESC
+            WHERE published_at >= ?
+            ORDER BY published_at DESC
             LIMIT ?
         """, (cutoff.isoformat(), limit))
 
