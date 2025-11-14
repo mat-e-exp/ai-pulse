@@ -848,7 +848,6 @@ class HTMLReporter:
         html = f"""
             <article class="event-card-compact">
                 <div class="event-header-compact">
-                    <span class="score-compact">{event.significance_score}</span>
                     <h3 class="event-title-compact">{event.title}</h3>
                     <button class="expand-btn" id="btn-{event_id}" onclick="toggleEvent({event_id})">▶</button>
                 </div>
