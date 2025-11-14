@@ -42,14 +42,21 @@ class HTMLReporter:
         # Filter out duplicates (both string and semantic)
         all_events = [e for e in all_events if not getattr(e, 'is_duplicate', False) and not getattr(e, 'is_semantic_duplicate', False)]
 
-        # Filter analyzed events only
-        analyzed_events = [e for e in all_events if e.significance_score is not None]
+        # Separate research papers (don't need scoring) from news events (require scoring)
+        research_papers = [e for e in all_events if e.event_type == 'research']
+        news_events_all = [e for e in all_events if e.event_type != 'research']
 
-        # Filter by score
-        events = [e for e in analyzed_events if e.significance_score >= min_score]
+        # Filter analyzed news events only
+        analyzed_events = [e for e in news_events_all if e.significance_score is not None]
+
+        # Filter by score (news events only)
+        news_events = [e for e in analyzed_events if e.significance_score >= min_score]
 
         # Sort by score descending
-        events.sort(key=lambda e: e.significance_score, reverse=True)
+        news_events.sort(key=lambda e: e.significance_score, reverse=True)
+
+        # Combine: news events (scored) + research papers (informational)
+        events = news_events + research_papers
 
         # Get stats
         total_collected = len(all_events)

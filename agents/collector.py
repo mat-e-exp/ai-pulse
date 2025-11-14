@@ -83,6 +83,9 @@ class DataCollector:
         # Company IR (always available)
         self.sources['company_ir'] = CompanyIRSource()
 
+        # ArXiv (always available)
+        self.sources['arxiv'] = ArXivSource()
+
     def deduplicate_events(self, events: list[Event], similarity_threshold: float = 0.75) -> tuple[list[Event], int]:
         """
         Remove duplicate events based on title similarity and date.
@@ -308,9 +311,37 @@ class DataCollector:
         print(f"\n✓ Company IR: {result['saved']} new, {result['duplicates']} URL duplicates, {content_dupes} content duplicates")
         return result
 
+    def collect_from_arxiv(self, days_back: int = 7, max_results: int = 5) -> dict:
+        """
+        Collect from ArXiv research papers.
+
+        Args:
+            days_back: How many days of history
+            max_results: Maximum papers to collect (total, not per category)
+
+        Returns:
+            Stats dict
+        """
+        print("\n" + "=" * 80)
+        print("COLLECTING FROM ARXIV")
+        print("=" * 80)
+
+        source = self.sources['arxiv']
+        events = source.fetch_recent_papers(days_back=days_back, max_results=max_results)
+
+        # Deduplicate before saving
+        events, content_dupes = self.deduplicate_events(events)
+        if content_dupes > 0:
+            print(f"  ⚡ Removed {content_dupes} content duplicates")
+
+        result = self.db.save_events(events)
+
+        print(f"\n✓ ArXiv: {result['saved']} new, {result['duplicates']} URL duplicates, {content_dupes} content duplicates")
+        return result
+
     def collect_all(self, hn_limit: int = 20, news_days: int = 1, news_limit: int = 30,
                     sec_days: int = 30, github_days: int = 30, github_stars: int = 100,
-                    ir_days: int = 30) -> dict:
+                    ir_days: int = 30, arxiv_days: int = 7, arxiv_limit: int = 5) -> dict:
         """
         Collect from all available sources.
 
@@ -322,6 +353,8 @@ class DataCollector:
             github_days: GitHub days back
             github_stars: GitHub minimum stars
             ir_days: Company IR days back
+            arxiv_days: ArXiv days back
+            arxiv_limit: ArXiv max papers (total, not per category)
 
         Returns:
             Combined stats
@@ -357,6 +390,11 @@ class DataCollector:
         ir_stats = self.collect_from_company_ir(days_back=ir_days)
         total_saved += ir_stats['saved']
         total_duplicates += ir_stats['duplicates']
+
+        # Collect from ArXiv
+        arxiv_stats = self.collect_from_arxiv(days_back=arxiv_days, max_results=arxiv_limit)
+        total_saved += arxiv_stats['saved']
+        total_duplicates += arxiv_stats['duplicates']
 
         # Show database stats
         print("\n" + "=" * 80)
@@ -413,6 +451,10 @@ if __name__ == "__main__":
                        help='GitHub minimum stars (default: 100)')
     parser.add_argument('--ir-days', type=int, default=30,
                        help='Company IR days back (default: 30)')
+    parser.add_argument('--arxiv-days', type=int, default=7,
+                       help='ArXiv days back (default: 7)')
+    parser.add_argument('--arxiv-limit', type=int, default=5,
+                       help='ArXiv max papers total (default: 5)')
     parser.add_argument('--db', type=str, default='ai_pulse.db',
                        help='Database file path (default: ai_pulse.db)')
 
@@ -427,5 +469,7 @@ if __name__ == "__main__":
             sec_days=args.sec_days,
             github_days=args.github_days,
             github_stars=args.github_stars,
-            ir_days=args.ir_days
+            ir_days=args.ir_days,
+            arxiv_days=args.arxiv_days,
+            arxiv_limit=args.arxiv_limit
         )
