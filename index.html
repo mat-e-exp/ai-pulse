@@ -23,7 +23,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             // Sentiment Chart
             const ctx = document.getElementById('sentimentChart').getContext('2d');
-            const chartData = {"dates": ["2025-11-11", "2025-11-12", "2025-11-13", "2025-11-14"], "positive": [35.1, 17.6, 21.4, 19.0], "negative": [10.5, 14.7, 14.3, 14.3], "neutral": [36.8, 44.1, 38.1, 45.2], "mixed": [17.5, 23.5, 26.2, 21.4], "totals": [57, 34, 42, 42]};
+            const chartData = {"dates": ["2025-11-11", "2025-11-12", "2025-11-13", "2025-11-14"], "positive": [35.1, 17.6, 21.4, 20.0], "negative": [10.5, 14.7, 14.3, 15.0], "neutral": [36.8, 44.1, 38.1, 45.0], "mixed": [17.5, 23.5, 26.2, 20.0], "totals": [57, 34, 42, 40]};
 
             // If we have data, generate labels from first data date to 30 days ahead
             let labels = chartData.dates;
@@ -360,22 +360,22 @@
     <header>
         <div class="header-stats">
             <div class="stat-item">
-                <span class="stat-value-small">42</span>
+                <span class="stat-value-small">47</span>
                 <span class="stat-label-small">Events</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value-small">42</span>
+                <span class="stat-value-small">40</span>
                 <span class="stat-label-small">Analyzed</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value-small">16</span>
+                <span class="stat-value-small">22</span>
                 <span class="stat-label-small">Significant</span>
             </div>
         </div>
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-14 08:47 UTC</p>
+            <p class="date">2025-11-14 09:03 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -971,41 +971,6 @@
 </div><div id="notable-hidden-11" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
-                    <h3 class="event-title-compact">Continuous Autoregressive Language Models</h3>
-                    <button class="expand-btn" id="btn-136" onclick="toggleEvent(136)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-136" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">➡️ neutral</span>
-                        
-                        <span> | 2025-11-05 21:49</span>
-                        <span> | Notable Background - This is general sector research that adds to the knowledge base but doesn't fundamentally alter investment thesis for major AI stocks.</span>
-                    </div>
-
-                    <div class="implications">
-                        <h4>💡 Implications</h4>
-                        <p>For AI sector investors, this represents the ongoing academic research that feeds into the broader AI ecosystem but doesn't signal immediate revenue opportunities or competitive shifts. The research may eventually influence future model architectures, but the timeline and commercial viability remain uncertain.</p>
-                    </div>
-
-                    <div class="affected-parties">
-                        <h4>👥 Affected Parties</h4>
-                        <p>- Research-focused AI companies may benefit from incorporating these techniques - Major AI players (GOOGL, MSFT, META) could potentially integrate findings into future models - No clear immediate winners or losers in the public market space</p>
-                    </div>
-
-                    <div class="context">
-                        <h4>📚 Context</h4>
-                        <p>Academic AI research typically takes 12-24 months to transition into commercial applications. Most foundational language model improvements today focus on efficiency, scaling, and novel architectures. Without seeing concrete performance benchmarks or adoption by major AI labs, this remains in the early research phase with unclear commercial potential.</p>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://arxiv.org/abs/2510.27688" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-</div><div id="notable-hidden-12" style="display: none;">
-            <article class="event-card-compact">
-                <div class="event-header-compact">
                     <h3 class="event-title-compact">Does your chatbot have 'brain rot'? 4 ways to tell</h3>
                     <button class="expand-btn" id="btn-163" onclick="toggleEvent(163)">▶</button>
                 </div>
@@ -1038,7 +1003,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-13" style="display: none;">
+</div><div id="notable-hidden-12" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Media Briefing: Publishers turn to paid audience acquisition tactics to tackle traffic losses</h3>
@@ -1073,7 +1038,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-14" style="display: none;">
+</div><div id="notable-hidden-13" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">SlopStop: Community-driven AI slop detection in Kagi Search</h3>
@@ -1109,10 +1074,187 @@
                 </div>
             </article>
 </div>
-            <button onclick="toggleEventSection('notable', 15)" id="notable-toggle-btn"
+            <button onclick="toggleEventSection('notable', 14)" id="notable-toggle-btn"
                     style="margin: 20px auto; display: block; padding: 8px 20px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
-                Show 12 More Events
+                Show 11 More Events
             </button>
+        </section>
+
+        <section class="events research-events">
+            <h2>📚 Research Highlights <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(technical developments)</span></h2>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; font-style: italic;">
+                Research papers are not included in sentiment analysis - they represent technical progress rather than market-moving news.
+            </p>
+
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <h3 class="event-title-compact">Cogent argument extensions are weakly admissible but not vice versa</h3>
+                    <button class="expand-btn" id="btn-171" onclick="toggleEvent(171)">▶</button>
+                </div>
+
+                <div class="event-content-expanded" id="content-171" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">➡️ neutral</span>
+                        
+                        <span> | 2025-11-14 08:50</span>
+                        <span> | N/A</span>
+                    </div>
+
+                    <div class="event-link">
+                        <a href="https://arxiv.org/abs/2511.09600" target="_blank">Read full article →</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <h3 class="event-title-compact">Proceedings of the Second International Workshop on Next-Generation Language Models for Knowledge Representation and Reasoning (NeLaMKRR 2025)</h3>
+                    <button class="expand-btn" id="btn-170" onclick="toggleEvent(170)">▶</button>
+                </div>
+
+                <div class="event-content-expanded" id="content-170" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">➡️ neutral</span>
+                        
+                        <span> | 2025-11-14 08:50</span>
+                        <span> | N/A</span>
+                    </div>
+
+                    <div class="event-link">
+                        <a href="https://arxiv.org/abs/2511.09575" target="_blank">Read full article →</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <h3 class="event-title-compact">SynthTools: A Framework for Scaling Synthetic Tools for Agent Development</h3>
+                    <button class="expand-btn" id="btn-169" onclick="toggleEvent(169)">▶</button>
+                </div>
+
+                <div class="event-content-expanded" id="content-169" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">➡️ neutral</span>
+                        
+                        <span> | 2025-11-14 08:50</span>
+                        <span> | N/A</span>
+                    </div>
+
+                    <div class="event-link">
+                        <a href="https://arxiv.org/abs/2511.09572" target="_blank">Read full article →</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <h3 class="event-title-compact">Variable Neighborhood Search for the Electric Vehicle Routing Problem</h3>
+                    <button class="expand-btn" id="btn-168" onclick="toggleEvent(168)">▶</button>
+                </div>
+
+                <div class="event-content-expanded" id="content-168" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">➡️ neutral</span>
+                        
+                        <span> | 2025-11-14 08:50</span>
+                        <span> | N/A</span>
+                    </div>
+
+                    <div class="event-link">
+                        <a href="https://arxiv.org/abs/2511.09570" target="_blank">Read full article →</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <h3 class="event-title-compact">An Efficient and Almost Optimal Solver for the Joint Routing-Assignment Problem via Partial JRA and Large-{\alpha} Optimization</h3>
+                    <button class="expand-btn" id="btn-167" onclick="toggleEvent(167)">▶</button>
+                </div>
+
+                <div class="event-content-expanded" id="content-167" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">➡️ neutral</span>
+                        
+                        <span> | 2025-11-14 08:50</span>
+                        <span> | N/A</span>
+                    </div>
+
+                    <div class="event-link">
+                        <a href="https://arxiv.org/abs/2511.09563" target="_blank">Read full article →</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <h3 class="event-title-compact">Continuous Autoregressive Language Models</h3>
+                    <button class="expand-btn" id="btn-136" onclick="toggleEvent(136)">▶</button>
+                </div>
+
+                <div class="event-content-expanded" id="content-136" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">➡️ neutral</span>
+                        
+                        <span> | 2025-11-05 21:49</span>
+                        <span> | Notable Background - This is general sector research that adds to the knowledge base but doesn't fundamentally alter investment thesis for major AI stocks.</span>
+                    </div>
+
+                    <div class="implications">
+                        <h4>💡 Implications</h4>
+                        <p>For AI sector investors, this represents the ongoing academic research that feeds into the broader AI ecosystem but doesn't signal immediate revenue opportunities or competitive shifts. The research may eventually influence future model architectures, but the timeline and commercial viability remain uncertain.</p>
+                    </div>
+
+                    <div class="affected-parties">
+                        <h4>👥 Affected Parties</h4>
+                        <p>- Research-focused AI companies may benefit from incorporating these techniques - Major AI players (GOOGL, MSFT, META) could potentially integrate findings into future models - No clear immediate winners or losers in the public market space</p>
+                    </div>
+
+                    <div class="context">
+                        <h4>📚 Context</h4>
+                        <p>Academic AI research typically takes 12-24 months to transition into commercial applications. Most foundational language model improvements today focus on efficiency, scaling, and novel architectures. Without seeing concrete performance benchmarks or adoption by major AI labs, this remains in the early research phase with unclear commercial potential.</p>
+                    </div>
+
+                    <div class="event-link">
+                        <a href="https://arxiv.org/abs/2510.27688" target="_blank">Read full article →</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="event-card-compact">
+                <div class="event-header-compact">
+                    <h3 class="event-title-compact">IBM Patented Euler's 200 Year Old Math Technique for 'AI Interpretability'</h3>
+                    <button class="expand-btn" id="btn-132" onclick="toggleEvent(132)">▶</button>
+                </div>
+
+                <div class="event-content-expanded" id="content-132" style="display: none;">
+                    <div class="event-meta-compact">
+                        <span class="sentiment">↕️ mixed</span>
+                        
+                        <span> | 2025-11-13 18:41</span>
+                        <span> | Notable Background - This doesn't materially change competitive dynamics or revenue prospects for major AI companies, as the underlying mathematics cannot be meaningfully monopolized.</span>
+                    </div>
+
+                    <div class="implications">
+                        <h4>💡 Implications</h4>
+                        <p>The event underscores potential patent litigation risks across the AI sector as companies attempt to claim ownership of fundamental techniques. However, such patents are typically difficult to enforce when based on well-established mathematical principles, limiting real competitive impact for major AI players.</p>
+                    </div>
+
+                    <div class="affected-parties">
+                        <h4>👥 Affected Parties</h4>
+                        <p>- IBM: Minor positive from patent portfolio expansion, though enforcement challenges likely - Broader AI sector (NVDA, MSFT, GOOGL, META): Minimal impact due to weak patent foundation - AI interpretability startups: Potential nuisance litigation risk</p>
+                    </div>
+
+                    <div class="context">
+                        <h4>📚 Context</h4>
+                        <p>This follows a pattern of questionable AI-related patents attempting to claim ownership of fundamental concepts. Similar to previous cases involving basic algorithms or mathematical operations, such patents face significant validity challenges and rarely create sustainable competitive moats in practice.</p>
+                    </div>
+
+                    <div class="event-link">
+                        <a href="https://leetarxiv.substack.com/p/ibm-patented-eulers-fractions" target="_blank">Read full article →</a>
+                    </div>
+                </div>
+            </article>
         </section>
 
         <script>

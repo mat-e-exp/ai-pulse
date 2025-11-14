@@ -43,8 +43,9 @@ class HTMLReporter:
         all_events = [e for e in all_events if not getattr(e, 'is_duplicate', False) and not getattr(e, 'is_semantic_duplicate', False)]
 
         # Separate research papers (don't need scoring) from news events (require scoring)
-        research_papers = [e for e in all_events if e.event_type == 'research']
-        news_events_all = [e for e in all_events if e.event_type != 'research']
+        from models.events import EventType
+        research_papers = [e for e in all_events if e.event_type == EventType.RESEARCH]
+        news_events_all = [e for e in all_events if e.event_type != EventType.RESEARCH]
 
         # Filter analyzed news events only
         analyzed_events = [e for e in news_events_all if e.significance_score is not None]
@@ -67,7 +68,7 @@ class HTMLReporter:
         sentiment_counts = {}
         for event in analyzed_events:
             # Skip research papers from sentiment calculation
-            if event.event_type == 'research':
+            if event.event_type == EventType.RESEARCH:
                 continue
             sent = event.sentiment or 'unknown'
             sentiment_counts[sent] = sentiment_counts.get(sent, 0) + 1
@@ -118,6 +119,7 @@ class HTMLReporter:
 
     def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, market_data, correlation_data, insights, days_back, min_score) -> str:
         """Generate HTML document"""
+        from models.events import EventType
 
         now = datetime.utcnow()
         date_str = now.strftime('%Y-%m-%d')
@@ -129,8 +131,8 @@ class HTMLReporter:
         correlation_chart_data = self._prepare_correlation_data(correlation_data)
 
         # Separate research papers from news/events
-        research_papers = [e for e in events if e.event_type == 'research']
-        news_events = [e for e in events if e.event_type != 'research']
+        research_papers = [e for e in events if e.event_type == EventType.RESEARCH]
+        news_events = [e for e in events if e.event_type != EventType.RESEARCH]
 
         # Group news events by relevance (Material/Notable/Background)
         material_events = [e for e in news_events if e.investment_relevance and 'material' in e.investment_relevance.lower()]
