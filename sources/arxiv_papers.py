@@ -49,32 +49,31 @@ class ArXivSource:
             'User-Agent': 'AI-Pulse/1.0 (AI sector intelligence bot)'
         })
 
-    def fetch_recent_papers(self, days_back: int = 7, max_results: int = 50) -> List[Event]:
+    def fetch_recent_papers(self, days_back: int = 7, max_results: int = 5) -> List[Event]:
         """
         Fetch recent AI/ML papers from arXiv.
 
         Args:
             days_back: Number of days to look back
-            max_results: Maximum number of results per category (will fetch more to ensure recent papers)
+            max_results: Maximum total papers to return (not per category)
 
         Returns:
-            List of Event objects
+            List of Event objects (up to max_results total)
         """
         events = []
         cutoff_date = datetime.utcnow() - timedelta(days=days_back)
 
-        # Fetch more results since we need to filter by date
-        # ArXiv's sort parameters don't work reliably
-        fetch_limit = max_results * 10  # Fetch 10x to ensure we get recent papers
-
-        print(f"Fetching AI/ML papers from arXiv (last {days_back} days, up to {max_results} per category)...")
+        print(f"Fetching top {max_results} AI/ML papers from arXiv (last {days_back} days)...")
 
         for category in self.AI_CATEGORIES:
+            # Stop if we have enough papers total
+            if len(events) >= max_results:
+                break
+
             try:
                 # Use RSS feed - it actually returns recent papers
                 rss_url = f"{self.RSS_BASE}{category}"
 
-                print(f"  Querying {category} RSS...")
                 response = self.session.get(rss_url, timeout=30)
                 response.raise_for_status()
 
@@ -83,12 +82,10 @@ class ArXivSource:
 
                 # RSS uses different namespace
                 entries = root.findall('.//item')
-                print(f"    Found {len(entries)} recent entries")
 
-                category_count = 0
                 for i, entry in enumerate(entries):
-                    # Stop if we have enough for this category
-                    if category_count >= max_results:
+                    # Stop if we have enough papers total
+                    if len(events) >= max_results:
                         break
 
                     try:
@@ -130,15 +127,10 @@ class ArXivSource:
                         )
 
                         events.append(event)
-                        category_count += 1
 
                     except Exception as e:
-                        import traceback
                         print(f"  ✗ Error parsing entry: {e}")
-                        traceback.print_exc()
                         continue
-
-                print(f"    Kept {category_count} recent papers from {category}")
 
             except Exception as e:
                 print(f"  ✗ Error fetching category {category}: {e}")
@@ -158,7 +150,7 @@ class ArXivSource:
 def test_arxiv_source():
     """Test the arXiv source"""
     source = ArXivSource()
-    papers = source.fetch_recent_papers(days_back=7, max_results=10)
+    papers = source.fetch_recent_papers(days_back=7, max_results=5)
 
     print(f"\nFetched {len(papers)} recent AI/ML papers from arXiv")
     print("=" * 80)

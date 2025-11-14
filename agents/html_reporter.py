@@ -55,8 +55,13 @@ class HTMLReporter:
         total_collected = len(all_events)
         total_analyzed = len(analyzed_events)
 
+        # Count sentiment only for non-research events
+        # Research papers are informational, not sentiment-driven
         sentiment_counts = {}
         for event in analyzed_events:
+            # Skip research papers from sentiment calculation
+            if event.event_type == 'research':
+                continue
             sent = event.sentiment or 'unknown'
             sentiment_counts[sent] = sentiment_counts.get(sent, 0) + 1
 
@@ -116,10 +121,14 @@ class HTMLReporter:
         market_chart_data = self._prepare_market_data(market_data)
         correlation_chart_data = self._prepare_correlation_data(correlation_data)
 
-        # Group events by relevance (new categories: Material/Notable/Background)
-        material_events = [e for e in events if e.investment_relevance and 'material' in e.investment_relevance.lower()]
-        notable_events = [e for e in events if e.investment_relevance and 'notable' in e.investment_relevance.lower() and e not in material_events]
-        background_events = [e for e in events if e not in material_events and e not in notable_events]
+        # Separate research papers from news/events
+        research_papers = [e for e in events if e.event_type == 'research']
+        news_events = [e for e in events if e.event_type != 'research']
+
+        # Group news events by relevance (Material/Notable/Background)
+        material_events = [e for e in news_events if e.investment_relevance and 'material' in e.investment_relevance.lower()]
+        notable_events = [e for e in news_events if e.investment_relevance and 'notable' in e.investment_relevance.lower() and e not in material_events]
+        background_events = [e for e in news_events if e not in material_events and e not in notable_events]
 
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -765,6 +774,21 @@ class HTMLReporter:
                 Show {len(background_events) - 3} More Events
             </button>
 """
+            html += """        </section>
+"""
+
+        # Research Highlights section (separate from sentiment-driven news)
+        if research_papers:
+            html += """
+        <section class="events research-events">
+            <h2>📚 Research Highlights <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(technical developments)</span></h2>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; font-style: italic;">
+                Research papers are not included in sentiment analysis - they represent technical progress rather than market-moving news.
+            </p>
+"""
+            for idx, event in enumerate(research_papers):
+                html += self._generate_event_card(event)
+
             html += """        </section>
 """
 
