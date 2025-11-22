@@ -3,6 +3,8 @@
 ## What This Does
 Real-time intelligence agent for the AI sector - tracks product launches, funding, technical breakthroughs, market sentiment, and competitive dynamics to provide actionable insights for AI investment decisions.
 
+**Live site**: https://mat-e-exp.github.io/ai-pulse-briefings/
+
 ## Primary Goal: ACCURACY
 **Accuracy is the highest priority** - above speed, cost, or features. The system must provide trustworthy data for investment decisions. This means:
 - **No duplicate stories** inflating sentiment counts
@@ -12,12 +14,40 @@ Real-time intelligence agent for the AI sector - tracks product launches, fundin
 
 Investment decisions depend on this data being correct.
 
-## Current Status
-- ✅ **Phase 1 Complete**: Basic news collector working
-- ✅ **Phase 2 Complete**: Agentic significance analysis with Claude API
-- ✅ **Phase 2.5 Complete**: Web publishing with sentiment tracking and deduplication (2025-11-12)
-- ✅ **Phase 2.6 Complete**: Semantic deduplication with Claude for accurate sentiment (2025-11-12)
-- 🚧 **Phase 2.7 In Progress**: Market correlation tracking (2025-11-13) - code complete, needs HTML visualization
+## Current Status (2025-11-22)
+
+### Automated Pipeline ✅
+- **Daily collection**: 1pm GMT via GitHub Actions
+- **Market data**: 9:30pm GMT Mon-Fri via GitHub Actions
+- **Publishing**: Automatic to GitHub Pages
+- **No manual intervention required**
+
+### What Runs Automatically
+```
+1pm GMT Daily:
+  Collect (6 sources) → Deduplicate → Analyze (Claude) → Publish
+
+9:30pm GMT Mon-Fri:
+  Collect market data → Update correlation → Republish
+```
+
+### Repository Structure
+```
+Private: mat-e-exp/ai-pulse
+├── All code, config, database
+├── GitHub Actions workflows
+└── Pushes HTML to public repo
+
+Public: mat-e-exp/ai-pulse-briefings
+├── HTML briefings only
+└── Served via GitHub Pages
+```
+
+### What's NOT Built Yet
+See `AGENTIC_ROADMAP.md` for the full vision:
+- Issue-driven automation (agent implements from GitHub Issues)
+- Self-improvement loop (agent improves its own accuracy)
+- Outcome tracking and accuracy measurement
 
 ## Project Vision
 
@@ -433,40 +463,51 @@ daily_sentiment (
 
 ## GitHub Pages Hosting
 
-**Repository**: `mat-e-exp/ai-pulse`
-**Live URL**: `https://mat-e-exp.github.io/ai-pulse/`
+### Split Repository Architecture (Privacy)
 
-**CRITICAL: Always Push Changes**
-- User ALWAYS views the live GitHub Pages site, NEVER local files
-- After ANY changes to HTML, code, or documentation: commit and push immediately
-- GitHub Pages takes 1-2 minutes to rebuild after push
-- Changes are not visible until pushed to GitHub
+**Private Repository**: `mat-e-exp/ai-pulse`
+- Contains all code, config, prompts, database
+- GitHub Actions run here
+- Not publicly visible
 
-**Setup**:
-1. Go to repository Settings → Pages
-2. Source: Deploy from branch `main`
-3. Folder: `/ (root)`
-4. Save and wait for deployment
+**Public Repository**: `mat-e-exp/ai-pulse-briefings`
+- Contains HTML briefings only
+- Served via GitHub Pages
+- **Live URL**: `https://mat-e-exp.github.io/ai-pulse-briefings/`
 
-**Publishing Workflow**:
+### How Publishing Works (Automated)
+
+GitHub Actions automatically:
+1. Runs collection and analysis in private repo
+2. Generates HTML briefings
+3. Pushes briefings to public repo via deploy key
+4. GitHub Pages serves the public repo
+
+**No manual publishing required** - the daily workflow handles everything.
+
+### Manual Publishing (If Needed)
+
 ```bash
-# 1. Generate briefing
-python3.9 publish_briefing.py --days 1 --min-score 40
+# Generate briefing locally
+python3.9 publish_briefing.py --days 7 --min-score 0
 
-# 2. ALWAYS commit and push immediately
-git add briefings/*.html index.html archive.html
-git commit -m "Daily briefing YYYY-MM-DD"
+# Commit to private repo
+git add briefings/*.html index.html archive.html ai_pulse.db
+git commit -m "Manual briefing"
 git push
 
-# 3. Wait 1-2 minutes for GitHub Pages to rebuild
+# The workflow will push to public repo on next run,
+# or trigger the workflow manually in GitHub Actions
 ```
 
-**After Code Changes**:
+### Making Changes
+
+Code changes go to the **private** repo only:
 ```bash
-# Always push code changes immediately so they appear on live site
 git add [changed-files]
-git commit -m "Description of changes"
+git commit -m "Description"
 git push
+# Next scheduled run uses updated code
 ```
 
 ## Git Commit Security - CRITICAL
