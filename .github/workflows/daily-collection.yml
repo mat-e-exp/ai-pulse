@@ -55,6 +55,17 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python3 agents/analyzer.py --limit 20
 
+      - name: Debug database state
+        run: |
+          echo "=== Events with significance_score ==="
+          sqlite3 ai_pulse.db "SELECT id, title, significance_score, sentiment FROM events WHERE significance_score IS NOT NULL LIMIT 10;"
+          echo ""
+          echo "=== Events without significance_score ==="
+          sqlite3 ai_pulse.db "SELECT id, title, significance_score FROM events WHERE significance_score IS NULL LIMIT 10;"
+          echo ""
+          echo "=== Total counts ==="
+          sqlite3 ai_pulse.db "SELECT COUNT(*) as total, SUM(CASE WHEN significance_score IS NOT NULL THEN 1 ELSE 0 END) as analyzed FROM events;"
+
       - name: Generate briefing HTML
         run: python3 publish_briefing.py --days 7 --min-score 0
 
