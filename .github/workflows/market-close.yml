@@ -2,8 +2,9 @@ name: Market Close Data Collection
 
 on:
   schedule:
-    # 9:30pm GMT daily (after US market closes at 9pm GMT)
-    - cron: '30 21 * * *'
+    # 9:30pm GMT Monday-Friday only (after US market closes at 9pm GMT)
+    # Markets closed on weekends - no data to collect
+    - cron: '30 21 * * 1-5'
   workflow_dispatch:  # Manual trigger button
 
 jobs:
