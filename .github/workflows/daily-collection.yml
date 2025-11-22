@@ -104,3 +104,10 @@ jobs:
           echo "- **Date**: $(date -u +%Y-%m-%d)" >> $GITHUB_STEP_SUMMARY
           echo "- **Run ID**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: Success" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify Discord
+        if: always()
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\":\"AI-Pulse daily collection: ${{ job.status }}\"}"
