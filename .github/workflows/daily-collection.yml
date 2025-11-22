@@ -56,7 +56,7 @@ jobs:
         run: python3 agents/analyzer.py --limit 20
 
       - name: Generate briefing HTML
-        run: python3 publish_briefing.py --days 1 --min-score 40
+        run: python3 publish_briefing.py --days 1 --min-score 0
 
       - name: Commit database to private repo
         run: |
