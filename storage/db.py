@@ -61,6 +61,8 @@ class EventDatabase:
                 affected_parties TEXT,
                 investment_relevance TEXT,
                 key_context TEXT,
+                is_duplicate INTEGER DEFAULT 0,
+                is_semantic_duplicate INTEGER DEFAULT 0,
                 UNIQUE(source, source_id)
             )
         """)
