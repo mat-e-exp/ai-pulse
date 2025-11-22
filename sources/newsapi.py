@@ -149,7 +149,9 @@ class NewsAPISource:
         # Extract companies/products from content (basic heuristics)
         # The agent will do better extraction later
         companies = []
-        text = (article.get('title', '') + " " + article.get('description', '')).lower()
+        title = article.get('title') or ''
+        description = article.get('description') or ''
+        text = (title + " " + description).lower()
 
         company_keywords = {
             'OpenAI': ['openai', 'open ai'],
