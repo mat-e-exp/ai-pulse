@@ -124,6 +124,11 @@ class EventDatabase:
             ON market_data(date DESC)
         """)
 
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_market_symbol
+            ON market_data(symbol)
+        """)
+
         # Daily correlation table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS daily_correlation (
@@ -137,6 +142,11 @@ class EventDatabase:
                 sp500_change_pct REAL,
                 prediction_correct INTEGER
             )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_corr_date
+            ON daily_correlation(date)
         """)
 
         # Prediction insights table
