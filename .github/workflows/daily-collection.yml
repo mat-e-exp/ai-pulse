@@ -73,7 +73,8 @@ jobs:
         run: |
           git config user.name "AI Pulse Bot"
           git config user.email "bot@ai-pulse.local"
-          git add ai_pulse.db || true
+          ls -la ai_pulse.db
+          git add -f ai_pulse.db
           git add briefings/*.html index.html archive.html || true
           git diff --staged --quiet || git commit -m "Daily collection $(date -u +%Y-%m-%d)"
           git push || echo "Nothing to push"

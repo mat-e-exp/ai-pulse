@@ -24,10 +24,10 @@ dist/
 # Data
 *.sqlite
 *.sqlite3
+*.db
 cache/
 
 # Track the main database for GitHub Actions persistence
-# ai_pulse.db is explicitly tracked
 !ai_pulse.db
 
 # But ignore test databases
