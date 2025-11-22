@@ -22,14 +22,16 @@ dist/
 *.swo
 
 # Data
-*.db
 *.sqlite
 *.sqlite3
-data/
 cache/
 
-# But track example/test databases if needed
-!test*.db
+# Track the main database for GitHub Actions persistence
+# ai_pulse.db is explicitly tracked
+!ai_pulse.db
+
+# But ignore test databases
+test*.db
 
 # Logs
 *.log

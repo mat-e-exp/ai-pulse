@@ -1,0 +1,85 @@
+name: Market Close Data Collection
+
+on:
+  schedule:
+    # 9:30pm GMT daily (after US market closes at 9pm GMT)
+    - cron: '30 21 * * *'
+  workflow_dispatch:  # Manual trigger button
+
+jobs:
+  collect-market-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout ai-pulse (private)
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Collect market data
+        env:
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+        run: python3 agents/market_collector.py
+
+      - name: Calculate correlation
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -f "agents/correlation_calculator.py" ]; then
+            python3 agents/correlation_calculator.py
+          else
+            echo "Correlation calculator not found, skipping"
+          fi
+
+      - name: Regenerate briefing with market data
+        run: python3 publish_briefing.py --days 1 --min-score 40
+
+      - name: Commit database to private repo
+        run: |
+          git config user.name "AI Pulse Bot"
+          git config user.email "bot@ai-pulse.local"
+          git add ai_pulse.db || true
+          git add briefings/*.html index.html archive.html || true
+          git diff --staged --quiet || git commit -m "Market close $(date -u +%Y-%m-%d)"
+          git push || echo "Nothing to push"
+
+      - name: Prepare briefings for public repo
+        run: |
+          mkdir -p output
+          cp -r briefings output/
+          cp index.html output/
+          cp archive.html output/
+          cp style.css output/
+
+      - name: Push updated briefing to public repo
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.BRIEFINGS_DEPLOY_KEY }}
+        with:
+          source-directory: 'output'
+          destination-github-username: 'mat-e-exp'
+          destination-repository-name: 'ai-pulse-briefings'
+          target-branch: main
+          commit-message: 'Market close update ${{ github.run_id }}'
+
+      - name: Log run summary
+        run: |
+          echo "## Market Close Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: $(date -u +%Y-%m-%d)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run ID**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Success" >> $GITHUB_STEP_SUMMARY
