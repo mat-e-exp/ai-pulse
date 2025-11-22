@@ -102,6 +102,55 @@ class EventDatabase:
             ON daily_sentiment(date DESC)
         """)
 
+        # Market data table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS market_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL,
+                symbol TEXT NOT NULL,
+                symbol_name TEXT,
+                open REAL,
+                close REAL,
+                high REAL,
+                low REAL,
+                volume INTEGER,
+                change_pct REAL,
+                UNIQUE(date, symbol)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_market_date
+            ON market_data(date DESC)
+        """)
+
+        # Daily correlation table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS daily_correlation (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL UNIQUE,
+                dominant_sentiment TEXT,
+                sentiment_strength REAL,
+                market_outcome TEXT,
+                nasdaq_change_pct REAL,
+                nvda_change_pct REAL,
+                sp500_change_pct REAL,
+                prediction_correct INTEGER
+            )
+        """)
+
+        # Prediction insights table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS prediction_insights (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                generated_at TEXT NOT NULL,
+                insight_type TEXT,
+                content TEXT,
+                data_points INTEGER,
+                confidence REAL
+            )
+        """)
+
         self.conn.commit()
 
     def save_event(self, event: Event) -> int:
