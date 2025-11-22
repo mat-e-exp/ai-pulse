@@ -143,11 +143,10 @@ class EventDatabase:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS prediction_insights (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                generated_at TEXT NOT NULL,
-                insight_type TEXT,
-                content TEXT,
-                data_points INTEGER,
-                confidence REAL
+                analysis_date TEXT,
+                days_analyzed INTEGER,
+                insights TEXT,
+                created_at TEXT NOT NULL
             )
         """)
 
