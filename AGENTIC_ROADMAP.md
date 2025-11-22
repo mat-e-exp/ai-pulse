@@ -284,3 +284,61 @@ ai-pulse/
 - Start supervised, increase autonomy over time
 - Catch systematic errors early
 - Maintain human accountability for investment decisions
+
+---
+
+## Model Options & Upgrade Path
+
+### Current: Haiku Beta (2025-11-22)
+
+All analysis uses Claude Haiku 3.5 for cost optimization during beta phase.
+
+| Model | Input/Output (per 1M tokens) | Per Event* | 50/day | Monthly |
+|-------|------------------------------|------------|--------|---------|
+| **Haiku 3.5 (current)** | $0.80 / $4.00 | ~$0.002 | $0.10 | **~$3** |
+| Sonnet 3.5/4 | $3.00 / $15.00 | ~$0.08 | $4.00 | ~$120 |
+| Opus 3/4 | $15.00 / $75.00 | ~$0.40 | $20.00 | ~$600 |
+
+*Estimated per event: ~500 input tokens, ~800 output tokens
+
+### When to Upgrade
+
+**Stay with Haiku if:**
+- Sentiment accuracy is acceptable
+- Significance scores are reasonable
+- Cost is primary concern
+
+**Upgrade to Sonnet if:**
+- Analysis reasoning seems shallow
+- Significance scores are inconsistent
+- Need better investment implications
+- Budget allows ~$120/month
+
+**Upgrade to Opus if:**
+- Need highest quality reasoning
+- Complex multi-factor analysis required
+- Budget allows ~$600/month
+
+### How to Upgrade
+
+Change `ANALYSIS_MODEL` in `analysis/significance.py`:
+
+```python
+# Current (Haiku beta)
+ANALYSIS_MODEL = "claude-3-5-haiku-20241022"
+
+# Upgrade to Sonnet
+ANALYSIS_MODEL = "claude-sonnet-4-20250514"
+
+# Upgrade to Opus
+ANALYSIS_MODEL = "claude-opus-4-20250514"
+```
+
+### Hybrid Approach (Future)
+
+Could implement selective upgrades:
+- Haiku for initial filtering
+- Sonnet for high-priority events only
+- Manual Sonnet re-analysis on demand
+
+This would give quality where needed while keeping costs low.

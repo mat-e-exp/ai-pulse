@@ -158,10 +158,10 @@ TWITTER_API_KEY=...
 ## Commands
 
 ```bash
-# RECOMMENDED DAILY WORKFLOW (accurate sentiment)
+# RECOMMENDED DAILY WORKFLOW (accurate sentiment, cost-optimized with Haiku)
 python3.9 agents/collector.py --hn-limit 20 --news-limit 30 --sec-days 7 --github-days 7 --github-stars 500 --ir-days 7
-python3.9 agents/semantic_deduplicator.py --days 7  # NEW: Claude-powered semantic dedup
-python3.9 agents/analyzer.py --limit 10
+python3.9 agents/semantic_deduplicator.py --days 7  # Claude-powered semantic dedup
+python3.9 agents/analyzer.py --limit 50  # Haiku beta (~$0.002/event, ~$3/month)
 python3.9 publish_briefing.py --days 1 --min-score 40
 
 # ONE-TIME SETUP: Retroactive deduplication for existing data
@@ -230,6 +230,19 @@ python3.9 cost_tracking/tracker.py --set-budget 50.0
 - ✅ Tested on 2025-11-11: Found 4 semantic duplicates (SoftBank group, Intel CTO group)
 - ✅ Sentiment recalculated: 61 events → 57 unique events
 - ✅ Trustworthy sentiment percentages for investment decisions
+
+### Phase 2.7: Haiku Beta Mode ✅ COMPLETE (2025-11-22)
+- ✅ All analysis uses Haiku (~$0.002/event)
+- ✅ ~$3/month for 50 events/day (98% cheaper than Sonnet)
+- ✅ Good quality for basic scoring and sentiment
+- ✅ Upgrade path to Sonnet/Opus when needed
+
+**Cost Comparison**:
+| Model | Per Event | 50 events/day | Monthly |
+|-------|-----------|---------------|---------|
+| **Haiku (current)** | ~$0.002 | $0.10/day | **~$3/month** |
+| Sonnet | ~$0.08 | $4.00/day | ~$120/month |
+| Opus | ~$0.40 | $20.00/day | ~$600/month |
 
 ### Phase 3: Narrative Tracking (AFTER PHASE 2.6)
 - Track sentiment over time

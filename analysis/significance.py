@@ -30,7 +30,13 @@ class SignificanceAnalyzer:
     This is the "brain" of the agent - it reasons about what matters and why.
 
     Now includes cost tracking for budget management.
+
+    Beta mode (2025-11-22): Uses Haiku for all analysis (~$0.002/event, ~$3/month)
+    Future upgrade path: Sonnet (~$0.08/event) or Opus (~$0.40/event) for higher quality
     """
+
+    # Model for analysis - Haiku for beta (cheap), upgrade to Sonnet/Opus later
+    ANALYSIS_MODEL = "claude-3-5-haiku-20241022"
 
     def __init__(self, api_key: Optional[str] = None, enable_cost_tracking: bool = True):
         """
@@ -75,7 +81,7 @@ class SignificanceAnalyzer:
 
         # Ask Claude to reason about significance
         response = self.client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=self.ANALYSIS_MODEL,
             max_tokens=1500,
             messages=[
                 {
@@ -240,21 +246,18 @@ and broader AI sector trends."""
 
     def analyze_batch(self, events: list[Event], max_analyze: int = 10) -> dict:
         """
-        Analyze multiple events, prioritizing by basic heuristics.
+        Analyze multiple events using Haiku (beta mode - cost optimized).
 
         Args:
             events: List of events to analyze
-            max_analyze: Maximum number to analyze (Claude API has costs)
+            max_analyze: Maximum number to analyze
 
         Returns:
             Dictionary with analysis results and stats
         """
 
-        print(f"\nAnalyzing significance of {len(events)} events...")
+        print(f"\nAnalyzing significance of {len(events)} events with Haiku...")
         print("=" * 80)
-
-        analyzed = []
-        skipped = []
 
         # Prioritize certain event types
         priority_order = [
@@ -273,12 +276,15 @@ and broader AI sector trends."""
                          if e.event_type in priority_order else 99
         )
 
+        analyzed = []
+        skipped = []
+
         for i, event in enumerate(sorted_events):
             if len(analyzed) >= max_analyze:
                 skipped.append(event)
                 continue
 
-            print(f"\n[{i+1}/{len(events)}] Analyzing: {event.title[:70]}...")
+            print(f"\n[{i+1}/{len(sorted_events)}] Analyzing: {event.title[:70]}...")
 
             try:
                 analysis = self.analyze_event(event)
@@ -298,7 +304,7 @@ and broader AI sector trends."""
                 skipped.append(event)
 
         print("\n" + "=" * 80)
-        print(f"Analysis complete: {len(analyzed)} analyzed, {len(skipped)} skipped")
+        print(f"Analysis complete: {len(analyzed)} analyzed, {len(skipped)} skipped (limit)")
 
         return {
             'analyzed': analyzed,

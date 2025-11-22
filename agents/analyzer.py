@@ -24,6 +24,9 @@ class AnalyzerAgent:
     2. Reasons about significance (using LLM)
     3. Stores conclusions for later use
     4. Can be run continuously or on-demand
+
+    Beta mode (2025-11-22): Uses Haiku for all analysis (~$0.002/event, ~$3/month)
+    Future: Upgrade to Sonnet (~$0.08/event) or Opus (~$0.40/event) for quality
     """
 
     def __init__(self, db_path: str = "ai_pulse.db"):
@@ -178,7 +181,7 @@ class AnalyzerAgent:
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='Analyze AI sector events for significance')
+    parser = argparse.ArgumentParser(description='Analyze AI sector events for significance (Haiku beta)')
     parser.add_argument('--limit', type=int, default=10,
                        help='Max events to analyze (default: 10)')
     parser.add_argument('--reanalyze', action='store_true',

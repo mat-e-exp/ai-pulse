@@ -50,10 +50,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python3 agents/semantic_deduplicator.py --days 7
 
-      - name: Analyze events with Claude
+      - name: Analyze events with Claude Haiku (beta - cost optimized)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python3 agents/analyzer.py --limit 20
+        run: python3 agents/analyzer.py --limit 50
 
       - name: Debug database state
         run: |
