@@ -114,7 +114,7 @@ class NewsAPISource:
 
     def classify_event_type(self, title: str, description: str = "") -> EventType:
         """Classify event type from article content"""
-        text = (title + " " + description).lower()
+        text = ((title or '') + " " + (description or '')).lower()
 
         if any(word in text for word in ['announces', 'launches', 'releases', 'unveils', 'introduces', 'debuts']):
             return EventType.PRODUCT_LAUNCH
