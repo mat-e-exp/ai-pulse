@@ -52,21 +52,21 @@ Public Repo: mat-e-exp/ai-pulse-briefings
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| issue-handler.yml | ✅ | Triggers on `directive:*` labels |
-| issue_agent.py | ✅ | Claude parses issue, generates code |
+| issue-handler.yml | ✅ | Triggers on `directive:ui` label |
+| issue_agent.py | ✅ | Claude parses issue, generates UI code |
 | Preview deployment | ✅ | `/preview/` subdirectory |
 | promote-prod.yml | ✅ | `promote:prod` label deploys to root |
 | reject-change.yml | ✅ | `rejected` label closes PR + issue |
 | Discord notifications | ✅ | DISCORD_WEBHOOK_APPROVALS |
 
 **Label System:**
-- `directive:ui` → HTML reporter, CSS
-- `directive:source` → News/event sources
-- `directive:data` → Market data, charts
-- `directive:config` → Parameters, thresholds
-- `directive:prompt` → Analysis prompts
+- `directive:ui` → HTML reporter, CSS (UI/visual changes only)
 - `promote:prod` → Deploy preview to production
 - `rejected` → Close PR and issue
+
+**Agent Scope (UI only):**
+The issue agent handles visual changes only. For data sources, market symbols,
+analysis logic, or schema changes - use Claude Code directly.
 
 ### What's NOT Built
 
@@ -164,16 +164,16 @@ Public Repo: mat-e-exp/ai-pulse-briefings
 
 **Deliverable:** Create issue → Agent creates PR.
 
-**Labels for different actions:**
-- `directive:ui` - Change output format/styling (HTML, CSS)
-- `directive:source` - Add/modify news/event data sources
-- `directive:data` - Add/modify market data, charts, metrics
-- `directive:config` - Change parameters/thresholds
-- `directive:prompt` - Modify analysis prompts
-
-**Promotion labels:**
+**Labels:**
+- `directive:ui` - Change output format/styling (HTML, CSS) - **agent supported**
 - `promote:prod` - Deploy previewed changes to production
 - `rejected` - Close PR and issue (change not wanted)
+
+**Not agent supported (use Claude Code):**
+- Data source changes
+- Market symbol additions
+- Analysis/prompt changes
+- Config/parameter changes
 
 ---
 

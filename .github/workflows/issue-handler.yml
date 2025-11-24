@@ -6,8 +6,8 @@ on:
 
 jobs:
   handle-directive:
-    # Only run if issue has a directive label
-    if: startsWith(github.event.label.name, 'directive:')
+    # Only run for directive:ui label (UI changes only)
+    if: github.event.label.name == 'directive:ui'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -40,14 +40,6 @@ jobs:
           python3 -m py_compile analysis/*.py || exit 1
           python3 -m py_compile sources/*.py || exit 1
           echo "Syntax validation passed"
-
-      - name: Collect market data (directive:data only)
-        if: github.event.label.name == 'directive:data'
-        env:
-          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-        run: |
-          echo "Running market collector to test data changes..."
-          python3 agents/market_collector.py --backfill 3 || echo "Market collection failed - check logs"
 
       - name: Generate preview briefing
         run: python3 publish_briefing.py --days 7 --min-score 0

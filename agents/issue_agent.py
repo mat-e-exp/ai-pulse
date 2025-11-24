@@ -1,15 +1,13 @@
 """
 Issue-Driven Agent
 
-Reads GitHub issues labeled with 'directive:*' and implements changes automatically.
-This is the core of the agentic system - autonomous code modification based on user requests.
+Reads GitHub issues labeled with 'directive:ui' and implements visual changes automatically.
+Scope is limited to UI/styling changes only - no data pipeline or schema modifications.
 
 Labels:
 - directive:ui - Change output format/styling (HTML, CSS)
-- directive:source - Add/modify news/event data sources
-- directive:data - Add/modify market data, charts, metrics (spans collection + display)
-- directive:config - Change parameters/thresholds
-- directive:prompt - Modify analysis prompts
+
+For data, source, config, or prompt changes - use Claude Code directly.
 """
 
 import os
@@ -28,49 +26,24 @@ def get_relevant_files(label: str) -> list[dict]:
     """
     Get files relevant to the directive type.
 
+    Only supports directive:ui - other change types should use Claude Code directly.
+
     Returns list of dicts with 'path' and 'content'.
     """
     files = []
 
     if label == 'directive:ui':
-        # UI changes - HTML reporter and CSS
+        # UI changes - HTML reporter and CSS only
         paths = [
             'agents/html_reporter.py',
             'style.css',
-        ]
-    elif label == 'directive:source':
-        # News/event data source changes
-        paths = [
-            'agents/collector.py',
-            'sources/newsapi.py',
-            'sources/hackernews.py',
-        ]
-    elif label == 'directive:data':
-        # Market data, charts, metrics (spans collection + display)
-        paths = [
-            'agents/market_collector.py',
-            'agents/html_reporter.py',
-            'publish_briefing.py',
-        ]
-    elif label == 'directive:config':
-        # Configuration changes
-        paths = [
-            'agents/analyzer.py',
-            'agents/collector.py',
-            'publish_briefing.py',
-        ]
-    elif label == 'directive:prompt':
-        # Prompt changes
-        paths = [
-            'analysis/significance.py',
-            'agents/semantic_deduplicator.py',
         ]
     else:
-        # Unknown label - provide key files
-        paths = [
-            'agents/html_reporter.py',
-            'style.css',
-        ]
+        # Unsupported label - exit gracefully
+        print(f"ERROR: Label '{label}' not supported by issue agent")
+        print("Supported labels: directive:ui")
+        print("For other changes, use Claude Code directly")
+        sys.exit(1)
 
     for path in paths:
         full_path = Path(path)
@@ -84,45 +57,36 @@ def get_relevant_files(label: str) -> list[dict]:
     return files
 
 
-def load_architecture_context() -> str:
-    """Load the ARCHITECTURE.md file for system context."""
-    arch_path = Path('ARCHITECTURE.md')
-    if arch_path.exists():
-        return arch_path.read_text()
-    return ""
-
-
 def build_prompt(issue_title: str, issue_body: str, label: str, files: list[dict]) -> str:
     """Build the prompt for Claude to understand and implement the change."""
-
-    # Load architecture context
-    architecture = load_architecture_context()
 
     files_context = ""
     for f in files:
         files_context += f"\n\n### File: {f['path']}\n```python\n{f['content']}\n```"
 
-    prompt = f"""You are an AI agent that implements code changes based on GitHub issues.
+    prompt = f"""You are an AI agent that implements UI/visual changes to a web briefing page.
 
-## System Architecture
-Understanding how files relate to each other is critical. Read this carefully:
+## Scope
+You can ONLY make visual/styling changes:
+- Colors, fonts, spacing, layout
+- Chart appearance and styling
+- HTML structure changes
+- CSS modifications
+- Text, labels, headings
 
-{architecture}
+You CANNOT change:
+- Data sources or collection logic
+- Database schema
+- Analysis or scoring logic
+- API integrations
 
 ## Issue #{ISSUE_NUMBER}
 **Title:** {issue_title}
-**Label:** {label}
 **Description:**
 {issue_body}
 
-## Relevant Files
+## Files You Can Modify
 {files_context}
-
-## Your Task
-
-1. Understand what the user is requesting
-2. Determine which file(s) need to be modified
-3. Output the COMPLETE modified file(s)
 
 ## Output Format
 
@@ -133,13 +97,10 @@ For each file you modify, output in this exact format:
 ===END FILE===
 
 Rules:
-- CRITICAL: Read the "Common Change Patterns" section in System Architecture FIRST
-- For market symbol changes: YOU MUST modify BOTH market_collector.py AND html_reporter.py
 - Output the COMPLETE file content, not just the changes
-- Modify ALL related files - partial changes will break the system
-- Keep changes minimal and focused on the request
+- Keep changes minimal and focused on the visual request
 - Preserve existing functionality
-- If you cannot implement the request, explain why
+- If the request requires data/schema changes, explain that it's outside your scope
 
 Now implement the requested change:"""
 
@@ -213,8 +174,8 @@ def main():
     client = Anthropic()
 
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",  # Use Sonnet for better code generation
-        max_tokens=16000,  # Increased to handle multi-file changes (e.g., collector + reporter)
+        model="claude-sonnet-4-20250514",  # Use Sonnet for reliable code generation
+        max_tokens=16000,
         messages=[{
             "role": "user",
             "content": prompt

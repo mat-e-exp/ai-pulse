@@ -1,6 +1,24 @@
 # AI-Pulse Architecture
 
-This document helps the issue-driven agent understand how the system works and how files relate to each other.
+## Issue-Driven Agent Scope
+
+**The issue agent only handles UI/visual changes.**
+
+Supported: `directive:ui` label
+- Colors, fonts, spacing, layout
+- Chart appearance and styling
+- HTML structure changes
+- CSS modifications
+
+**Not supported by agent** (use Claude Code directly):
+- Adding market symbols or data sources
+- Changing analysis logic or prompts
+- Database schema changes
+- API integrations
+
+---
+
+This document describes the system architecture for reference.
 
 ## Data Flow
 
