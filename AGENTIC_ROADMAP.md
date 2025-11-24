@@ -48,9 +48,28 @@ Public Repo: mat-e-exp/ai-pulse-briefings
 9:30pm GMT (Mon-Fri): Collect market data → Update correlation
 ```
 
+**Phase 4: Issue-Driven Agent** ✅ (2025-11-24)
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| issue-handler.yml | ✅ | Triggers on `directive:*` labels |
+| issue_agent.py | ✅ | Claude parses issue, generates code |
+| Preview deployment | ✅ | `/preview/` subdirectory |
+| promote-prod.yml | ✅ | `promote:prod` label deploys to root |
+| reject-change.yml | ✅ | `rejected` label closes PR + issue |
+| Discord notifications | ✅ | DISCORD_WEBHOOK_APPROVALS |
+
+**Label System:**
+- `directive:ui` → HTML reporter, CSS
+- `directive:source` → News/event sources
+- `directive:data` → Market data, charts
+- `directive:config` → Parameters, thresholds
+- `directive:prompt` → Analysis prompts
+- `promote:prod` → Deploy preview to production
+- `rejected` → Close PR and issue
+
 ### What's NOT Built
 
-- Issue-driven automation (agent reads issues, implements changes)
 - Self-improvement loop (agent improves its own accuracy)
 - Outcome tracking (validating predictions)
 - Accuracy measurement
@@ -146,10 +165,15 @@ Public Repo: mat-e-exp/ai-pulse-briefings
 **Deliverable:** Create issue → Agent creates PR.
 
 **Labels for different actions:**
-- `directive:source` - Add/modify data source
-- `directive:config` - Change parameters
+- `directive:ui` - Change output format/styling (HTML, CSS)
+- `directive:source` - Add/modify news/event data sources
+- `directive:data` - Add/modify market data, charts, metrics
+- `directive:config` - Change parameters/thresholds
 - `directive:prompt` - Modify analysis prompts
-- `directive:investigate` - Research and report (no code change)
+
+**Promotion labels:**
+- `promote:prod` - Deploy previewed changes to production
+- `rejected` - Close PR and issue (change not wanted)
 
 ---
 

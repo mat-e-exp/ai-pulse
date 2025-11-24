@@ -6,7 +6,8 @@ This is the core of the agentic system - autonomous code modification based on u
 
 Labels:
 - directive:ui - Change output format/styling (HTML, CSS)
-- directive:source - Add/modify data sources
+- directive:source - Add/modify news/event data sources
+- directive:data - Add/modify market data, charts, metrics (spans collection + display)
 - directive:config - Change parameters/thresholds
 - directive:prompt - Modify analysis prompts
 """
@@ -38,11 +39,18 @@ def get_relevant_files(label: str) -> list[dict]:
             'style.css',
         ]
     elif label == 'directive:source':
-        # Data source changes
+        # News/event data source changes
         paths = [
             'agents/collector.py',
             'sources/newsapi.py',
             'sources/hackernews.py',
+        ]
+    elif label == 'directive:data':
+        # Market data, charts, metrics (spans collection + display)
+        paths = [
+            'agents/market_collector.py',
+            'agents/html_reporter.py',
+            'publish_briefing.py',
         ]
     elif label == 'directive:config':
         # Configuration changes
