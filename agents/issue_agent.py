@@ -195,7 +195,7 @@ def main():
     client = Anthropic()
 
     response = client.messages.create(
-        model="claude-3-5-haiku-20241022",  # Use Haiku for cost efficiency
+        model="claude-sonnet-4-20250514",  # Use Sonnet for better code generation
         max_tokens=8000,
         messages=[{
             "role": "user",
