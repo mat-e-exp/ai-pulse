@@ -214,7 +214,7 @@
 
             // Market Performance Chart
             const marketCtx = document.getElementById('marketChart').getContext('2d');
-            const marketData = {};
+            const marketData = {"AIQ": {"name": "AI Analytics ETF", "dates": ["2025-11-21"], "changes": [0.57]}, "BOTZ": {"name": "AI/Robotics ETF", "dates": ["2025-11-21"], "changes": [1.24]}, "PLTR": {"name": "Palantir", "dates": ["2025-11-21"], "changes": [-0.57]}, "AMD": {"name": "AMD", "dates": ["2025-11-21"], "changes": [-1.09]}, "META": {"name": "Meta", "dates": ["2025-11-21"], "changes": [0.87]}, "GOOGL": {"name": "Alphabet", "dates": ["2025-11-21"], "changes": [3.53]}, "MSFT": {"name": "Microsoft", "dates": ["2025-11-21"], "changes": [-1.32]}, "NVDA": {"name": "NVIDIA", "dates": ["2025-11-21"], "changes": [-0.97]}, "^GSPC": {"name": "S&P 500", "dates": ["2025-11-21"], "changes": [0.98]}, "^IXIC": {"name": "NASDAQ Composite", "dates": ["2025-11-21"], "changes": [0.88]}};
             const correlationData = {"total": 0, "correct": 0, "wrong": 0, "ambiguous": 0, "accuracy_pct": 0, "timeline": []};
 
             // Use same date range as sentiment chart (reuse labels from sentiment chart)
@@ -375,7 +375,7 @@
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-24 14:02 UTC</p>
+            <p class="date">2025-11-24 21:41 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -437,53 +437,53 @@
                 </div>
                 <div class="checkbox-grid">
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-0" class="market-checkbox" data-symbol="^IXIC" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-0" class="market-checkbox" data-symbol="^IXIC">
                         <span style="color: #6ee7b7">■</span> NASDAQ
                     </label>
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-1" class="market-checkbox" data-symbol="^GSPC" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-1" class="market-checkbox" data-symbol="^GSPC">
                         <span style="color: #94a3b8">■</span> S&P 500
                     </label>
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-2" class="market-checkbox" data-symbol="NVDA" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-2" class="market-checkbox" data-symbol="NVDA">
                         <span style="color: #c084fc">■</span> NVIDIA
                     </label>
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-3" class="market-checkbox" data-symbol="MSFT" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-3" class="market-checkbox" data-symbol="MSFT">
                         <span style="color: #60a5fa">■</span> Microsoft
                     </label>
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-4" class="market-checkbox" data-symbol="GOOGL" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-4" class="market-checkbox" data-symbol="GOOGL">
                         <span style="color: #fbbf24">■</span> Alphabet
                     </label>
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-5" class="market-checkbox" data-symbol="META" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-5" class="market-checkbox" data-symbol="META">
                         <span style="color: #f87171">■</span> Meta
                     </label>
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-6" class="market-checkbox" data-symbol="AMD" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-6" class="market-checkbox" data-symbol="AMD">
                         <span style="color: #fb923c">■</span> AMD
                     </label>
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-7" class="market-checkbox" data-symbol="PLTR" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-7" class="market-checkbox" data-symbol="PLTR">
                         <span style="color: #34d399">■</span> Palantir
                     </label>
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-8" class="market-checkbox" data-symbol="BOTZ" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-8" class="market-checkbox" data-symbol="BOTZ">
                         <span style="color: #a78bfa">■</span> AI/Robotics ETF
                     </label>
 
-                    <label class="checkbox-label" style=" opacity: 0.4;">
-                        <input type="checkbox" id="symbol-9" class="market-checkbox" data-symbol="AIQ" disabled>
+                    <label class="checkbox-label" style="">
+                        <input type="checkbox" id="symbol-9" class="market-checkbox" data-symbol="AIQ">
                         <span style="color: #f472b6">■</span> AI Analytics ETF
                     </label>
 
