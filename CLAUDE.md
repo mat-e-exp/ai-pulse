@@ -23,22 +23,22 @@ See [docs/diagrams.md](docs/diagrams.md) for visual diagrams including:
 - UI Change Process (Issue Agent)
 - Repository Structure
 
-## Current Status (2025-11-22)
+## Current Status (2025-11-24)
 
 ### Automated Pipeline ✅
-- **Daily collection**: 1pm GMT via GitHub Actions
+- **Morning collection**: 6am GMT - Collect + Analyze + Discord top 10
+- **Afternoon publish**: 1:30pm GMT - Collect delta + Publish HTML + Discord
 - **Market data**: 9:30pm GMT Mon-Fri via GitHub Actions
 - **Publishing**: Automatic to GitHub Pages
-- **No manual intervention required**
+- **Discord notifications**: All workflow completions
 
 ### What Runs Automatically
-```
-1pm GMT Daily:
-  Collect (6 sources) → Deduplicate → Analyze (Claude) → Publish
 
-9:30pm GMT Mon-Fri:
-  Collect market data → Update correlation → Republish
-```
+| Time (GMT) | Workflow | Actions |
+|------------|----------|---------|
+| 6am | morning-collection.yml | Collect → Analyze → Discord top 10 stories |
+| 1:30pm | daily-collection.yml | Collect delta → Analyze → Publish HTML → Discord |
+| 9:30pm Mon-Fri | market-close.yml | Market data → Update correlation → Discord |
 
 ### Repository Structure
 ```
@@ -122,7 +122,7 @@ ai-pulse/
 - Company IR RSS (unlimited, free) - NVIDIA, AMD press releases
 - Yahoo Finance via yfinance (free) - Market data, primary source
 - Alpha Vantage (500 calls/day free) - Market data, fallback when Yahoo rate limited
-- Tech RSS Feeds (unlimited, free) - TechCrunch, VentureBeat, CNBC, The Verge, etc.
+- Tech RSS Feeds (unlimited, free) - TechCrunch, VentureBeat, The Verge, Ars Technica, MIT Tech Review, Wired, AI News
 
 **Disabled (2025-11-11)**:
 - Google News RSS - Feed structure incompatible, returns no results
@@ -324,36 +324,39 @@ python3.9 cost_tracking/tracker.py --set-budget 50.0
 
 ## How It Works
 
-### Predictive Model - Overnight News → Same-Day Market (Model B)
+### Predictive Model - Overnight News → Same-Day Market
 
 **Goal**: Use overnight AI sector sentiment to predict same-day US market performance.
 
-**Workflow Timing (UK Time)**:
-1. **9pm GMT (previous day)**: US market closes
-2. **1pm GMT (today)**: Run analysis workflow
-   - Collect overnight news (published from previous 9pm → now)
-   - Deduplicate and analyze sentiment
-   - Generate briefing with sentiment analysis
-3. **2:30pm GMT**: US market opens
-4. **9pm GMT**: US market closes
-5. **After 9pm GMT**: Collect today's market data
-6. **Correlation**: Compare overnight sentiment → today's market movement
+**Automated Workflow (GMT)**:
+1. **9pm (previous day)**: US market closes
+2. **6am**: Morning collection + analysis → Discord top 10 stories
+3. **1:30pm**: Full briefing published (before US market opens at 2:30pm)
+4. **2:30pm**: US market opens
+5. **9pm**: US market closes
+6. **9:30pm**: Market data collected → Briefing updated with correlation
 
 **Question answered**: "Does overnight AI news sentiment predict same-day market behavior?"
 
-### Daily Workflow (Manual - For Accurate Sentiment)
-1. **Collect Data**: `python3.9 agents/collector.py` fetches from 6 sources with string deduplication
-2. **Semantic Dedup**: `python3.9 agents/semantic_deduplicator.py` uses Claude to catch semantic duplicates
-3. **Analyze Events**: `python3.9 agents/analyzer.py` uses Claude to score significance and sentiment (skips duplicates)
-4. **Collect Market Data**: `python3.9 agents/market_collector.py` (after 9pm GMT, after US market close)
-5. **Publish Briefing**: `python3.9 publish_briefing.py` generates HTML, updates index.html, saves sentiment history
-6. **Push to Git**: `git add . && git commit && git push` publishes to GitHub Pages
+### Manual Workflow (If Needed)
 
-**Critical Notes**:
-- Step 2 (semantic dedup) must run BEFORE step 3 (analysis) for trustworthy sentiment data
-- Run steps 1-3 at 1pm GMT to capture overnight news
-- Run step 4 after 9pm GMT when market closes
-- Step 5 correlates overnight sentiment with same-day market performance
+All steps are automated via GitHub Actions. Manual commands for testing:
+
+```bash
+# Collect from all sources
+python3.9 agents/collector.py --hn-limit 20 --news-limit 30
+
+# Deduplicate
+python3.9 agents/semantic_deduplicator.py --days 1
+
+# Analyze
+python3.9 agents/analyzer.py --limit 50
+
+# Publish
+python3.9 publish_briefing.py --days 7 --min-score 0
+```
+
+**Note**: Avoid running `market_collector.py` locally - burns shared API rate limits.
 
 ### Web Publishing System
 
