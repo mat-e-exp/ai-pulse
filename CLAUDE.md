@@ -258,6 +258,21 @@ NEWS_API_KEY=...
 TWITTER_API_KEY=...
 ```
 
+### Discord Webhooks (GitHub Secrets)
+
+Two webhooks for different audiences:
+
+| Secret | Audience | Used For |
+|--------|----------|----------|
+| `DISCORD_WEBHOOK` | Users | Page updates, daily briefings, production deploys |
+| `DISCORD_WEBHOOK_APPROVALS` | Devs | Code changes, PR reviews, preview ready, approvals |
+
+**Workflow usage:**
+- `daily-collection.yml` → `DISCORD_WEBHOOK` (daily briefing published)
+- `issue-handler.yml` → `DISCORD_WEBHOOK_APPROVALS` (preview ready for review)
+- `promote-prod.yml` → Both (devs: code deployed, users: page updated)
+- `reject-change.yml` → `DISCORD_WEBHOOK_APPROVALS` (change rejected)
+
 ## Commands
 
 ```bash

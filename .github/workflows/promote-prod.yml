@@ -91,8 +91,14 @@ jobs:
               body: '✅ Deployed to production and PR merged!'
             });
 
-      - name: Notify Discord - Production Deployed
+      - name: Notify Discord - Devs (Approvals channel)
         run: |
           curl -X POST "${{ secrets.DISCORD_WEBHOOK_APPROVALS }}" \
             -H "Content-Type: application/json" \
             -d "{\"content\":\"✅ **Deployed to Production**\n\n**Change:** ${{ github.event.issue.title }}\n**Live:** https://mat-e-exp.github.io/ai-pulse-briefings/\"}"
+
+      - name: Notify Discord - Users (Page update)
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\":\"📢 **AI Pulse Updated**\n\n${{ github.event.issue.title }}\n\n👀 View: https://mat-e-exp.github.io/ai-pulse-briefings/\"}"
