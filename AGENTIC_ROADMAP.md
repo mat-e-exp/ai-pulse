@@ -30,23 +30,14 @@ Transform AI-Pulse from a scheduled automation into a **self-improving agentic c
 | Database persistence | ✅ | Committed to private repo |
 | Discord notifications | ⚠️ | Needs /github suffix fix |
 
-**Architecture:**
-```
-Private Repo: mat-e-exp/ai-pulse
-├── Code, config, database
-├── GitHub Actions (scheduled)
-└── Pushes briefings to ↓
+**Architecture:** See [docs/diagrams.md](docs/diagrams.md) for visual diagrams.
 
-Public Repo: mat-e-exp/ai-pulse-briefings
-├── HTML briefings only
-└── GitHub Pages serves to web
-```
-
-**What It Does Daily:**
-```
-1pm GMT: Collect → Deduplicate → Analyze → Generate → Publish
-9:30pm GMT (Mon-Fri): Collect market data → Update correlation
-```
+**Daily Schedule (GMT):**
+| Time | Action |
+|------|--------|
+| 6am | Collect → Analyze → Discord top 10 |
+| 1:30pm | Collect delta → Analyze → Publish HTML → Discord |
+| 9:30pm (Mon-Fri) | Market data → Update correlation → Discord |
 
 **Phase 4: Issue-Driven Agent** ✅ (2025-11-24)
 
@@ -246,35 +237,32 @@ analysis logic, or schema changes - use Claude Code directly.
 
 ---
 
-## Files That Will Be Added
+## Files Status
 
-```
-ai-pulse/
-├── .github/workflows/
-│   ├── daily-collection.yml      # ✅ Exists
-│   ├── market-close.yml          # ✅ Exists
-│   ├── issue-handler.yml         # 🔲 Phase 4
-│   └── weekly-improvement.yml    # 🔲 Phase 5
-├── config/
-│   ├── sources.yaml              # 🔲 Phase 3
-│   ├── scoring.yaml              # 🔲 Phase 3
-│   └── thresholds.yaml           # 🔲 Phase 3
-├── prompts/
-│   ├── significance.md           # 🔲 Phase 3
-│   └── sentiment.md              # 🔲 Phase 3
-├── agents/
-│   ├── collector.py              # ✅ Exists
-│   ├── analyzer.py               # ✅ Exists
-│   ├── improvement_agent.py      # 🔲 Phase 5
-│   └── issue_agent.py            # 🔲 Phase 4
-├── evaluation/
-│   ├── outcome_tracker.py        # 🔲 Phase 2
-│   ├── accuracy_calculator.py    # 🔲 Phase 2
-│   └── backtest.py               # 🔲 Phase 5
-└── data/
-    ├── outcomes/                  # 🔲 Phase 2
-    └── metrics/                   # 🔲 Phase 2
-```
+See [docs/diagrams.md](docs/diagrams.md) for repository structure diagram.
+
+**Workflows:**
+| File | Status | Purpose |
+|------|--------|---------|
+| morning-collection.yml | ✅ | 6am collection + Discord top 10 |
+| daily-collection.yml | ✅ | 1:30pm analysis + HTML publish |
+| market-close.yml | ✅ | 9:30pm market data |
+| issue-handler.yml | ✅ | UI change agent |
+| weekly-improvement.yml | 🔲 Phase 5 | Self-improvement |
+
+**Agents:**
+| File | Status | Purpose |
+|------|--------|---------|
+| collector.py | ✅ | Data collection |
+| analyzer.py | ✅ | Claude analysis |
+| issue_agent.py | ✅ | UI change generation |
+| discord_morning.py | ✅ | Format top 10 for Discord |
+| improvement_agent.py | 🔲 Phase 5 | Self-improvement |
+
+**Future (Not Yet Built):**
+- config/*.yaml - Config-driven parameters (Phase 3)
+- prompts/*.md - Editable prompts (Phase 3)
+- evaluation/*.py - Outcome tracking (Phase 2)
 
 ---
 
