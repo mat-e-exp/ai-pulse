@@ -273,6 +273,49 @@ Two webhooks for different audiences:
 - `promote-prod.yml` → Both (devs: code deployed, users: page updated)
 - `reject-change.yml` → `DISCORD_WEBHOOK_APPROVALS` (change rejected)
 
+## API Rate Limits and Constraints
+
+**IMPORTANT: Read this before running any collector scripts locally.**
+
+### Market Data APIs (market_collector.py)
+
+| API | Rate Limit | Resets | What Works | What Doesn't |
+|-----|------------|--------|------------|--------------|
+| Yahoo Finance | ~100 calls/hour | 1-24 hours | All symbols | - |
+| Alpha Vantage | 500/day, 5/min | Midnight UTC | Stocks, ETFs | **Indices (free tier)** |
+| Twelve Data | 800/day | Midnight UTC | All symbols | - |
+
+**Fallback order:** Yahoo → Alpha Vantage → Twelve Data → Direct Yahoo API
+
+### News/Event APIs (collector.py)
+
+| API | Rate Limit | Resets | Notes |
+|-----|------------|--------|-------|
+| NewsAPI | 100 calls/day | Midnight UTC | Free tier |
+| HackerNews | Unlimited | - | No key needed |
+| SEC EDGAR | 10 calls/sec | - | No key needed |
+| GitHub | 5000/hour | Hourly | With token |
+
+### Rules for Claude Code
+
+1. **NEVER run market_collector.py locally** without asking user first
+   - Burns shared API rate limits
+   - Prefer triggering GitHub Actions (different IP for Yahoo)
+
+2. **If Yahoo is rate limited:**
+   - Wait 1-24 hours for reset
+   - GitHub Actions workflow may work (different IP)
+   - Alpha Vantage fallback won't get indices
+
+3. **Alpha Vantage free tier limitations:**
+   - Cannot fetch ^IXIC (NASDAQ) or ^GSPC (S&P 500)
+   - Only stocks and ETFs work
+
+4. **Before any API call, ask:**
+   - Is this necessary?
+   - Can we use cached/existing data?
+   - Should the user trigger a workflow instead?
+
 ## Commands
 
 ```bash
