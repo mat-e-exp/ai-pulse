@@ -1,0 +1,62 @@
+name: Reject Change
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  reject-change:
+    if: github.event.label.name == 'rejected'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Close associated PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find PR for this issue
+            const issueNumber = context.issue.number;
+            const branchName = `issue-${issueNumber}`;
+
+            // List open PRs
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${branchName}`
+            });
+
+            // Close matching PR
+            for (const pr of prs.data) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                state: 'closed'
+              });
+              console.log(`Closed PR #${pr.number}`);
+            }
+
+      - name: Close issue with comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ Change rejected. Issue and PR closed.\n\nCreate a new issue with updated instructions if needed.'
+            });
+
+            await github.rest.issues.update({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed'
+            });
+
+      - name: Notify Discord
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_APPROVALS }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\":\"❌ **Change Rejected**\n\n**Issue:** ${{ github.event.issue.title }}\n\nIssue and PR closed.\"}"
