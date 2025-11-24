@@ -66,7 +66,20 @@ jobs:
           echo "=== Total counts ==="
           sqlite3 ai_pulse.db "SELECT COUNT(*) as total, SUM(CASE WHEN significance_score IS NOT NULL THEN 1 ELSE 0 END) as analyzed FROM events;"
 
+      - name: Check database has events
+        id: check_events
+        run: |
+          EVENT_COUNT=$(sqlite3 ai_pulse.db "SELECT COUNT(*) FROM events WHERE significance_score IS NOT NULL;" 2>/dev/null || echo "0")
+          echo "Event count: $EVENT_COUNT"
+          if [ "$EVENT_COUNT" -gt 0 ]; then
+            echo "has_events=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_events=false" >> $GITHUB_OUTPUT
+            echo "WARNING: No analyzed events found - skipping briefing publish"
+          fi
+
       - name: Generate briefing HTML
+        if: steps.check_events.outputs.has_events == 'true'
         run: python3 publish_briefing.py --days 7 --min-score 0
 
       - name: Commit database to private repo
@@ -80,6 +93,7 @@ jobs:
           git push || echo "Nothing to push"
 
       - name: Prepare briefings for public repo
+        if: steps.check_events.outputs.has_events == 'true'
         run: |
           mkdir -p output
           cp -r briefings output/
@@ -88,6 +102,7 @@ jobs:
           cp style.css output/
 
       - name: Push to public briefings repo
+        if: steps.check_events.outputs.has_events == 'true'
         uses: cpina/github-action-push-to-another-repository@main
         env:
           SSH_DEPLOY_KEY: ${{ secrets.BRIEFINGS_DEPLOY_KEY }}
