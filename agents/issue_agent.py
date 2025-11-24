@@ -133,9 +133,10 @@ For each file you modify, output in this exact format:
 ===END FILE===
 
 Rules:
-- IMPORTANT: Refer to the System Architecture section to understand which files need changes together
+- CRITICAL: Read the "Common Change Patterns" section in System Architecture FIRST
+- For market symbol changes: YOU MUST modify BOTH market_collector.py AND html_reporter.py
 - Output the COMPLETE file content, not just the changes
-- Modify ALL files that need changes (e.g., adding a symbol requires both collector AND reporter)
+- Modify ALL related files - partial changes will break the system
 - Keep changes minimal and focused on the request
 - Preserve existing functionality
 - If you cannot implement the request, explain why
