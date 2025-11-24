@@ -27,6 +27,33 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def get_last_trading_day(from_date: datetime = None) -> str:
+    """
+    Get the most recent trading day (excluding weekends).
+
+    If from_date is a weekend, returns the previous Friday.
+    If from_date is Monday, returns the same day (today's data won't be ready until market close).
+
+    Args:
+        from_date: Date to check from (default: yesterday)
+
+    Returns:
+        Date string in YYYY-MM-DD format
+    """
+    if from_date is None:
+        from_date = datetime.utcnow() - timedelta(days=1)  # Start from yesterday
+
+    # weekday(): Monday=0, Sunday=6
+    weekday = from_date.weekday()
+
+    if weekday == 5:  # Saturday -> Friday
+        from_date = from_date - timedelta(days=1)
+    elif weekday == 6:  # Sunday -> Friday
+        from_date = from_date - timedelta(days=2)
+
+    return from_date.strftime('%Y-%m-%d')
+
+
 # Symbols to track
 SYMBOLS = {
     'indices': {
@@ -567,7 +594,8 @@ if __name__ == "__main__":
         if args.date:
             date_str = args.date
         else:
-            # Default: yesterday (since we want end-of-day data)
-            date_str = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%d')
+            # Default: last trading day (handles weekends automatically)
+            date_str = get_last_trading_day()
+            print(f"Auto-detected last trading day: {date_str}")
 
         collect_market_data(date_str, db_path=args.db)
