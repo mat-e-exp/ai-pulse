@@ -214,7 +214,7 @@
 
             // Market Performance Chart
             const marketCtx = document.getElementById('marketChart').getContext('2d');
-            const marketData = {};
+            const marketData = {"BTC-USD": {"name": "Bitcoin", "dates": ["2025-11-22", "2025-11-23", "2025-11-24"], "changes": [-0.52, 2.55, -1.02]}};
             const correlationData = {"total": 0, "correct": 0, "wrong": 0, "ambiguous": 0, "accuracy_pct": 0, "timeline": []};
 
             // Use same date range as sentiment chart (reuse labels from sentiment chart)
@@ -375,7 +375,7 @@
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-24 09:17 UTC</p>
+            <p class="date">2025-11-24 10:25 UTC</p>
         </div>
 
         <nav class="header-nav">

@@ -44,6 +44,9 @@ SYMBOLS = {
     'etfs': {
         'BOTZ': 'AI/Robotics ETF',
         'AIQ': 'AI Analytics ETF',
+    },
+    'crypto': {
+        'BTC-USD': 'Bitcoin',
     }
 }
 
