@@ -495,6 +495,10 @@ if __name__ == "__main__":
                        help='ArXiv days back (default: 7)')
     parser.add_argument('--arxiv-limit', type=int, default=5,
                        help='ArXiv max papers total (default: 5)')
+    parser.add_argument('--rss-days', type=int, default=1,
+                       help='Tech RSS days back (default: 1)')
+    parser.add_argument('--rss-limit', type=int, default=10,
+                       help='Tech RSS articles per feed (default: 10)')
     parser.add_argument('--db', type=str, default='ai_pulse.db',
                        help='Database file path (default: ai_pulse.db)')
 
@@ -511,5 +515,7 @@ if __name__ == "__main__":
             github_stars=args.github_stars,
             ir_days=args.ir_days,
             arxiv_days=args.arxiv_days,
-            arxiv_limit=args.arxiv_limit
+            arxiv_limit=args.arxiv_limit,
+            rss_days=args.rss_days,
+            rss_limit=args.rss_limit
         )
