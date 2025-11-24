@@ -86,10 +86,14 @@ jobs:
         run: |
           git config user.name "AI Pulse Bot"
           git config user.email "bot@ai-pulse.local"
+          echo "Database size:"
           ls -la ai_pulse.db
+          echo "Database event count:"
+          sqlite3 ai_pulse.db "SELECT COUNT(*) FROM events;" || echo "Could not query"
           git add -f ai_pulse.db
           git add briefings/*.html index.html archive.html || true
-          git diff --staged --quiet || git commit -m "Daily collection $(date -u +%Y-%m-%d)"
+          # Always try to commit - the database should be persisted
+          git commit -m "Daily collection $(date -u +%Y-%m-%d)" || echo "Nothing new to commit"
           git push || echo "Nothing to push"
 
       - name: Prepare briefings for public repo
