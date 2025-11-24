@@ -13,11 +13,30 @@ import sqlite3
 from datetime import datetime, timedelta
 
 
-def ensure_correlation_table(db_path: str):
-    """Create daily_correlation table if it doesn't exist"""
+def ensure_tables(db_path: str):
+    """Create required tables if they don't exist"""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
+    # Daily sentiment table (created by publish_briefing, but ensure it exists)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS daily_sentiment (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL UNIQUE,
+            positive INTEGER DEFAULT 0,
+            negative INTEGER DEFAULT 0,
+            neutral INTEGER DEFAULT 0,
+            mixed INTEGER DEFAULT 0,
+            total_analyzed INTEGER DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_sentiment_date ON daily_sentiment(date DESC)
+    """)
+
+    # Daily correlation table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS daily_correlation (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,6 +58,12 @@ def ensure_correlation_table(db_path: str):
 
     conn.commit()
     conn.close()
+
+
+# Keep old name for compatibility
+def ensure_correlation_table(db_path: str):
+    """Alias for ensure_tables"""
+    ensure_tables(db_path)
 
 
 def classify_market_outcome(change_pct: float) -> str:
