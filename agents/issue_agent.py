@@ -84,14 +84,30 @@ def get_relevant_files(label: str) -> list[dict]:
     return files
 
 
+def load_architecture_context() -> str:
+    """Load the ARCHITECTURE.md file for system context."""
+    arch_path = Path('ARCHITECTURE.md')
+    if arch_path.exists():
+        return arch_path.read_text()
+    return ""
+
+
 def build_prompt(issue_title: str, issue_body: str, label: str, files: list[dict]) -> str:
     """Build the prompt for Claude to understand and implement the change."""
+
+    # Load architecture context
+    architecture = load_architecture_context()
 
     files_context = ""
     for f in files:
         files_context += f"\n\n### File: {f['path']}\n```python\n{f['content']}\n```"
 
     prompt = f"""You are an AI agent that implements code changes based on GitHub issues.
+
+## System Architecture
+Understanding how files relate to each other is critical. Read this carefully:
+
+{architecture}
 
 ## Issue #{ISSUE_NUMBER}
 **Title:** {issue_title}
@@ -117,8 +133,9 @@ For each file you modify, output in this exact format:
 ===END FILE===
 
 Rules:
+- IMPORTANT: Refer to the System Architecture section to understand which files need changes together
 - Output the COMPLETE file content, not just the changes
-- Only modify files that need changes
+- Modify ALL files that need changes (e.g., adding a symbol requires both collector AND reporter)
 - Keep changes minimal and focused on the request
 - Preserve existing functionality
 - If you cannot implement the request, explain why
