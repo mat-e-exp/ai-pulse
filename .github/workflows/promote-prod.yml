@@ -45,21 +45,50 @@ jobs:
           target-branch: main
           commit-message: 'Production: ${{ github.event.issue.title }}'
 
-      - name: Close issue
+      - name: Merge associated PR and close issue
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.update({
-              issue_number: context.issue.number,
+            const issueNumber = context.issue.number;
+            const branchName = `issue-${issueNumber}`;
+
+            // Find PR for this issue
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${branchName}`
+            });
+
+            // Merge the PR if found
+            for (const pr of prs.data) {
+              try {
+                await github.rest.pulls.merge({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  merge_method: 'squash'
+                });
+                console.log(`Merged PR #${pr.number}`);
+              } catch (e) {
+                console.log(`Could not merge PR #${pr.number}: ${e.message}`);
+              }
+            }
+
+            // Close the issue
+            await github.rest.issues.update({
+              issue_number: issueNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'closed'
             });
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
+
+            // Comment on issue
+            await github.rest.issues.createComment({
+              issue_number: issueNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '✅ Deployed to production!'
+              body: '✅ Deployed to production and PR merged!'
             });
 
       - name: Notify Discord - Production Deployed
