@@ -216,12 +216,11 @@ ai-pulse/
 - Company IR RSS (unlimited, free) - NVIDIA, AMD press releases
 - Yahoo Finance via yfinance (free) - Market data, primary source
 - Alpha Vantage (500 calls/day free) - Market data, fallback when Yahoo rate limited
+- Tech RSS Feeds (unlimited, free) - TechCrunch, VentureBeat, CNBC, The Verge, etc.
 
 **Disabled (2025-11-11)**:
 - Google News RSS - Feed structure incompatible, returns no results
 - Bing News API - Requires separate API key, not worth additional cost
-- Tech RSS Feeds - Inconsistent/broken feeds with parsing errors
-- Files exist in `sources/` but not integrated into collector
 
 **Future Sources**:
 - Twitter/X API (basic tier)

@@ -26,6 +26,7 @@ class TechRSSSource:
     """
 
     # Major tech news RSS feeds
+    # Note: CNBC blocks RSS requests with Access Denied, so not included
     RSS_FEEDS = {
         'TechCrunch AI': 'https://techcrunch.com/category/artificial-intelligence/feed/',
         'VentureBeat AI': 'https://venturebeat.com/category/ai/feed/',
@@ -33,7 +34,7 @@ class TechRSSSource:
         'Ars Technica AI': 'https://feeds.arstechnica.com/arstechnica/technology-lab',
         'MIT Technology Review AI': 'https://www.technologyreview.com/topic/artificial-intelligence/feed',
         'AI News': 'https://www.artificialintelligence-news.com/feed/',
-        'InfoWorld AI': 'https://www.infoworld.com/category/artificial-intelligence/index.rss',
+        'Wired AI': 'https://www.wired.com/feed/tag/ai/latest/rss',
     }
 
     def __init__(self):
@@ -72,6 +73,7 @@ class TechRSSSource:
             root = ET.fromstring(xml_content)
 
             items = []
+            # Use naive datetime for comparison (strip timezone from parsed dates)
             cutoff = datetime.utcnow() - timedelta(days=days_back)
 
             # Try RSS 2.0 format first
@@ -81,7 +83,9 @@ class TechRSSSource:
                 pubdate_elem = item.find('pubDate')
                 description_elem = item.find('description')
 
-                if not all([title_elem, link_elem]):
+                # Note: use 'is not None' instead of truthiness check because
+                # XML Element objects evaluate to False if they have no children
+                if title_elem is None or link_elem is None:
                     continue
 
                 title = title_elem.text
@@ -114,7 +118,8 @@ class TechRSSSource:
                     updated_elem = entry.find('atom:updated', ns)
                     summary_elem = entry.find('atom:summary', ns)
 
-                    if not all([title_elem, link_elem]):
+                    # Note: use 'is not None' instead of truthiness check
+                    if title_elem is None or link_elem is None:
                         continue
 
                     title = title_elem.text
@@ -144,7 +149,7 @@ class TechRSSSource:
             return []
 
     def _parse_date(self, date_str: str) -> Optional[datetime]:
-        """Parse various date formats"""
+        """Parse various date formats, returning naive UTC datetime"""
         if not date_str:
             return None
 
@@ -157,13 +162,20 @@ class TechRSSSource:
 
         for fmt in formats:
             try:
-                return datetime.strptime(date_str.strip(), fmt)
+                parsed = datetime.strptime(date_str.strip(), fmt)
+                # Convert to naive UTC datetime for consistent comparison
+                if parsed.tzinfo is not None:
+                    parsed = parsed.replace(tzinfo=None)
+                return parsed
             except:
                 continue
 
         # Try fromisoformat as fallback
         try:
-            return datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+            parsed = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+            if parsed.tzinfo is not None:
+                parsed = parsed.replace(tzinfo=None)
+            return parsed
         except:
             return datetime.utcnow()
 

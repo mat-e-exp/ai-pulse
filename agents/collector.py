@@ -21,6 +21,7 @@ from sources.sec_edgar import SECEdgarSource
 from sources.github_trending import GitHubTrendingSource
 from sources.company_ir import CompanyIRSource
 from sources.arxiv_papers import ArXivSource
+from sources.tech_rss import TechRSSSource
 from storage.db import EventDatabase
 from models.events import Event
 from difflib import SequenceMatcher
@@ -85,6 +86,9 @@ class DataCollector:
 
         # ArXiv (always available)
         self.sources['arxiv'] = ArXivSource()
+
+        # Tech RSS feeds (always available - TechCrunch, VentureBeat, CNBC, etc.)
+        self.sources['tech_rss'] = TechRSSSource()
 
     def deduplicate_events(self, events: list[Event], similarity_threshold: float = 0.75) -> tuple[list[Event], int]:
         """
@@ -339,9 +343,38 @@ class DataCollector:
         print(f"\n✓ ArXiv: {result['saved']} new, {result['duplicates']} URL duplicates, {content_dupes} content duplicates")
         return result
 
+    def collect_from_tech_rss(self, days_back: int = 1, limit_per_feed: int = 10) -> dict:
+        """
+        Collect from Tech RSS feeds (TechCrunch, VentureBeat, CNBC, etc.).
+
+        Args:
+            days_back: How many days of history
+            limit_per_feed: Max articles per feed
+
+        Returns:
+            Stats dict
+        """
+        print("\n" + "=" * 80)
+        print("COLLECTING FROM TECH RSS FEEDS")
+        print("=" * 80)
+
+        source = self.sources['tech_rss']
+        events = source.fetch_all_feeds(days_back=days_back, limit_per_feed=limit_per_feed)
+
+        # Deduplicate before saving
+        events, content_dupes = self.deduplicate_events(events)
+        if content_dupes > 0:
+            print(f"  ⚡ Removed {content_dupes} content duplicates")
+
+        result = self.db.save_events(events)
+
+        print(f"\n✓ Tech RSS: {result['saved']} new, {result['duplicates']} URL duplicates, {content_dupes} content duplicates")
+        return result
+
     def collect_all(self, hn_limit: int = 20, news_days: int = 1, news_limit: int = 30,
                     sec_days: int = 30, github_days: int = 30, github_stars: int = 100,
-                    ir_days: int = 30, arxiv_days: int = 7, arxiv_limit: int = 5) -> dict:
+                    ir_days: int = 30, arxiv_days: int = 7, arxiv_limit: int = 5,
+                    rss_days: int = 1, rss_limit: int = 10) -> dict:
         """
         Collect from all available sources.
 
@@ -355,6 +388,8 @@ class DataCollector:
             ir_days: Company IR days back
             arxiv_days: ArXiv days back
             arxiv_limit: ArXiv max papers (total, not per category)
+            rss_days: Tech RSS days back
+            rss_limit: Tech RSS articles per feed
 
         Returns:
             Combined stats
@@ -395,6 +430,11 @@ class DataCollector:
         arxiv_stats = self.collect_from_arxiv(days_back=arxiv_days, max_results=arxiv_limit)
         total_saved += arxiv_stats['saved']
         total_duplicates += arxiv_stats['duplicates']
+
+        # Collect from Tech RSS feeds (TechCrunch, VentureBeat, CNBC, etc.)
+        rss_stats = self.collect_from_tech_rss(days_back=rss_days, limit_per_feed=rss_limit)
+        total_saved += rss_stats['saved']
+        total_duplicates += rss_stats['duplicates']
 
         # Show database stats
         print("\n" + "=" * 80)
