@@ -213,7 +213,7 @@ def main():
 
     response = client.messages.create(
         model="claude-sonnet-4-20250514",  # Use Sonnet for better code generation
-        max_tokens=8000,
+        max_tokens=16000,  # Increased to handle multi-file changes (e.g., collector + reporter)
         messages=[{
             "role": "user",
             "content": prompt
