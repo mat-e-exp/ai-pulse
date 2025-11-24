@@ -71,3 +71,12 @@ jobs:
               repo: context.repo.repo,
               body: '🤖 I\'ve created a PR to address this issue. Please review the changes.'
             })
+
+      - name: Notify Discord - PR Ready
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_APPROVALS }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\":\"🔔 **PR Ready for Review**\n\n**Issue:** ${{ github.event.issue.title }}\n**PR:** https://github.com/${{ github.repository }}/pull/$(gh pr list --head issue-${{ github.event.issue.number }} --json number -q '.[0].number')\n\nReview and merge to deploy to preview.\"}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

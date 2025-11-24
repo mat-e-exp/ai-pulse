@@ -1,0 +1,69 @@
+name: Promote to Production
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  promote-to-prod:
+    # Only run if issue has promote:prod label
+    if: github.event.label.name == 'promote:prod'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate production briefing
+        run: python3 publish_briefing.py --days 7 --min-score 0
+
+      - name: Prepare production output
+        run: |
+          mkdir -p output
+          cp -r briefings output/
+          cp index.html output/
+          cp archive.html output/
+          cp style.css output/
+
+      - name: Push to production (public repo root)
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.BRIEFINGS_DEPLOY_KEY }}
+        with:
+          source-directory: 'output'
+          destination-github-username: 'mat-e-exp'
+          destination-repository-name: 'ai-pulse-briefings'
+          target-branch: main
+          commit-message: 'Production: ${{ github.event.issue.title }}'
+
+      - name: Close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.update({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed'
+            });
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Deployed to production!'
+            });
+
+      - name: Notify Discord - Production Deployed
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_APPROVALS }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\":\"✅ **Deployed to Production**\n\n**Change:** ${{ github.event.issue.title }}\n**Live:** https://mat-e-exp.github.io/ai-pulse-briefings/\"}"
