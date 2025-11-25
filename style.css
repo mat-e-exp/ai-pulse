@@ -42,13 +42,16 @@ header {
     display: grid;
     grid-template-columns: 150px 1fr 150px;
     align-items: center;
-    gap: 20px;
+    gap: 30px; /* Increased from 20px for more spacing */
 }
 
 .header-stats {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    border: 1px solid rgba(148, 163, 184, 0.3); /* Light border */
+    padding: 15px;
+    border-radius: 8px;
 }
 
 .stat-item {
@@ -72,6 +75,9 @@ header {
 
 .header-center {
     text-align: center;
+    border: 1px solid rgba(148, 163, 184, 0.3); /* Light border */
+    padding: 15px;
+    border-radius: 8px;
 }
 
 .header-center h1 {
@@ -95,6 +101,9 @@ header {
     flex-direction: column;
     gap: 10px;
     align-items: flex-end;
+    border: 1px solid rgba(148, 163, 184, 0.3); /* Light border */
+    padding: 15px;
+    border-radius: 8px;
 }
 
 .header-nav a {
