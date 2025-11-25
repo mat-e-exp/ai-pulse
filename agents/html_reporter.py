@@ -250,18 +250,6 @@ class HTMLReporter:
                         mode: 'index',  // Trigger on x-axis position
                         intersect: false  // Don't require hovering directly on points
                     }},
-                    onHover: function(event, activeElements, chart) {{
-                        // Get the x-position and find the nearest date index
-                        const canvasPosition = Chart.helpers.getRelativePosition(event, chart);
-                        const dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
-
-                        if (dataX !== null && dataX >= 0 && dataX < labels.length) {{
-                            const index = Math.round(dataX);
-                            if (index >= 0 && index < labels.length) {{
-                                updateSentimentBreakdown(index, labels[index], positiveData[index], negativeData[index], neutralData[index], mixedData[index], totalData[index]);
-                            }}
-                        }}
-                    }},
                     plugins: {{
                         legend: {{
                             labels: {{
@@ -309,50 +297,6 @@ class HTMLReporter:
                 }}
             }});
 
-            // Function to update sentiment breakdown display
-            function updateSentimentBreakdown(index, date, positive, negative, neutral, mixed, total) {{
-                document.getElementById('breakdown-date').textContent = date;
-
-                // Check if we have data for this date
-                if (!total || total === 0 || positive === null) {{
-                    // No data - show placeholders
-                    document.getElementById('breakdown-positive-pct').textContent = '-';
-                    document.getElementById('breakdown-negative-pct').textContent = '-';
-                    document.getElementById('breakdown-neutral-pct').textContent = '-';
-                    document.getElementById('breakdown-mixed-pct').textContent = '-';
-                    document.getElementById('breakdown-positive-count').textContent = '-';
-                    document.getElementById('breakdown-negative-count').textContent = '-';
-                    document.getElementById('breakdown-neutral-count').textContent = '-';
-                    document.getElementById('breakdown-mixed-count').textContent = '-';
-                    document.getElementById('breakdown-total').textContent = '-';
-                }} else {{
-                    // Has data - show actual values
-                    document.getElementById('breakdown-positive-pct').textContent = (positive || 0).toFixed(1) + '%';
-                    document.getElementById('breakdown-negative-pct').textContent = (negative || 0).toFixed(1) + '%';
-                    document.getElementById('breakdown-neutral-pct').textContent = (neutral || 0).toFixed(1) + '%';
-                    document.getElementById('breakdown-mixed-pct').textContent = (mixed || 0).toFixed(1) + '%';
-
-                    // Calculate actual counts from percentages
-                    const posCount = total > 0 ? Math.round(positive * total / 100) : 0;
-                    const negCount = total > 0 ? Math.round(negative * total / 100) : 0;
-                    const neuCount = total > 0 ? Math.round(neutral * total / 100) : 0;
-                    const mixCount = total > 0 ? Math.round(mixed * total / 100) : 0;
-
-                    document.getElementById('breakdown-positive-count').textContent = posCount;
-                    document.getElementById('breakdown-negative-count').textContent = negCount;
-                    document.getElementById('breakdown-neutral-count').textContent = neuCount;
-                    document.getElementById('breakdown-mixed-count').textContent = mixCount;
-                    document.getElementById('breakdown-total').textContent = total || 0;
-                }}
-
-                // Highlight the breakdown section
-                const breakdownSection = document.getElementById('sentiment-breakdown');
-                breakdownSection.style.backgroundColor = 'rgba(110, 231, 183, 0.05)';
-                setTimeout(() => {{
-                    breakdownSection.style.backgroundColor = '';
-                }}, 200);
-            }}
-
             // Market Performance Chart
             const marketCtx = document.getElementById('marketChart').getContext('2d');
             const marketData = {market_chart_data};
@@ -397,7 +341,7 @@ class HTMLReporter:
                     borderColor: config.color,
                     backgroundColor: 'transparent',
                     tension: 0.3,
-                    hidden: true,  // All hidden by default
+                    hidden: false,  // Visible by default (checkboxes are checked)
                     spanGaps: true  // Connect across missing data points
                 }};
             }}).filter(d => d !== null);
@@ -533,39 +477,6 @@ class HTMLReporter:
             <div class="chart-container">
                 <canvas id="sentimentChart"></canvas>
             </div>
-            <div class="sentiment-current" id="sentiment-breakdown">
-                <h4>Sentiment Breakdown <span id="breakdown-date" style="color: #6ee7b7; font-weight: normal;">(Hover over chart)</span></h4>
-                <ul class="sentiment-list">
-"""
-
-        # Show blank/placeholder state by default
-        html += """                    <li>
-                        <span class="sentiment-positive">positive</span>:
-                        <span id="breakdown-positive-pct">-</span>
-                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-positive-count">-</span> events)</span>
-                    </li>
-                    <li>
-                        <span class="sentiment-negative">negative</span>:
-                        <span id="breakdown-negative-pct">-</span>
-                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-negative-count">-</span> events)</span>
-                    </li>
-                    <li>
-                        <span class="sentiment-neutral">neutral</span>:
-                        <span id="breakdown-neutral-pct">-</span>
-                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-neutral-count">-</span> events)</span>
-                    </li>
-                    <li>
-                        <span class="sentiment-mixed">mixed</span>:
-                        <span id="breakdown-mixed-pct">-</span>
-                        <span style="color: #94a3b8; font-size: 0.9em;">(<span id="breakdown-mixed-count">-</span> events)</span>
-                    </li>
-                    <li style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155;">
-                        <strong>Total:</strong> <span id="breakdown-total">-</span> events analyzed
-                    </li>
-"""
-
-        html += """                </ul>
-            </div>
         </section>
 
         <section class="sentiment-box">
@@ -622,9 +533,10 @@ class HTMLReporter:
             disabled_attr = '' if has_data else ' disabled'
             disabled_style = '' if has_data else ' opacity: 0.4;'
 
+            checked_attr = ' checked' if has_data else ''
             html += f"""
                     <label class="checkbox-label" style="{disabled_style}">
-                        <input type="checkbox" id="symbol-{idx}" class="market-checkbox" data-symbol="{symbol}"{disabled_attr}>
+                        <input type="checkbox" id="symbol-{idx}" class="market-checkbox" data-symbol="{symbol}"{disabled_attr}{checked_attr}>
                         <span style="color: {color}">■</span> {label}
                     </label>
 """
@@ -720,8 +632,8 @@ class HTMLReporter:
         # Material events (show top 3, expand for more)
         if material_events:
             html += """
-        <section class="events material-events">
-            <h2>🔴 Material Events <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(thesis-changing)</span></h2>
+        <section class="sentiment-box">
+            <h2>📈 Material Events <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(thesis-changing)</span></h2>
 """
             for idx, event in enumerate(material_events):
                 if idx < 3:
@@ -745,8 +657,8 @@ class HTMLReporter:
         # Notable events (show top 3, expand for more)
         if notable_events:
             html += """
-        <section class="events notable-events">
-            <h2>🟡 Notable Events <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(worth tracking)</span></h2>
+        <section class="sentiment-box">
+            <h2>📊 Notable Events <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(worth tracking)</span></h2>
 """
             for idx, event in enumerate(notable_events):
                 if idx < 3:
@@ -769,8 +681,8 @@ class HTMLReporter:
         # Background events (show top 3, expand for more)
         if background_events:
             html += """
-        <section class="events background-events">
-            <h2>🔵 Background <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(general awareness)</span></h2>
+        <section class="sentiment-box">
+            <h2>👀 Background <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(general awareness)</span></h2>
 """
             for idx, event in enumerate(background_events):
                 if idx < 3:
@@ -793,15 +705,27 @@ class HTMLReporter:
         # Research Highlights section (separate from sentiment-driven news)
         if research_papers:
             html += """
-        <section class="events research-events">
+        <section class="sentiment-box">
             <h2>📚 Research Highlights <span style="font-size: 0.7em; color: #94a3b8; font-weight: normal;">(technical developments)</span></h2>
             <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; font-style: italic;">
                 Research papers are not included in sentiment analysis - they represent technical progress rather than market-moving news.
             </p>
 """
             for idx, event in enumerate(research_papers):
-                html += self._generate_event_card(event)
+                if idx < 5:
+                    html += self._generate_event_card(event)
+                else:
+                    html += f'<div id="research-hidden-{idx}" style="display: none;">'
+                    html += self._generate_event_card(event)
+                    html += '</div>'
 
+            if len(research_papers) > 5:
+                html += f"""
+            <button onclick="toggleEventSection('research', {len(research_papers)})" id="research-toggle-btn"
+                    style="margin: 20px auto; display: block; padding: 8px 20px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
+                Show {len(research_papers) - 5} More Events
+            </button>
+"""
             html += """        </section>
 """
 
