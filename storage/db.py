@@ -160,6 +160,78 @@ class EventDatabase:
             )
         """)
 
+        # Predictions table - logs daily sentiment predictions
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS predictions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL UNIQUE,
+                sentiment_positive REAL,
+                sentiment_negative REAL,
+                sentiment_neutral REAL,
+                sentiment_mixed REAL,
+                total_events INTEGER,
+                prediction TEXT,
+                confidence TEXT,
+                top_events_summary TEXT,
+                created_at TEXT NOT NULL
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_predictions_date
+            ON predictions(date DESC)
+        """)
+
+        # Outcomes table - per-symbol market outcomes
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS outcomes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL,
+                symbol TEXT NOT NULL,
+                change_pct REAL,
+                direction TEXT,
+                magnitude TEXT,
+                collected_at TEXT NOT NULL,
+                UNIQUE(date, symbol)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_outcomes_date
+            ON outcomes(date DESC)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_outcomes_symbol
+            ON outcomes(symbol)
+        """)
+
+        # Accuracy log table - per-symbol accuracy tracking
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS accuracy_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL,
+                symbol TEXT NOT NULL,
+                prediction TEXT,
+                outcome TEXT,
+                correct INTEGER,
+                sentiment_correlation REAL,
+                notes TEXT,
+                created_at TEXT NOT NULL,
+                UNIQUE(date, symbol)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_accuracy_date
+            ON accuracy_log(date DESC)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_accuracy_symbol
+            ON accuracy_log(symbol)
+        """)
+
         self.conn.commit()
 
     def save_event(self, event: Event) -> int:
@@ -413,6 +485,161 @@ class EventDatabase:
             LIMIT ?
         """, (days,))
 
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+
+    def save_prediction(self, date: str, sentiment_data: dict, prediction: str,
+                       confidence: str, top_events_summary: str):
+        """
+        Save daily prediction based on sentiment.
+
+        Args:
+            date: Date string (YYYY-MM-DD)
+            sentiment_data: Dict with sentiment percentages
+            prediction: 'bullish', 'bearish', or 'neutral'
+            confidence: 'high', 'medium', or 'low'
+            top_events_summary: JSON string of top events
+        """
+        cursor = self.conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO predictions (
+                date, sentiment_positive, sentiment_negative, sentiment_neutral,
+                sentiment_mixed, total_events, prediction, confidence,
+                top_events_summary, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(date) DO UPDATE SET
+                sentiment_positive = excluded.sentiment_positive,
+                sentiment_negative = excluded.sentiment_negative,
+                sentiment_neutral = excluded.sentiment_neutral,
+                sentiment_mixed = excluded.sentiment_mixed,
+                total_events = excluded.total_events,
+                prediction = excluded.prediction,
+                confidence = excluded.confidence,
+                top_events_summary = excluded.top_events_summary
+        """, (
+            date,
+            sentiment_data.get('positive', 0),
+            sentiment_data.get('negative', 0),
+            sentiment_data.get('neutral', 0),
+            sentiment_data.get('mixed', 0),
+            sentiment_data.get('total', 0),
+            prediction,
+            confidence,
+            top_events_summary,
+            datetime.utcnow().isoformat()
+        ))
+
+        self.conn.commit()
+
+    def save_outcome(self, date: str, symbol: str, change_pct: float,
+                    direction: str, magnitude: str):
+        """
+        Save market outcome for a specific symbol.
+
+        Args:
+            date: Date string (YYYY-MM-DD)
+            symbol: Stock symbol (e.g., 'NVDA', '^IXIC')
+            change_pct: Percentage change
+            direction: 'up', 'down', or 'flat'
+            magnitude: 'strong', 'moderate', or 'weak'
+        """
+        cursor = self.conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO outcomes (
+                date, symbol, change_pct, direction, magnitude, collected_at
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(date, symbol) DO UPDATE SET
+                change_pct = excluded.change_pct,
+                direction = excluded.direction,
+                magnitude = excluded.magnitude
+        """, (
+            date,
+            symbol,
+            change_pct,
+            direction,
+            magnitude,
+            datetime.utcnow().isoformat()
+        ))
+
+        self.conn.commit()
+
+    def save_accuracy(self, date: str, symbol: str, prediction: str,
+                     outcome: str, correct: bool, correlation: float = None,
+                     notes: str = None):
+        """
+        Save accuracy log for prediction vs outcome.
+
+        Args:
+            date: Date string (YYYY-MM-DD)
+            symbol: Stock symbol
+            prediction: What was predicted
+            outcome: What actually happened
+            correct: Whether prediction was correct
+            correlation: Optional correlation coefficient
+            notes: Optional notes about anomalies
+        """
+        cursor = self.conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO accuracy_log (
+                date, symbol, prediction, outcome, correct,
+                sentiment_correlation, notes, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(date, symbol) DO UPDATE SET
+                prediction = excluded.prediction,
+                outcome = excluded.outcome,
+                correct = excluded.correct,
+                sentiment_correlation = excluded.sentiment_correlation,
+                notes = excluded.notes
+        """, (
+            date,
+            symbol,
+            prediction,
+            outcome,
+            1 if correct else 0,
+            correlation,
+            notes,
+            datetime.utcnow().isoformat()
+        ))
+
+        self.conn.commit()
+
+    def get_prediction(self, date: str) -> Optional[dict]:
+        """Get prediction for a specific date."""
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM predictions WHERE date = ?", (date,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+    def get_outcomes(self, date: str) -> List[dict]:
+        """Get all symbol outcomes for a specific date."""
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM outcomes WHERE date = ?", (date,))
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+
+    def get_accuracy_by_symbol(self, symbol: str, days: int = 30) -> List[dict]:
+        """Get accuracy history for a specific symbol."""
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT * FROM accuracy_log
+            WHERE symbol = ?
+            ORDER BY date DESC
+            LIMIT ?
+        """, (symbol, days))
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+
+    def get_all_accuracy(self, days: int = 30) -> List[dict]:
+        """Get all accuracy records for last N days."""
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT * FROM accuracy_log
+            ORDER BY date DESC, symbol
+            LIMIT ?
+        """, (days * 11,))  # Assuming ~11 symbols tracked
         rows = cursor.fetchall()
         return [dict(row) for row in rows]
 

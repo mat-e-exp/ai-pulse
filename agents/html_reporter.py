@@ -101,6 +101,9 @@ class HTMLReporter:
         # Get latest prediction insights
         insights = self._get_latest_insights()
 
+        # Get accuracy data
+        accuracy_data = self._get_accuracy_data(days=30)
+
         # Generate HTML
         html = self._generate_html(
             events=events,
@@ -111,13 +114,14 @@ class HTMLReporter:
             market_data=market_data,
             correlation_data=correlation_data,
             insights=insights,
+            accuracy_data=accuracy_data,
             days_back=days_back,
             min_score=min_score
         )
 
         return html, sentiment_counts
 
-    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, market_data, correlation_data, insights, days_back, min_score) -> str:
+    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, market_data, correlation_data, insights, accuracy_data, days_back, min_score) -> str:
         """Generate HTML document"""
         from models.events import EventType
 
@@ -752,6 +756,57 @@ class HTMLReporter:
         </script>
 """
 
+        # Add accuracy section if data available
+        if accuracy_data:
+            html += """
+        <section class="sentiment-box">
+            <h2>📊 Prediction Accuracy (Last 30 Days)</h2>
+            <p style="color: #94a3b8; margin-bottom: 20px;">How well our sentiment predictions match actual market movements</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+"""
+            # Sort by accuracy descending
+            sorted_symbols = sorted(accuracy_data.items(), key=lambda x: x[1]['accuracy'], reverse=True)
+
+            for symbol, data in sorted_symbols:
+                accuracy = data['accuracy']
+                correlation = data.get('correlation', 0)
+                correct = data['correct']
+                total = data['total']
+
+                # Color based on accuracy
+                if accuracy >= 60:
+                    color = "#6ee7b7"  # Green
+                    label = "Strong"
+                elif accuracy >= 50:
+                    color = "#fcd34d"  # Yellow
+                    label = "Moderate"
+                else:
+                    color = "#fca5a5"  # Red
+                    label = "Weak"
+
+                html += f"""
+                <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
+                    <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">{symbol}</div>
+                    <div style="font-size: 24px; font-weight: 700; color: {color}; margin-bottom: 5px;">{accuracy}%</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">{correct}/{total} correct</div>
+                    <div style="font-size: 12px; color: #94a3b8;">r={correlation:.2f} | {label}</div>
+                </div>
+"""
+
+            html += """
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: rgba(30, 58, 138, 0.2); border-radius: 8px; border-left: 3px solid #1e3a8a;">
+                <p style="color: #ffffff; margin: 0; font-size: 14px;">
+                    <strong>How to read:</strong> Accuracy shows how often our sentiment prediction (bullish/bearish/neutral)
+                    matched the market direction (up/down/flat). Correlation (r) measures how strongly sentiment
+                    percentages correlate with market % changes. Values closer to 1.0 indicate stronger predictive power.
+                </p>
+            </div>
+        </section>
+"""
+
         html += """    </main>
 
     <footer>
@@ -1055,6 +1110,35 @@ class HTMLReporter:
                 'created_at': row['created_at']
             }
         return None
+
+    def _get_accuracy_data(self, days: int = 30) -> dict:
+        """Get prediction accuracy data for last N days"""
+        accuracy_records = self.db.get_all_accuracy(days=days)
+
+        if not accuracy_records:
+            return None
+
+        # Group by symbol
+        by_symbol = {}
+        for record in accuracy_records:
+            symbol = record['symbol']
+            if symbol not in by_symbol:
+                by_symbol[symbol] = {
+                    'correct': 0,
+                    'total': 0,
+                    'correlation': record.get('sentiment_correlation', 0)
+                }
+            by_symbol[symbol]['total'] += 1
+            if record['correct']:
+                by_symbol[symbol]['correct'] += 1
+
+        # Calculate accuracy percentages
+        for symbol in by_symbol:
+            total = by_symbol[symbol]['total']
+            correct = by_symbol[symbol]['correct']
+            by_symbol[symbol]['accuracy'] = round((correct / total) * 100, 1) if total > 0 else 0
+
+        return by_symbol
 
     def close(self):
         """Close database connection"""

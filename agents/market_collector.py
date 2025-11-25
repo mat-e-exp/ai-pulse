@@ -679,3 +679,8 @@ if __name__ == "__main__":
             print(f"Auto-detected last trading day: {date_str}")
 
         collect_market_data(date_str, db_path=args.db)
+
+        # After collecting market data, log outcomes and calculate accuracy
+        print("\nLogging outcomes and accuracy...")
+        from outcome_logger import log_outcomes
+        log_outcomes(db_path=args.db, date=date_str)

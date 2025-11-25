@@ -61,6 +61,11 @@ def publish_daily_briefing(db_path: str = "ai_pulse.db", days_back: int = 1, min
     print("5. Updating archive.html...")
     update_archive()
 
+    # Log prediction based on today's sentiment
+    print("6. Logging prediction...")
+    from agents.prediction_logger import log_prediction
+    log_prediction(db_path=db_path, date=date_str)
+
     print("\n" + "=" * 80)
     print(f"✓ Briefing published: {briefing_path}")
     print(f"✓ View at: file://{briefing_path.absolute()}")
