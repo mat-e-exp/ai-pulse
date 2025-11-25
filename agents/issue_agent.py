@@ -175,7 +175,7 @@ def main():
 
     response = client.messages.create(
         model="claude-3-5-haiku-20241022",  # Haiku is sufficient for UI-only changes
-        max_tokens=16000,
+        max_tokens=8192,  # Haiku's maximum (was 16000, which exceeded limit)
         messages=[{
             "role": "user",
             "content": prompt
