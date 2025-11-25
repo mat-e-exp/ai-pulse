@@ -52,6 +52,33 @@ Public: mat-e-exp/ai-pulse-briefings
 └── Served via GitHub Pages
 ```
 
+### CRITICAL: Local/Remote Sync Protocol
+
+**Problem**: Automated workflows run on GitHub (6am, 1:30pm GMT) and update the database + regenerate briefings. This creates conflicts when working locally.
+
+**MANDATORY WORKFLOW when making local changes:**
+
+1. **ALWAYS pull first**: `git pull` before starting any work
+2. **Make your changes**: Edit code, styles, etc.
+3. **Regenerate briefing**: Run `python3.9 publish_briefing.py --days 7 --min-score 40`
+4. **Commit and push**: Push all changes together
+
+**Why this matters:**
+- Automated workflows update `ai_pulse.db`, `index.html`, `briefings/*.html` twice daily
+- If you push without pulling first, you'll get merge conflicts
+- If you don't regenerate briefings, your UI changes won't appear on the live site
+
+**Files that change automatically:**
+- `ai_pulse.db` (database grows with each collection)
+- `index.html` (regenerated with latest briefing)
+- `briefings/YYYY-MM-DD.html` (regenerated daily)
+- `archive.html` (updated with new briefing links)
+
+**NEVER push without:**
+1. Pulling latest changes first
+2. Regenerating briefings with your changes
+3. Verifying the output locally
+
 ### What's NOT Built Yet
 See `AGENTIC_ROADMAP.md` for the full vision:
 - Issue-driven automation (agent implements from GitHub Issues)
@@ -405,6 +432,8 @@ ai-pulse/
 
 ### Deduplication System
 
+**See [docs/deduplication.md](docs/deduplication.md) for complete technical documentation.**
+
 **Critical for Accuracy**: Duplicates skew sentiment counts and waste analysis costs.
 
 **Problem**: Same story reported by multiple sources
@@ -414,10 +443,23 @@ ai-pulse/
 - Inflates that sentiment in daily count: "mixed: 38%" instead of true "mixed: 20%"
 - **Result**: Untrustworthy sentiment percentages
 
-**Current Implementation: String-Based Deduplication (Partial Solution)**
+**5-Layer Deduplication Architecture:**
 
-**Phase 1: Collection-Time (Forward)**:
-- Location: `agents/collector.py` - `deduplicate_events()` function
+**Layer 1: Database UNIQUE Constraint**
+- Location: `storage/db.py` - SQLite schema
+- Constraint: `UNIQUE(source, source_id)` prevents same source+ID twice
+- Blocks: HN item IDs, NewsAPI URLs, RSS URLs, SEC filings, GitHub repos
+- **ArXiv gap**: `source_id = NULL` (constraint allows multiple NULLs)
+- **Why safe**: ArXiv RSS only returns today's papers + Layer 2-3 backup
+
+**Layer 2: Source-Level URL Tracking**
+- Location: `sources/arxiv_papers.py:139-147`
+- ArXiv papers can appear in multiple categories (cs.AI, cs.LG, cs.CV)
+- In-memory `seen_urls` set deduplicates within single collection run
+- Prevents cross-category duplicates
+
+**Layer 3: Content Similarity (75% threshold)**
+- Location: `agents/collector.py:93-160` - `deduplicate_events()`
 - Runs after fetching from each source, before database storage
 - Groups events by published date
 - Compares titles using `SequenceMatcher` similarity (0-1 score)
@@ -427,56 +469,40 @@ ai-pulse/
 - Keeps first occurrence, discards duplicates
 - **Limitation**: Misses semantic duplicates with different wording
 
-**Phase 2: Retroactive (Historical)**:
-- Location: `retroactive_dedup.py` script
-- Run once after implementing deduplication
-- Scans existing database for duplicates (default: last 30 days)
-- Uses same similarity logic as forward deduplication
-- Adds `is_duplicate` column to database if missing
-- Marks duplicate events with `is_duplicate = 1`
-- Recalculates `daily_sentiment` table excluding duplicates
-- Preserves history (doesn't delete), just marks and excludes
+**Layer 4: Semantic Duplicate Detection (Claude-powered)**
+- Location: `agents/semantic_deduplicator.py`
+- After collection, before analysis (in workflows)
+- Sends titles to Claude Haiku: "Which report the same event?"
+- Marks `is_semantic_duplicate = 1` in database
+- Catches semantic duplicates string matching misses
+- Cost: ~$0.002 per date with Haiku
+- **Results on 2025-11-11**:
+  - Found 2 duplicate groups (4 events total)
+  - SoftBank: "sells Nvidia" + "profits double" + "unloads stake" + "rides AI wave"
+  - Intel CTO: "Sachin Katti departs" + "Sachin Katti joins"
+  - Before: 61 events → After: 57 unique events
 
-**Filtering in Reports**:
-- `agents/html_reporter.py` filters: `if not getattr(e, 'is_duplicate', False)`
-- Sentiment counts only include non-duplicate events
-- Chart displays accurate sentiment distribution
+**Layer 5: Publishing Filter**
+- Location: `agents/html_reporter.py:70-71, 134-140`
+- Filters: `WHERE is_duplicate = 0 AND is_semantic_duplicate = 0`
+- Ensures duplicates never shown even if in database
+- Sentiment counts only include non-duplicates
 
-**Known Gap: Semantic Duplicates Still Slip Through**
+**Daily Publishing Flow (No Re-Duplication):**
 
-String matching misses these duplicates (all about same event):
-- "SoftBank sells entire Nvidia stake for $5.8B"
-- "SoftBank profits double on AI investments"
-- "Japan's SoftBank exits Nvidia position"
-→ All <75% string similarity but **same underlying event**
+When `publish_briefing.py --days 7` runs daily:
+1. **Reads from database** (doesn't re-collect events)
+2. **Shows last 7 days** (rolling window: Nov 18-24 → Nov 19-25 → Nov 20-26)
+3. **Old events stay in database** (never re-collected due to UNIQUE constraint)
+4. **New events protected** (Layer 1-4 prevent duplicates during collection)
+5. **Result**: No duplication across daily publishes
 
-**Impact on Accuracy**:
-- 3-6 semantic duplicates per major news day
-- Each analyzed separately (~$0.15 wasted)
-- Each counted in sentiment (inflates by 3-6 votes)
-- Percentages skewed by 5-15%
-
-**Solution Implemented: Semantic Deduplication (Phase 2.6) ✅**
-
-**How it works**:
-1. After collection, before analysis
-2. `agents/semantic_deduplicator.py` groups events by date
-3. Sends titles to Claude Haiku: "Which report the same event?"
-4. Claude returns semantic duplicate groups using understanding not string matching
-5. Marks `is_semantic_duplicate = 1` in database
-6. Analyzer skips semantic duplicates
-7. Each unique story analyzed once
-8. Sentiment counts accurate
-
-**Results on 2025-11-11**:
-- Found 2 duplicate groups (4 events total):
-  - SoftBank group: "sells Nvidia" + "profits double" + "unloads stake" + "rides AI wave"
-  - Intel CTO group: "Sachin Katti departs" + "Sachin Katti joins"
-- Before: 61 events analyzed
-- After: 57 unique events
-- Sentiment percentages now trustworthy
-
-**Cost**: ~$0.002 per date with Haiku (very cheap), saves ~$0.20 in wasted Sonnet analysis calls.
+**Retroactive Cleanup (Historical Data):**
+- `retroactive_dedup.py` - String-based (75% similarity)
+- `retroactive_semantic_dedup.py` - Semantic (Claude-powered)
+- Run once after implementing deduplication (2025-11-12)
+- Marks historical duplicates with flags
+- Recalculates `daily_sentiment` table
 
 ### Market Data Collection with Fallback
 

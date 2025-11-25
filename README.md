@@ -149,10 +149,21 @@ python3.9 cost_tracking/tracker.py --trend
 ## How It Works
 
 ### 1. Collection Phase
-The collector fetches data from all sources and stores in SQLite:
-- Deduplicates by source URL
+The collector fetches data from 7 sources and stores in SQLite:
+
+**Multi-Layer Deduplication** ensures accuracy:
+- **Database constraint**: Prevents same source+ID twice (e.g., HN item IDs, article URLs)
+- **Content matching**: 75% title similarity threshold catches same story from different sources
+- **Semantic deduplication**: Claude identifies same events with different wording
+- **Publishing filter**: Only shows unique events
+
+Same story from multiple sources = counted once. Critical for trustworthy sentiment percentages.
+
+**Also**:
 - Extracts companies, products, people
-- Classifies event type (news, product launch, funding, etc.)
+- Classifies event type (news, product launch, funding, research)
+
+**See**: [docs/deduplication.md](docs/deduplication.md) for technical details
 
 ### 2. Analysis Phase (Agentic)
 The analyzer uses Claude to autonomously assess each event:
