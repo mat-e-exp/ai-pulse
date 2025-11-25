@@ -73,8 +73,7 @@ def format_discord_message(stories: list) -> str:
         title = story['title'][:80] + '...' if len(story['title']) > 80 else story['title']
         url = story['source_url']
 
-        lines.append(f"{i}. [{score}] {emoji} {title}")
-        lines.append(f"   {url}\n")
+        lines.append(f"{i}. [{score}] {emoji} [{title}]({url})\n")
 
     # Add summary
     sentiments = [s['sentiment'] for s in stories if s['sentiment']]
