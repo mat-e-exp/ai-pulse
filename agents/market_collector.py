@@ -32,16 +32,16 @@ def get_last_trading_day(from_date: datetime = None) -> str:
     Get the most recent trading day (excluding weekends).
 
     If from_date is a weekend, returns the previous Friday.
-    If from_date is Monday, returns the same day (today's data won't be ready until market close).
+    Otherwise returns the same day (market close data available by 9:30pm GMT).
 
     Args:
-        from_date: Date to check from (default: yesterday)
+        from_date: Date to check from (default: today)
 
     Returns:
         Date string in YYYY-MM-DD format
     """
     if from_date is None:
-        from_date = datetime.utcnow() - timedelta(days=1)  # Start from yesterday
+        from_date = datetime.utcnow()  # Use today - data available after market close
 
     # weekday(): Monday=0, Sunday=6
     weekday = from_date.weekday()
