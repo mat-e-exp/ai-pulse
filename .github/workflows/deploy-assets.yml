@@ -1,0 +1,41 @@
+name: Deploy Assets to Public Site
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout ai-pulse (private)
+        uses: actions/checkout@v4
+
+      - name: Prepare files for public repo
+        run: |
+          mkdir -p output
+          cp -r briefings output/ || echo "No briefings directory"
+          cp index.html output/ || echo "No index.html"
+          cp archive.html output/ || echo "No archive.html"
+          cp style.css output/ || echo "No style.css"
+          echo "Files prepared for deployment"
+          ls -la output/
+
+      - name: Push to public briefings repo
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.BRIEFINGS_DEPLOY_KEY }}
+        with:
+          source-directory: 'output'
+          destination-github-username: 'mat-e-exp'
+          destination-repository-name: 'ai-pulse-briefings'
+          target-branch: main
+          commit-message: 'Deploy assets (manual trigger)'
+
+      - name: Notify Discord
+        if: always()
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\":\"AI-Pulse assets deployed: ${{ job.status }}\"}"
