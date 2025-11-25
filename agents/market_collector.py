@@ -71,6 +71,9 @@ SYMBOLS = {
     'etfs': {
         'BOTZ': 'AI/Robotics ETF',
         'AIQ': 'AI Analytics ETF',
+    },
+    'crypto': {
+        'BTC-USD': 'Bitcoin',
     }
 }
 
@@ -440,11 +443,13 @@ def collect_market_data(date_str: str, db_path: str = "ai_pulse.db"):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    # Separate indices from stocks/ETFs
+    # Separate indices from stocks/ETFs/crypto
     indices = SYMBOLS['indices']
     stocks_etfs = {}
     stocks_etfs.update(SYMBOLS['stocks'])
     stocks_etfs.update(SYMBOLS['etfs'])
+    if 'crypto' in SYMBOLS:
+        stocks_etfs.update(SYMBOLS['crypto'])
 
     date_obj = datetime.strptime(date_str, '%Y-%m-%d')
     start_date = (date_obj - timedelta(days=4)).strftime('%Y-%m-%d')  # 4 days handles weekends

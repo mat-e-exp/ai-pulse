@@ -372,7 +372,8 @@ class HTMLReporter:
                 {{symbol: 'AMD', label: 'AMD', color: '#fb923c'}},
                 {{symbol: 'PLTR', label: 'Palantir', color: '#34d399'}},
                 {{symbol: 'BOTZ', label: 'AI/Robotics ETF', color: '#a78bfa'}},
-                {{symbol: 'AIQ', label: 'AI Analytics ETF', color: '#f472b6'}}
+                {{symbol: 'AIQ', label: 'AI Analytics ETF', color: '#f472b6'}},
+                {{symbol: 'BTC-USD', label: 'Bitcoin', color: '#f59e0b'}}
             ];
 
             // Map market data to full date range (align with sentiment chart dates)
@@ -595,7 +596,8 @@ class HTMLReporter:
             ('AMD', '#fb923c'),
             ('Palantir', '#34d399'),
             ('AI/Robotics ETF', '#a78bfa'),
-            ('AI Analytics ETF', '#f472b6')
+            ('AI Analytics ETF', '#f472b6'),
+            ('Bitcoin', '#f59e0b')
         ]
 
         # Map labels to symbols for checkbox data attributes
@@ -609,7 +611,8 @@ class HTMLReporter:
             'AMD': 'AMD',
             'Palantir': 'PLTR',
             'AI/Robotics ETF': 'BOTZ',
-            'AI Analytics ETF': 'AIQ'
+            'AI Analytics ETF': 'AIQ',
+            'Bitcoin': 'BTC-USD'
         }
 
         for idx, (label, color) in enumerate(symbol_labels):
