@@ -168,23 +168,32 @@ def fetch_alpha_vantage_daily(symbol: str, date_str: str, api_key: str) -> dict:
     """
     Fetch daily OHLCV data from Alpha Vantage for a specific date.
 
+    Supports both stocks and cryptocurrency (BTC-USD uses DIGITAL_CURRENCY_DAILY).
+
     Args:
-        symbol: Stock symbol (e.g., 'NVDA', '^IXIC')
+        symbol: Stock symbol (e.g., 'NVDA', '^IXIC', 'BTC-USD')
         date_str: Date in YYYY-MM-DD format
         api_key: Alpha Vantage API key
 
     Returns:
         Dictionary with 'open', 'close', 'high', 'low', 'volume', 'change_pct' or None if failed
     """
-    # Alpha Vantage doesn't support ^ prefix for indices
-    # Need to map to their format
-    av_symbol = symbol.replace('^', '')
-    if symbol == '^IXIC':
-        av_symbol = 'IXIC'  # NASDAQ Composite
-    elif symbol == '^GSPC':
-        av_symbol = 'INX'  # S&P 500
+    # Check if this is a crypto symbol
+    is_crypto = symbol == 'BTC-USD'
 
-    url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={av_symbol}&apikey={api_key}'
+    if is_crypto:
+        # Use crypto endpoint for Bitcoin
+        url = f'https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=BTC&market=USD&apikey={api_key}'
+    else:
+        # Alpha Vantage doesn't support ^ prefix for indices
+        # Need to map to their format
+        av_symbol = symbol.replace('^', '')
+        if symbol == '^IXIC':
+            av_symbol = 'IXIC'  # NASDAQ Composite
+        elif symbol == '^GSPC':
+            av_symbol = 'INX'  # S&P 500
+
+        url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={av_symbol}&apikey={api_key}'
 
     try:
         response = requests.get(url, timeout=10)
@@ -198,8 +207,12 @@ def fetch_alpha_vantage_daily(symbol: str, date_str: str, api_key: str) -> dict:
             print(f"  ⚠️ Alpha Vantage rate limit hit")
             return None
 
-        # Extract time series data
-        time_series = data.get('Time Series (Daily)', {})
+        # Extract time series data (different key for crypto)
+        if is_crypto:
+            time_series = data.get('Time Series (Digital Currency Daily)', {})
+        else:
+            time_series = data.get('Time Series (Daily)', {})
+
         if date_str not in time_series:
             return None
 
@@ -209,7 +222,7 @@ def fetch_alpha_vantage_daily(symbol: str, date_str: str, api_key: str) -> dict:
         high_price = float(day_data['2. high'])
         low_price = float(day_data['3. low'])
         close_price = float(day_data['4. close'])
-        volume = int(day_data['5. volume'])
+        volume = float(day_data['5. volume'])  # Crypto volume can be decimal
 
         # Calculate change from previous day
         dates = sorted(time_series.keys(), reverse=True)
