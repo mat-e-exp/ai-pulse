@@ -37,6 +37,6 @@ jobs:
       - name: Notify Discord
         if: always()
         run: |
-          curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" \
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_APPROVALS }}" \
             -H "Content-Type: application/json" \
-            -d "{\"content\":\"AI-Pulse assets deployed: ${{ job.status }}\"}"
+            -d "{\"content\":\"🚀 **Assets Deployed**\n\nManual deployment: ${{ job.status }}\n\n👀 View: https://mat-e-exp.github.io/ai-pulse-briefings/\"}"
