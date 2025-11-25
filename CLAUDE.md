@@ -11,8 +11,55 @@ Real-time intelligence agent for the AI sector - tracks product launches, fundin
 - **Accurate sentiment distribution** - each unique story counted once
 - **Reliable significance scores** - no re-analyzing the same event
 - **Trustworthy percentages** - chart reflects reality, not data collection artifacts
+- **Accurate prediction tracking** - predictions logged BEFORE market opens, outcomes AFTER market closes
 
 Investment decisions depend on this data being correct.
+
+## CRITICAL: NEVER RERUN WORKFLOWS FOR TESTING
+
+**The workflows are for production data collection, NOT testing.**
+
+### FORBIDDEN Actions
+❌ **NEVER suggest manually triggering workflows to "test" or "see output"**
+❌ **NEVER rerun daily-collection.yml after it has already run that day**
+❌ **NEVER rerun any workflow multiple times per day**
+
+### Why This Matters
+**Rerunning daily-collection.yml corrupts prediction accuracy data:**
+1. First run at 1:30pm: Records prediction "bullish" (50 events)
+2. Market opens at 2:30pm GMT, moves up 2%
+3. Second run at 3pm: Overwrites with prediction "bullish" (65 events) - but this is AFTER market moved
+4. Market closes at 9pm: Accuracy check uses the 3pm prediction
+5. **Result**: Not measuring prediction accuracy, measuring reaction accuracy
+6. **Data is corrupted and unreliable for investment decisions**
+
+### How to Test Locally (Safe)
+✅ Run individual scripts locally that read from database:
+- `python3.9 agents/discord_morning.py` - generates Discord message preview
+- `python3.9 publish_briefing.py --days 7 --min-score 40` - regenerates HTML locally
+- `python3.9 agents/prediction_logger.py --date YYYY-MM-DD` - logs prediction for specific date
+
+✅ View local files:
+- `open index.html` - view briefing HTML
+- `cat discord_test.txt` - view Discord message text
+
+✅ Manual Discord posting (if needed):
+```bash
+python3.9 agents/discord_morning.py --output test.txt
+# Review test.txt, then manually post to Discord if desired
+```
+
+❌ DO NOT trigger GitHub Actions workflows unless:
+- User explicitly says "run the workflow" or "trigger the workflow"
+- It's the scheduled time for that workflow
+- Making a code change that requires testing in production
+
+### Workflow Run Schedule (Automated)
+- **6am GMT**: morning-collection.yml (collect overnight news)
+- **1:30pm GMT**: daily-collection.yml (publish briefing + log prediction)
+- **9:30pm GMT Mon-Fri**: market-close.yml (collect market data + calculate accuracy)
+
+**Each workflow should run ONCE per day at its scheduled time.**
 
 ## Architecture
 
