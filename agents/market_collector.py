@@ -314,6 +314,73 @@ def fetch_twelve_data_daily(symbol: str, date_str: str, api_key: str) -> dict:
         return None
 
 
+def fetch_fmp_daily(symbol: str, date_str: str, api_key: str) -> dict:
+    """
+    Fetch daily OHLCV data from Financial Modeling Prep for a specific date.
+
+    Args:
+        symbol: Stock/index symbol (e.g., 'NVDA', '^GSPC')
+        date_str: Date in YYYY-MM-DD format
+        api_key: FMP API key
+
+    Returns:
+        Dictionary with 'open', 'close', 'high', 'low', 'volume', 'change_pct' or None if failed
+    """
+    import urllib.parse
+    encoded_symbol = urllib.parse.quote(symbol)
+
+    url = f'https://financialmodelingprep.com/stable/historical-price-eod/full?symbol={encoded_symbol}&apikey={api_key}'
+
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        if not data or not isinstance(data, list):
+            return None
+
+        # Find target date and previous date
+        target_data = None
+        prev_data = None
+
+        for i, day in enumerate(data):
+            if day['date'] == date_str:
+                target_data = day
+                if i + 1 < len(data):
+                    prev_data = data[i + 1]
+                break
+
+        if not target_data:
+            return None
+
+        open_price = float(target_data['open'])
+        close_price = float(target_data['close'])
+        high_price = float(target_data['high'])
+        low_price = float(target_data['low'])
+        volume = int(target_data['volume'])
+
+        # Calculate change from previous close
+        if prev_data:
+            prev_close = float(prev_data['close'])
+            change_pct = ((close_price - prev_close) / prev_close) * 100
+        else:
+            # Fallback: use open to close
+            change_pct = ((close_price - open_price) / open_price) * 100
+
+        return {
+            'open': open_price,
+            'close': close_price,
+            'high': high_price,
+            'low': low_price,
+            'volume': volume,
+            'change_pct': change_pct
+        }
+
+    except Exception as e:
+        print(f"  ✗ FMP error for {symbol}: {e}")
+        return None
+
+
 def ensure_market_table(db_path: str):
     """Create market_data table if it doesn't exist"""
     conn = sqlite3.connect(db_path)
@@ -350,7 +417,15 @@ def ensure_market_table(db_path: str):
 
 def collect_market_data(date_str: str, db_path: str = "ai_pulse.db"):
     """
-    Collect market data for a specific date using batch download.
+    Collect market data for a specific date.
+
+    Strategy:
+    - Yahoo Finance: Only for indices (^GSPC, ^IXIC) - 2 symbols, less likely to hit rate limits
+    - FMP API: For all stocks/ETFs (8 symbols) - reliable, 250 calls/day is plenty
+
+    Fallbacks:
+    - If Yahoo indices fail → try Direct Yahoo API → try FMP
+    - If FMP stocks fail → try Alpha Vantage
 
     Args:
         date_str: Date in YYYY-MM-DD format
@@ -365,192 +440,179 @@ def collect_market_data(date_str: str, db_path: str = "ai_pulse.db"):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    # Get all symbols
-    all_symbols = {}
-    for category, symbols in SYMBOLS.items():
-        all_symbols.update(symbols)
+    # Separate indices from stocks/ETFs
+    indices = SYMBOLS['indices']
+    stocks_etfs = {}
+    stocks_etfs.update(SYMBOLS['stocks'])
+    stocks_etfs.update(SYMBOLS['etfs'])
 
-    # Download all symbols in one batch request (more efficient)
-    symbol_list = list(all_symbols.keys())
     date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-    start_date = (date_obj - timedelta(days=7)).strftime('%Y-%m-%d')  # Extra days for weekends
+    start_date = (date_obj - timedelta(days=4)).strftime('%Y-%m-%d')  # 4 days handles weekends
     end_date = (date_obj + timedelta(days=1)).strftime('%Y-%m-%d')
 
-    print(f"\nFetching {len(symbol_list)} symbols in batch...")
+    collected = 0
+    errors = 0
 
-    # Try Yahoo Finance first (fast, unlimited)
-    yahoo_failed = False
+    # ============================================================================
+    # STEP 1: Fetch indices from Yahoo Finance (only 2 symbols)
+    # ============================================================================
+    print(f"\n[1/2] Fetching {len(indices)} indices from Yahoo Finance...")
+    index_list = list(indices.keys())
+
+    yahoo_indices_failed = []
+
     try:
-        # Batch download - much faster and avoids rate limits
-        data = yf.download(symbol_list, start=start_date, end=end_date, group_by='ticker', progress=False)
+        data = yf.download(index_list, start=start_date, end=end_date, group_by='ticker', progress=False)
 
-        # Check if data is empty (rate limit can cause empty results without raising)
         if data is None or (hasattr(data, 'empty') and data.empty):
-            print(f"⚠️ Yahoo Finance returned no data (likely rate limited)")
-            print(f"   Falling back to Alpha Vantage...")
-            yahoo_failed = True
-            data = None
-
-    except Exception as e:
-        error_msg = str(e)
-        if 'Too Many Requests' in error_msg or 'Rate' in error_msg or 'YFRateLimitError' in str(type(e)):
-            print(f"⚠️ Yahoo Finance rate limited: {e}")
-            print(f"   Falling back to Alpha Vantage...")
-            yahoo_failed = True
-            data = None
+            print(f"  ⚠️ Yahoo returned no data (rate limited)")
+            yahoo_indices_failed = list(indices.items())
         else:
-            print(f"✗ Error downloading batch data: {e}")
-            conn.close()
-            return
+            # Process Yahoo index data
+            for symbol, name in indices.items():
+                try:
+                    if len(index_list) == 1:
+                        hist = data
+                    else:
+                        hist = data[symbol]
 
-    # If Yahoo failed, try Alpha Vantage fallback
-    if yahoo_failed:
-        api_key = os.getenv('ALPHA_VANTAGE_API_KEY')
-        if not api_key:
-            print("✗ Alpha Vantage API key not found in environment")
-            print("  Set ALPHA_VANTAGE_API_KEY or wait for Yahoo rate limit to reset")
-            conn.close()
-            return
+                    if hist.empty:
+                        yahoo_indices_failed.append((symbol, name))
+                        continue
 
-        print(f"  Using Alpha Vantage (5 calls/min limit, {len(symbol_list)} symbols)...")
+                    hist.index = hist.index.tz_localize(None)
+                    target_rows = hist[hist.index.strftime('%Y-%m-%d') == date_str]
 
-        collected = 0
-        errors = 0
-        failed_indices = []  # Track indices that Alpha Vantage can't handle
+                    if target_rows.empty:
+                        yahoo_indices_failed.append((symbol, name))
+                        continue
 
-        for idx, (symbol, name) in enumerate(all_symbols.items()):
-            # Rate limiting: Alpha Vantage allows 5 calls/min
-            if idx > 0 and idx % 5 == 0:
-                print(f"  (Rate limiting: waiting 60 seconds...)")
-                time.sleep(60)
+                    row = target_rows.iloc[0]
+                    open_price = float(row['Open'])
+                    close_price = float(row['Close'])
+                    high_price = float(row['High'])
+                    low_price = float(row['Low'])
+                    volume = int(row['Volume'])
 
-            av_data = fetch_alpha_vantage_daily(symbol, date_str, api_key)
+                    hist_before = hist[hist.index < target_rows.index[0]]
+                    if not hist_before.empty:
+                        prev_close = float(hist_before.iloc[-1]['Close'])
+                        change_pct = ((close_price - prev_close) / prev_close) * 100
+                    else:
+                        change_pct = ((close_price - open_price) / open_price) * 100
 
-            if av_data:
-                cursor.execute("""
-                    INSERT OR REPLACE INTO market_data
-                    (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (date_str, symbol, name, av_data['open'], av_data['close'],
-                      av_data['high'], av_data['low'], av_data['volume'], av_data['change_pct']))
-
-                print(f"  ✓ {symbol}: ${av_data['close']:.2f} ({av_data['change_pct']:+.2f}%)")
-                collected += 1
-            else:
-                # Alpha Vantage free tier doesn't support indices
-                if symbol.startswith('^'):
-                    failed_indices.append((symbol, name))
-                print(f"  ✗ {symbol}: No data available")
-                errors += 1
-
-        # Try Direct Yahoo API for failed indices (bypasses yfinance rate limit)
-        if failed_indices:
-            print(f"\n  Trying Direct Yahoo API for {len(failed_indices)} indices...")
-            still_failed = []
-
-            for symbol, name in failed_indices:
-                yahoo_data = fetch_yahoo_direct(symbol, date_str)
-
-                if yahoo_data:
                     cursor.execute("""
                         INSERT OR REPLACE INTO market_data
                         (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, (date_str, symbol, name, yahoo_data['open'], yahoo_data['close'],
-                          yahoo_data['high'], yahoo_data['low'], yahoo_data['volume'], yahoo_data['change_pct']))
+                    """, (date_str, symbol, name, open_price, close_price, high_price, low_price, volume, change_pct))
 
-                    print(f"  ✓ {symbol}: ${yahoo_data['close']:.2f} ({yahoo_data['change_pct']:+.2f}%)")
+                    print(f"  ✓ {symbol}: ${close_price:.2f} ({change_pct:+.2f}%)")
                     collected += 1
-                    errors -= 1
+
+                except Exception as e:
+                    print(f"  ✗ {symbol}: {e}")
+                    yahoo_indices_failed.append((symbol, name))
+
+    except Exception as e:
+        print(f"  ⚠️ Yahoo error: {e}")
+        yahoo_indices_failed = list(indices.items())
+
+    # Fallback for failed indices: try Direct Yahoo API, then FMP
+    if yahoo_indices_failed:
+        print(f"\n  Trying fallbacks for {len(yahoo_indices_failed)} failed indices...")
+        still_failed = []
+
+        for symbol, name in yahoo_indices_failed:
+            # Try Direct Yahoo API first
+            yahoo_data = fetch_yahoo_direct(symbol, date_str)
+            if yahoo_data:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO market_data
+                    (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (date_str, symbol, name, yahoo_data['open'], yahoo_data['close'],
+                      yahoo_data['high'], yahoo_data['low'], yahoo_data['volume'], yahoo_data['change_pct']))
+                print(f"  ✓ {symbol} (Direct Yahoo): ${yahoo_data['close']:.2f} ({yahoo_data['change_pct']:+.2f}%)")
+                collected += 1
+            else:
+                still_failed.append((symbol, name))
+
+        # Try FMP for remaining failures
+        if still_failed:
+            fmp_key = os.getenv('FMP_API_KEY')
+            if fmp_key:
+                print(f"  Trying FMP for {len(still_failed)} indices...")
+                for symbol, name in still_failed:
+                    fmp_data = fetch_fmp_daily(symbol, date_str, fmp_key)
+                    if fmp_data:
+                        cursor.execute("""
+                            INSERT OR REPLACE INTO market_data
+                            (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """, (date_str, symbol, name, fmp_data['open'], fmp_data['close'],
+                              fmp_data['high'], fmp_data['low'], fmp_data['volume'], fmp_data['change_pct']))
+                        print(f"  ✓ {symbol} (FMP): ${fmp_data['close']:.2f} ({fmp_data['change_pct']:+.2f}%)")
+                        collected += 1
+                    else:
+                        print(f"  ✗ {symbol}: All sources failed")
+                        errors += 1
+
+    # ============================================================================
+    # STEP 2: Fetch stocks/ETFs from FMP API (8 symbols)
+    # ============================================================================
+    print(f"\n[2/2] Fetching {len(stocks_etfs)} stocks/ETFs from FMP...")
+    fmp_key = os.getenv('FMP_API_KEY')
+
+    if not fmp_key:
+        print("  ⚠️ FMP_API_KEY not found in environment, falling back to Alpha Vantage")
+        fmp_key = None
+
+    fmp_failed = []
+
+    if fmp_key:
+        for symbol, name in stocks_etfs.items():
+            fmp_data = fetch_fmp_daily(symbol, date_str, fmp_key)
+            if fmp_data:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO market_data
+                    (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (date_str, symbol, name, fmp_data['open'], fmp_data['close'],
+                      fmp_data['high'], fmp_data['low'], fmp_data['volume'], fmp_data['change_pct']))
+                print(f"  ✓ {symbol}: ${fmp_data['close']:.2f} ({fmp_data['change_pct']:+.2f}%)")
+                collected += 1
+            else:
+                fmp_failed.append((symbol, name))
+    else:
+        fmp_failed = list(stocks_etfs.items())
+
+    # Fallback to Alpha Vantage for failed stocks/ETFs
+    if fmp_failed:
+        av_key = os.getenv('ALPHA_VANTAGE_API_KEY')
+        if av_key:
+            print(f"\n  Falling back to Alpha Vantage for {len(fmp_failed)} stocks/ETFs...")
+            for idx, (symbol, name) in enumerate(fmp_failed):
+                if idx > 0 and idx % 5 == 0:
+                    print(f"  (Rate limiting: waiting 60 seconds...)")
+                    time.sleep(60)
+
+                av_data = fetch_alpha_vantage_daily(symbol, date_str, av_key)
+                if av_data:
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO market_data
+                        (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (date_str, symbol, name, av_data['open'], av_data['close'],
+                          av_data['high'], av_data['low'], av_data['volume'], av_data['change_pct']))
+                    print(f"  ✓ {symbol} (AV): ${av_data['close']:.2f} ({av_data['change_pct']:+.2f}%)")
+                    collected += 1
                 else:
-                    still_failed.append((symbol, name))
-
-            # Try Twelve Data for any still-failed indices (as last resort)
-            if still_failed:
-                td_api_key = os.getenv('TWELVE_DATA_API_KEY')
-                if td_api_key:
-                    print(f"\n  Trying Twelve Data for {len(still_failed)} remaining indices...")
-                    for symbol, name in still_failed:
-                        td_data = fetch_twelve_data_daily(symbol, date_str, td_api_key)
-
-                        if td_data:
-                            cursor.execute("""
-                                INSERT OR REPLACE INTO market_data
-                                (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                            """, (date_str, symbol, name, td_data['open'], td_data['close'],
-                                  td_data['high'], td_data['low'], td_data['volume'], td_data['change_pct']))
-
-                            print(f"  ✓ {symbol}: ${td_data['close']:.2f} ({td_data['change_pct']:+.2f}%)")
-                            collected += 1
-                            errors -= 1
-                        else:
-                            print(f"  ✗ {symbol}: No data available from Twelve Data")
-
-        conn.commit()
-        conn.close()
-
-        print("\n" + "=" * 80)
-        print(f"COMPLETE (Fallback): {collected} symbols collected, {errors} errors")
-        print("=" * 80)
-        return
-
-    # Yahoo Finance succeeded - process results
-    collected = 0
-    errors = 0
-
-    for symbol, name in all_symbols.items():
-        try:
-            # Extract data for this symbol
-            if len(symbol_list) == 1:
-                hist = data
-            else:
-                hist = data[symbol]
-
-            if hist.empty:
-                print(f"  ✗ {symbol}: No data available")
-                errors += 1
-                continue
-
-            # Get data for target date
-            hist.index = hist.index.tz_localize(None)  # Remove timezone
-            target_rows = hist[hist.index.strftime('%Y-%m-%d') == date_str]
-
-            if target_rows.empty:
-                print(f"  ✗ {symbol}: No data for {date_str} (market closed?)")
-                errors += 1
-                continue
-
-            row = target_rows.iloc[0]
-
-            open_price = float(row['Open'])
-            close_price = float(row['Close'])
-            high_price = float(row['High'])
-            low_price = float(row['Low'])
-            volume = int(row['Volume'])
-
-            # Calculate change from previous close to today's close
-            hist_before = hist[hist.index < target_rows.index[0]]
-            if not hist_before.empty:
-                prev_close = float(hist_before.iloc[-1]['Close'])
-                change_pct = ((close_price - prev_close) / prev_close) * 100
-            else:
-                # Fallback: use open to close
-                change_pct = ((close_price - open_price) / open_price) * 100
-
-            # Insert or update
-            cursor.execute("""
-                INSERT OR REPLACE INTO market_data
-                (date, symbol, symbol_name, open, close, high, low, volume, change_pct)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (date_str, symbol, name, open_price, close_price, high_price, low_price, volume, change_pct))
-
-            print(f"  ✓ {symbol}: ${close_price:.2f} ({change_pct:+.2f}%)")
-            collected += 1
-
-        except Exception as e:
-            print(f"  ✗ {symbol}: Error - {e}")
-            errors += 1
+                    print(f"  ✗ {symbol}: All sources failed")
+                    errors += 1
+        else:
+            print(f"  ✗ No Alpha Vantage API key - {len(fmp_failed)} symbols failed")
+            errors += len(fmp_failed)
 
     conn.commit()
     conn.close()
