@@ -105,6 +105,7 @@ jobs:
           cp index.html output/
           cp archive.html output/
           cp style.css output/
+          cp CNAME output/
 
       - name: Push to public briefings repo
         if: steps.check_events.outputs.has_events == 'true'
