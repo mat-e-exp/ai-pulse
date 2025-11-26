@@ -23,7 +23,7 @@
 
         .about-hero .tagline {
             font-size: 1.5rem;
-            color: var(--text-color);
+            color: #1e293b;
             opacity: 0.9;
             margin-bottom: 20px;
         }
@@ -48,7 +48,7 @@
 
         .stat-label {
             font-size: 0.9rem;
-            color: var(--text-color);
+            color: #1e293b;
             opacity: 0.8;
         }
 
@@ -87,8 +87,7 @@
         }
 
         .benefit-card p {
-            color: var(--text-color);
-            opacity: 0.9;
+            color: #1e293b;
             line-height: 1.6;
         }
 
@@ -126,8 +125,7 @@
         }
 
         .timeline-content p {
-            color: var(--text-color);
-            opacity: 0.9;
+            color: #1e293b;
         }
 
         .flow-diagram {
@@ -169,8 +167,7 @@
         }
 
         .flow-box p {
-            color: var(--text-color);
-            opacity: 0.9;
+            color: #1e293b;
             font-size: 0.9rem;
         }
 
@@ -187,7 +184,7 @@
             border-radius: 8px;
             border: 1px solid rgba(134, 239, 172, 0.2);
             text-align: center;
-            color: var(--text-color);
+            color: #1e293b;
         }
 
         .analysis-grid {
@@ -211,7 +208,7 @@
         }
 
         .analysis-item .label {
-            color: var(--text-color);
+            color: #1e293b;
             font-size: 0.9rem;
         }
 
@@ -257,8 +254,7 @@
         }
 
         .faq-answer {
-            color: var(--text-color);
-            opacity: 0.9;
+            color: #1e293b;
             line-height: 1.6;
         }
 
@@ -306,17 +302,21 @@
 </head>
 <body>
     <header>
-        <div class="header-left">
-            <a href="index.html" class="nav-link">Latest</a>
-            <a href="about.html" class="nav-link active">About</a>
+        <div class="header-stats">
+            <!-- Empty stats section for layout consistency -->
         </div>
+
         <div class="header-center">
-            <h1>AI-PULSE</h1>
-            <p class="subtitle">Intelligence Briefing System</p>
+            <h1>🧠 AI-Pulse</h1>
+            <p class="date">About</p>
         </div>
-        <div class="header-right">
-            <a href="archive.html" class="nav-link">Archive</a>
-        </div>
+
+        <nav class="header-nav">
+            <a href="about.html">About</a>
+            <a href="index.html">Latest</a>
+            <a href="archive.html">Archive</a>
+            <a href="https://github.com/mat-e-exp/ai-pulse-briefings">GitHub</a>
+        </nav>
     </header>
 
     <main style="max-width: 1200px; margin: 0 auto; padding: 20px;">
@@ -441,7 +441,7 @@
         <!-- Data Sources -->
         <div class="section">
             <h2>Data Sources</h2>
-            <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+            <p style="color: #1e293b; opacity: 0.9; margin-bottom: 20px;">
                 AI Pulse monitors multiple sources to capture comprehensive AI sector developments:
             </p>
             <div class="sources-grid">
@@ -494,7 +494,7 @@
         <!-- Discord Notifications -->
         <div class="section">
             <h2>Discord Notifications</h2>
-            <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+            <p style="color: #1e293b; opacity: 0.9; margin-bottom: 20px;">
                 Stay informed with automated Discord notifications at key times:
             </p>
 
@@ -539,12 +539,12 @@
         <!-- Understanding Sentiment -->
         <div class="section">
             <h2>Understanding Sentiment Charts</h2>
-            <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+            <p style="color: #1e293b; opacity: 0.9; margin-bottom: 20px;">
                 Sentiment is displayed as percentage distribution to normalize across different event volumes:
             </p>
             <div style="background: rgba(147, 197, 253, 0.05); padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <h4 style="color: #60a5fa; margin-bottom: 15px;">Example Calculation:</h4>
-                <p style="color: var(--text-color); line-height: 1.8;">
+                <p style="color: #1e293b; line-height: 1.8;">
                     <strong>Day 1:</strong> 50 events analyzed<br>
                     → 15 Positive (30%) | 20 Negative (40%) | 10 Neutral (20%) | 5 Mixed (10%)<br><br>
                     <strong>Day 2:</strong> 80 events analyzed<br>
@@ -553,7 +553,7 @@
                 </p>
             </div>
             <h4 style="color: var(--pastel-blue); margin: 20px 0 10px;">Sentiment Categories:</h4>
-            <ul style="color: var(--text-color); line-height: 2;">
+            <ul style="color: #1e293b; line-height: 2;">
                 <li><strong style="color: #60a5fa;">Positive:</strong> Events likely to boost AI sector sentiment (launches, funding, growth)</li>
                 <li><strong style="color: #fca5a5;">Negative:</strong> Events likely to dampen sentiment (regulations, failures, controversies)</li>
                 <li><strong style="color: var(--pastel-blue);">Neutral:</strong> Informational events without clear directional impact</li>
@@ -564,27 +564,27 @@
         <!-- Reading the Briefing -->
         <div class="section">
             <h2>Reading the Briefing</h2>
-            <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+            <p style="color: #1e293b; opacity: 0.9; margin-bottom: 20px;">
                 Each analyzed event includes:
             </p>
             <div style="background: rgba(147, 197, 253, 0.05); padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <h4 style="color: #60a5fa; margin-bottom: 10px;">📊 Significance Score (0-100)</h4>
-                <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                <p style="color: #1e293b; opacity: 0.9; margin-bottom: 20px;">
                     Higher scores = more material to markets. 90+ is major news, 70-89 is notable, 50-69 is moderate, below 50 is minor.
                 </p>
 
                 <h4 style="color: #60a5fa; margin-bottom: 10px;">😊 Sentiment</h4>
-                <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                <p style="color: #1e293b; opacity: 0.9; margin-bottom: 20px;">
                     Positive, Negative, Neutral, or Mixed - indicates likely impact on AI sector perception.
                 </p>
 
                 <h4 style="color: #60a5fa; margin-bottom: 10px;">🎯 Winners/Losers</h4>
-                <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                <p style="color: #1e293b; opacity: 0.9; margin-bottom: 20px;">
                     Which companies/sectors benefit or suffer from this development.
                 </p>
 
                 <h4 style="color: #60a5fa; margin-bottom: 10px;">💡 Investment Relevance</h4>
-                <p style="color: var(--text-color); opacity: 0.9;">
+                <p style="color: #1e293b; opacity: 0.9;">
                     Material (impacts valuations), Marginal (worth watching), or Noise (informational only).
                 </p>
             </div>
