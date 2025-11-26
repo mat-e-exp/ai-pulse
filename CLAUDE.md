@@ -54,6 +54,19 @@ python3.9 agents/discord_morning.py --output test.txt
 - It's the scheduled time for that workflow
 - Making a code change that requires testing in production
 
+### Which Workflow Should I Use?
+
+**Decision tree:**
+- **Need to deploy web changes (HTML/CSS/new pages)?** → Use `deploy-assets.yml` (safe, manual trigger)
+- **Need to test data collection?** → Run scripts locally (see "How to Test Locally")
+- **Need to update briefing with new data?** → Wait for scheduled `daily-collection.yml` (1:30pm GMT)
+- **Everything else?** → Wait for scheduled workflows
+
+**NEVER manually trigger:**
+- `morning-collection.yml` - Scheduled for 6am GMT only
+- `daily-collection.yml` - Scheduled for 1:30pm GMT only (corrupts prediction data if run multiple times)
+- `market-close.yml` - Scheduled for 9:30pm GMT only
+
 ### Workflow Run Schedule (Automated)
 - **6am GMT**: morning-collection.yml (collect overnight news)
 - **1:30pm GMT**: daily-collection.yml (publish briefing + log prediction)
@@ -87,6 +100,26 @@ See [docs/diagrams.md](docs/diagrams.md) for visual diagrams including:
 | 1:30pm | daily-collection.yml | Collect delta → Analyze → Publish HTML → Discord |
 | 9:30pm Mon-Fri | market-close.yml | Market data → Update correlation → Discord |
 
+### Manual Workflows (When Needed)
+
+| Workflow | Trigger | Purpose | Safe to Run |
+|----------|---------|---------|-------------|
+| **deploy-assets.yml** | Manual only | Deploy HTML/CSS/style changes without data collection | ✅ YES - Does not corrupt prediction data |
+
+**When to use deploy-assets.yml:**
+- After making UI/style changes (CSS, HTML layout, new pages)
+- After updating navigation or static content
+- When you need web changes live immediately
+- **Does NOT**: Collect data, analyze events, log predictions
+
+**How to trigger:**
+1. Push code changes to private repo (including regenerated HTML files)
+2. Go to GitHub Actions → "Deploy Assets to Public Site"
+3. Click "Run workflow" → Select branch "main" → Run
+4. Takes ~5 minutes, deploys to public site
+
+**Important:** Always regenerate HTML locally first with `python3.9 publish_briefing.py --days 7 --min-score 40` before deploying.
+
 ### Repository Structure
 ```
 Private: mat-e-exp/ai-pulse
@@ -106,9 +139,12 @@ Public: mat-e-exp/ai-pulse-briefings
 **MANDATORY WORKFLOW when making local changes:**
 
 1. **ALWAYS pull first**: `git pull` before starting any work
-2. **Make your changes**: Edit code, styles, etc.
+2. **Make your changes**: Edit code, styles, HTML, CSS, etc.
 3. **Regenerate briefing**: Run `python3.9 publish_briefing.py --days 7 --min-score 40`
 4. **Commit and push**: Push all changes together
+5. **Deploy to public site** (choose one):
+   - **Option A (Wait)**: Next scheduled daily-collection.yml run (1:30pm GMT) will deploy automatically
+   - **Option B (Immediate)**: Manually trigger deploy-assets.yml workflow in GitHub Actions
 
 **Why this matters:**
 - Automated workflows update `ai_pulse.db`, `index.html`, `briefings/*.html` twice daily

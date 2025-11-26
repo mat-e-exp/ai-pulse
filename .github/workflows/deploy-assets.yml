@@ -17,8 +17,10 @@ jobs:
           mkdir -p output
           cp -r briefings output/ || echo "No briefings directory"
           cp index.html output/ || echo "No index.html"
+          cp about.html output/ || echo "No about.html"
           cp archive.html output/ || echo "No archive.html"
           cp style.css output/ || echo "No style.css"
+          cp CNAME output/ || echo "No CNAME"
           cp README_BRIEFINGS.md output/README.md || echo "No README_BRIEFINGS.md"
           echo "Files prepared for deployment"
           ls -la output/
