@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About AI Pulse - User Guide</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .about-hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        .about-hero h1 {
+            font-size: 3rem;
+            color: var(--pastel-blue);
+            margin-bottom: 15px;
+        }
+
+        .about-hero .tagline {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .about-hero .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--pastel-green);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .section {
+            margin-bottom: 60px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 40px;
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            color: var(--pastel-blue);
+            margin-bottom: 25px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .benefit-card {
+            background: rgba(147, 197, 253, 0.1);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid rgba(147, 197, 253, 0.2);
+        }
+
+        .benefit-card h3 {
+            color: var(--pastel-blue);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .benefit-card p {
+            color: var(--text-color);
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            align-items: center;
+        }
+
+        .timeline-time {
+            min-width: 120px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--pastel-blue);
+            text-align: right;
+        }
+
+        .timeline-content {
+            flex: 1;
+            background: rgba(147, 197, 253, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--pastel-blue);
+        }
+
+        .timeline-content h3 {
+            color: var(--pastel-green);
+            margin-bottom: 8px;
+        }
+
+        .timeline-content p {
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+
+        .flow-diagram {
+            background: rgba(147, 197, 253, 0.05);
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .flow-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            color: var(--pastel-blue);
+            font-size: 2rem;
+            margin: 10px 0;
+        }
+
+        .flow-box {
+            background: var(--card-bg);
+            border: 2px solid var(--pastel-blue);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .flow-box h4 {
+            color: var(--pastel-blue);
+            margin-bottom: 8px;
+        }
+
+        .flow-box p {
+            color: var(--text-color);
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .source-item {
+            background: rgba(134, 239, 172, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(134, 239, 172, 0.2);
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .analysis-item {
+            background: rgba(249, 168, 212, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(249, 168, 212, 0.2);
+            text-align: center;
+        }
+
+        .analysis-item .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .analysis-item .label {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .discord-example {
+            background: #2f3136;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            color: #dcddde;
+        }
+
+        .discord-timestamp {
+            color: #72767d;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+        }
+
+        .discord-bot {
+            color: var(--pastel-blue);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .discord-content {
+            color: #dcddde;
+            line-height: 1.6;
+        }
+
+        .faq-item {
+            background: rgba(147, 197, 253, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .faq-question {
+            color: var(--pastel-blue);
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .faq-answer {
+            color: var(--text-color);
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--pastel-blue);
+            color: #0f172a;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+        }
+
+        @media (max-width: 768px) {
+            .about-hero h1 {
+                font-size: 2rem;
+            }
+
+            .about-hero .tagline {
+                font-size: 1.2rem;
+            }
+
+            .timeline-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .timeline-time {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <a href="index.html" class="nav-link">Latest</a>
+            <a href="about.html" class="nav-link active">About</a>
+        </div>
+        <div class="header-center">
+            <h1>AI-PULSE</h1>
+            <p class="subtitle">Intelligence Briefing System</p>
+        </div>
+        <div class="header-right">
+            <a href="archive.html" class="nav-link">Archive</a>
+        </div>
+    </header>
+
+    <main style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <!-- Hero Section -->
+        <div class="about-hero">
+            <h1>AI Pulse User Guide</h1>
+            <p class="tagline">Automated AI Sector Intelligence for Investors</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Events Analyzed Daily</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">7-Day</div>
+                    <div class="stat-label">Sentiment Trends</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Real-Time</div>
+                    <div class="stat-label">Market Correlation</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What You Get -->
+        <div class="section">
+            <h2>What You Get</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h3>Daily Briefings</h3>
+                    <p>Published at 1:30pm GMT before US market opens. Full analysis of overnight AI sector developments with significance scoring.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>Morning Alerts</h3>
+                    <p>6am GMT Discord notifications with top 10 overnight stories. Wake up informed before the trading day.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>Sentiment Tracking</h3>
+                    <p>30-day trend charts showing AI sector sentiment distribution. Spot narrative shifts before they hit mainstream.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>Market Correlation</h3>
+                    <p>Daily correlation between overnight news sentiment and same-day market performance. Test prediction accuracy.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Claude Haiku analyzes each event for significance (0-100), sentiment, winners/losers, and investment relevance.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="section">
+            <h2>How It Works</h2>
+            <div class="flow-diagram">
+                <div class="flow-box">
+                    <h4>Overnight News Sources</h4>
+                    <p>Hacker News, NewsAPI, SEC EDGAR, GitHub, Company IR, Tech RSS</p>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box">
+                    <h4>6am GMT: Collection & Analysis</h4>
+                    <p>Fetch events, deduplicate, analyze with Claude, store in database</p>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box">
+                    <h4>Discord: Top 10 Stories</h4>
+                    <p>Morning alert with highest-significance events</p>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box">
+                    <h4>1:30pm GMT: Full Briefing Published</h4>
+                    <p>Website updated with complete analysis + prediction logged</p>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box">
+                    <h4>2:30pm GMT: US Market Opens</h4>
+                    <p>Read briefing, make informed decisions</p>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box">
+                    <h4>9pm GMT: Market Close & Correlation</h4>
+                    <p>Calculate accuracy of morning prediction vs actual market movement</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Timeline -->
+        <div class="section">
+            <h2>Daily Timeline (GMT)</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-time">6:00am</div>
+                    <div class="timeline-content">
+                        <h3>Morning Collection</h3>
+                        <p>Automated workflow collects overnight news, analyzes events, sends Discord notification with top 10 stories.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">1:30pm</div>
+                    <div class="timeline-content">
+                        <h3>Daily Briefing Published</h3>
+                        <p>Full briefing goes live on website. Sentiment prediction logged before market opens. Discord notification sent.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">2:30pm</div>
+                    <div class="timeline-content">
+                        <h3>US Market Opens</h3>
+                        <p>NASDAQ, S&P 500, and tracked stocks begin trading. Prediction is locked in.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">9:00pm</div>
+                    <div class="timeline-content">
+                        <h3>Market Close (Mon-Fri)</h3>
+                        <p>Market data collected. Correlation calculated between morning sentiment and actual market movement. Accuracy tracked.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Sources -->
+        <div class="section">
+            <h2>Data Sources</h2>
+            <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                AI Pulse monitors multiple sources to capture comprehensive AI sector developments:
+            </p>
+            <div class="sources-grid">
+                <div class="source-item">Hacker News</div>
+                <div class="source-item">NewsAPI</div>
+                <div class="source-item">SEC EDGAR</div>
+                <div class="source-item">GitHub</div>
+                <div class="source-item">NVIDIA IR</div>
+                <div class="source-item">AMD IR</div>
+                <div class="source-item">TechCrunch</div>
+                <div class="source-item">VentureBeat</div>
+                <div class="source-item">The Verge</div>
+                <div class="source-item">Ars Technica</div>
+                <div class="source-item">MIT Tech Review</div>
+                <div class="source-item">Wired AI</div>
+            </div>
+        </div>
+
+        <!-- What We Analyze -->
+        <div class="section">
+            <h2>What We Analyze</h2>
+            <div class="analysis-grid">
+                <div class="analysis-item">
+                    <div class="icon">📊</div>
+                    <div class="label">Product Launches</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="icon">💰</div>
+                    <div class="label">Funding Rounds</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="icon">📈</div>
+                    <div class="label">Earnings Reports</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="icon">⚖️</div>
+                    <div class="label">Regulations</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="icon">🔬</div>
+                    <div class="label">Technical Breakthroughs</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="icon">📰</div>
+                    <div class="label">Sentiment Shifts</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Discord Notifications -->
+        <div class="section">
+            <h2>Discord Notifications</h2>
+            <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                Stay informed with automated Discord notifications at key times:
+            </p>
+
+            <h3 style="color: var(--pastel-blue); margin: 30px 0 15px;">Morning Alert (6am GMT)</h3>
+            <div class="discord-example">
+                <div class="discord-timestamp">Today at 6:00 AM</div>
+                <div class="discord-bot">AI-Pulse Bot</div>
+                <div class="discord-content">
+                    🌅 **Morning Intelligence Brief - 2025-11-26**<br><br>
+                    **Top 10 Overnight Stories:**<br><br>
+                    1. [95] OpenAI launches GPT-5 with reasoning capabilities<br>
+                    2. [88] NVIDIA announces new Blackwell chip production ramp<br>
+                    3. [82] Anthropic raises $2B Series D at $18B valuation<br>
+                    ...<br><br>
+                    Full briefing at 1:30pm GMT
+                </div>
+            </div>
+
+            <h3 style="color: var(--pastel-blue); margin: 30px 0 15px;">Daily Briefing (1:30pm GMT)</h3>
+            <div class="discord-example">
+                <div class="discord-timestamp">Today at 1:30 PM</div>
+                <div class="discord-bot">AI-Pulse Bot</div>
+                <div class="discord-content">
+                    📊 **Daily briefing published - 2025-11-26**<br><br>
+                    57 events analyzed | Sentiment: 35% Positive<br>
+                    https://ai-pulse.aifinto.com
+                </div>
+            </div>
+
+            <h3 style="color: var(--pastel-blue); margin: 30px 0 15px;">Market Close (9pm GMT, Mon-Fri)</h3>
+            <div class="discord-example">
+                <div class="discord-timestamp">Today at 9:30 PM</div>
+                <div class="discord-bot">AI-Pulse Bot</div>
+                <div class="discord-content">
+                    📈 **Market correlation updated**<br><br>
+                    NASDAQ: +1.2% | Predicted: Bullish ✓<br>
+                    Briefing updated with today's results
+                </div>
+            </div>
+        </div>
+
+        <!-- Understanding Sentiment -->
+        <div class="section">
+            <h2>Understanding Sentiment Charts</h2>
+            <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                Sentiment is displayed as percentage distribution to normalize across different event volumes:
+            </p>
+            <div style="background: rgba(147, 197, 253, 0.05); padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h4 style="color: var(--pastel-green); margin-bottom: 15px;">Example Calculation:</h4>
+                <p style="color: var(--text-color); line-height: 1.8;">
+                    <strong>Day 1:</strong> 50 events analyzed<br>
+                    → 15 Positive (30%) | 20 Negative (40%) | 10 Neutral (20%) | 5 Mixed (10%)<br><br>
+                    <strong>Day 2:</strong> 80 events analyzed<br>
+                    → 24 Positive (30%) | 32 Negative (40%) | 16 Neutral (20%) | 8 Mixed (10%)<br><br>
+                    <strong>Insight:</strong> Despite different event volumes, sentiment distribution is identical (30/40/20/10). This makes trend comparison meaningful.
+                </p>
+            </div>
+            <h4 style="color: var(--pastel-blue); margin: 20px 0 10px;">Sentiment Categories:</h4>
+            <ul style="color: var(--text-color); line-height: 2;">
+                <li><strong style="color: var(--pastel-green);">Positive:</strong> Events likely to boost AI sector sentiment (launches, funding, growth)</li>
+                <li><strong style="color: #fca5a5;">Negative:</strong> Events likely to dampen sentiment (regulations, failures, controversies)</li>
+                <li><strong style="color: var(--pastel-blue);">Neutral:</strong> Informational events without clear directional impact</li>
+                <li><strong style="color: var(--pastel-yellow);">Mixed:</strong> Events with both positive and negative implications</li>
+            </ul>
+        </div>
+
+        <!-- Reading the Briefing -->
+        <div class="section">
+            <h2>Reading the Briefing</h2>
+            <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                Each analyzed event includes:
+            </p>
+            <div style="background: rgba(147, 197, 253, 0.05); padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h4 style="color: var(--pastel-green); margin-bottom: 10px;">📊 Significance Score (0-100)</h4>
+                <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                    Higher scores = more material to markets. 90+ is major news, 70-89 is notable, 50-69 is moderate, below 50 is minor.
+                </p>
+
+                <h4 style="color: var(--pastel-green); margin-bottom: 10px;">😊 Sentiment</h4>
+                <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                    Positive, Negative, Neutral, or Mixed - indicates likely impact on AI sector perception.
+                </p>
+
+                <h4 style="color: var(--pastel-green); margin-bottom: 10px;">🎯 Winners/Losers</h4>
+                <p style="color: var(--text-color); opacity: 0.9; margin-bottom: 20px;">
+                    Which companies/sectors benefit or suffer from this development.
+                </p>
+
+                <h4 style="color: var(--pastel-green); margin-bottom: 10px;">💡 Investment Relevance</h4>
+                <p style="color: var(--text-color); opacity: 0.9;">
+                    Material (impacts valuations), Marginal (worth watching), or Noise (informational only).
+                </p>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="section">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">When is the briefing published?</div>
+                <div class="faq-answer">1:30pm GMT daily, before US markets open at 2:30pm GMT. This gives you time to read analysis before trading begins.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What if I miss the Discord notification?</div>
+                <div class="faq-answer">Just visit the website directly at ai-pulse.aifinto.com. The briefing is always available and updates remain archived.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How far back does the history go?</div>
+                <div class="faq-answer">All briefings are archived and accessible via the Archive link. Sentiment charts show 30-day trends.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Can I see older briefings?</div>
+                <div class="faq-answer">Yes, click "Archive" in the header to browse all past briefings by date.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How accurate are the predictions?</div>
+                <div class="faq-answer">Accuracy is tracked daily and displayed in each briefing. Predictions are logged at 1:30pm (before market opens) and compared to actual market movement at close.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Why use percentages for sentiment instead of counts?</div>
+                <div class="faq-answer">Event volume varies daily (30-80 events). Percentages normalize this variation, making day-to-day trend comparison meaningful. 40% negative sentiment has the same meaning whether it's 20/50 events or 32/80 events.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What markets are tracked for correlation?</div>
+                <div class="faq-answer">NASDAQ Composite, S&P 500, and major AI-related stocks (NVDA, MSFT, GOOGL, META, AMZN, AMD, ARM, TSMC, ASML).</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Is this investment advice?</div>
+                <div class="faq-answer">No. AI Pulse provides intelligence and analysis, not investment recommendations. Always do your own research and consult financial advisors before making investment decisions.</div>
+            </div>
+        </div>
+    </main>
+
+    <div class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</div>
+
+    <script>
+        // Show/hide back to top button
+        window.addEventListener('scroll', function() {
+            const backToTop = document.querySelector('.back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.style.display = 'flex';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        // Hide button initially
+        document.querySelector('.back-to-top').style.display = 'none';
+    </script>
+</body>
+</html>

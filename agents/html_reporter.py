@@ -470,6 +470,7 @@ class HTMLReporter:
 
         <nav class="header-nav">
             <a href="../index.html">Latest</a>
+            <a href="../about.html">About</a>
             <a href="../archive.html">Archive</a>
             <a href="https://github.com/mat-e-exp/ai-pulse-briefings">GitHub</a>
         </nav>

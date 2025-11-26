@@ -103,6 +103,7 @@ jobs:
           mkdir -p output
           cp -r briefings output/
           cp index.html output/
+          cp about.html output/
           cp archive.html output/
           cp style.css output/
           cp CNAME output/

@@ -83,6 +83,7 @@ def update_index(latest_briefing_path: Path, date_str: str):
     # (briefing pages have ../ prefix, index.html doesn't need it)
     content = content.replace('href="../style.css"', 'href="style.css"')
     content = content.replace('href="../index.html"', 'href="index.html"')
+    content = content.replace('href="../about.html"', 'href="about.html"')
     content = content.replace('href="../archive.html"', 'href="archive.html"')
 
     # Write as index.html
