@@ -56,21 +56,32 @@ The system has multiple safety features to prevent accidental data corruption:
 - `open index.html` - view briefing HTML
 - `cat discord_test.txt` - view Discord message text
 
-**WRITE operations (safe with protections):**
-- `python3.9 publish_briefing.py --days 7 --min-score 40` - regenerates HTML locally
-  - Writes: `daily_sentiment` table (overwrites), `predictions` table (locked if market open)
-  - Safety: Idempotent, prediction locking prevents corruption
-  - Use for: Updating HTML/CSS changes to see navigation updates
+**HTML-ONLY regeneration (safe for web changes):**
+- `python3.9 regenerate_html.py --days 7 --min-score 40` - regenerate HTML from existing database
+  - ✅ ONLY reads from database
+  - ✅ ONLY writes HTML files
+  - ❌ Does NOT collect data
+  - ❌ Does NOT log predictions
+  - ❌ Does NOT update database
+  - **Use for**: Navigation changes, CSS updates, HTML template fixes
 
-- `python3.9 agents/prediction_logger.py --date YYYY-MM-DD` - logs prediction for specific date
-  - Writes: `predictions` table, `prediction_audit` table
-  - Safety: Prediction locking prevents updates after market opens
-  - Use for: Testing prediction logging for past/future dates
+**⚠️ DANGEROUS: Full pipeline (database writes):**
+- `python3.9 publish_briefing.py --days 7 --min-score 40` - **AVOID RUNNING MANUALLY**
+  - Writes: `daily_sentiment` table, `predictions` table, `prediction_audit` table
+  - Logs prediction based on current database state
+  - **Problem**: If run before scheduled data collection, logs prediction with incomplete data
+  - **Only use**: As part of scheduled workflows (1:30pm GMT)
+  - **Never use**: For testing web changes or navigation updates
 
 **What the safety features do:**
-- Running `publish_briefing.py` multiple times on same day: Safe - just overwrites with same data
-- Running it after 2:30pm GMT: Prediction won't update (locked), but HTML regenerates fine
+- `regenerate_html.py`: Completely safe anytime - no database writes
+- `publish_briefing.py` after 2:30pm GMT: Prediction won't update (locked), but still logs to audit
 - Duplicate workflow runs: Detected and warned, audit trail preserved
+
+**Rule of thumb:**
+- **Web/HTML changes?** → Use `regenerate_html.py`
+- **Testing data collection?** → Use individual agent scripts
+- **Full pipeline?** → Let scheduled workflows handle it
 
 ❌ DO NOT trigger GitHub Actions workflows unless:
 - User explicitly says "run the workflow" or "trigger the workflow"
@@ -745,6 +756,35 @@ python3.9 test_safety.py
 - Creates prediction_audit and workflow_runs tables
 - Backfills first_logged_at for existing predictions
 - Run once: `python3.9 migrations/add_safety_features.py`
+
+### Publishing Scripts
+
+**`regenerate_html.py`** - Safe HTML regeneration (READ-ONLY)
+```bash
+python3.9 regenerate_html.py --days 7 --min-score 40
+```
+- ✅ Safe to run anytime
+- ✅ Only reads from database
+- ✅ Only writes HTML files
+- ❌ Does NOT collect data
+- ❌ Does NOT log predictions
+- **Use for**: Web changes, navigation updates, CSS fixes
+
+**`publish_briefing.py`** - Full pipeline (DATABASE WRITES)
+```bash
+python3.9 publish_briefing.py --days 7 --min-score 40
+```
+- ⚠️ **AVOID RUNNING MANUALLY**
+- Writes to database: `daily_sentiment`, `predictions`, `prediction_audit`
+- Logs prediction based on current database state
+- **Risk**: If run before data collection, logs prediction with incomplete data
+- **Only use**: As part of scheduled workflows (called by daily-collection.yml at 1:30pm GMT)
+- **Never use**: For testing or web changes
+
+**When to use which:**
+- **Changing navigation/CSS/layout?** → `regenerate_html.py` then commit + deploy-assets.yml
+- **Testing data collection?** → Run individual agent scripts, not publishing scripts
+- **Full daily pipeline?** → Let scheduled workflows handle it automatically
 
 ## GitHub Pages Hosting
 
