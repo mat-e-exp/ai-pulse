@@ -15,6 +15,22 @@ Real-time intelligence agent for the AI sector - tracks product launches, fundin
 
 Investment decisions depend on this data being correct.
 
+### Data Protection Features
+
+The system has multiple safety features to prevent accidental data corruption:
+
+1. **Prediction Locking**: Once market opens (2:30pm GMT), predictions for that day are locked and cannot be updated
+2. **Timestamp Preservation**: `first_logged_at` field preserves the original prediction time, even if regenerated
+3. **Audit Trail**: `prediction_audit` table tracks every prediction update with reason and timestamp
+4. **Duplicate Run Detection**: `workflow_runs` table warns if a workflow runs multiple times in one day
+5. **Idempotent Operations**: Running scripts multiple times on same day overwrites (not duplicates) data
+
+**These features protect against:**
+- Accidentally logging predictions AFTER market opens (corrupts accuracy tracking)
+- Losing evidence of when prediction was first made
+- Undetected duplicate workflow runs
+- Database corruption from human error
+
 ## CRITICAL: NEVER RERUN WORKFLOWS FOR TESTING
 
 **The workflows are for production data collection, NOT testing.**
@@ -34,20 +50,27 @@ Investment decisions depend on this data being correct.
 6. **Data is corrupted and unreliable for investment decisions**
 
 ### How to Test Locally (Safe)
-✅ Run individual scripts locally that read from database:
-- `python3.9 agents/discord_morning.py` - generates Discord message preview
-- `python3.9 publish_briefing.py --days 7 --min-score 40` - regenerates HTML locally
-- `python3.9 agents/prediction_logger.py --date YYYY-MM-DD` - logs prediction for specific date
 
-✅ View local files:
+**READ-ONLY operations (completely safe):**
+- `python3.9 agents/discord_morning.py` - generates Discord message preview (no DB writes)
 - `open index.html` - view briefing HTML
 - `cat discord_test.txt` - view Discord message text
 
-✅ Manual Discord posting (if needed):
-```bash
-python3.9 agents/discord_morning.py --output test.txt
-# Review test.txt, then manually post to Discord if desired
-```
+**WRITE operations (safe with protections):**
+- `python3.9 publish_briefing.py --days 7 --min-score 40` - regenerates HTML locally
+  - Writes: `daily_sentiment` table (overwrites), `predictions` table (locked if market open)
+  - Safety: Idempotent, prediction locking prevents corruption
+  - Use for: Updating HTML/CSS changes to see navigation updates
+
+- `python3.9 agents/prediction_logger.py --date YYYY-MM-DD` - logs prediction for specific date
+  - Writes: `predictions` table, `prediction_audit` table
+  - Safety: Prediction locking prevents updates after market opens
+  - Use for: Testing prediction logging for past/future dates
+
+**What the safety features do:**
+- Running `publish_briefing.py` multiple times on same day: Safe - just overwrites with same data
+- Running it after 2:30pm GMT: Prediction won't update (locked), but HTML regenerates fine
+- Duplicate workflow runs: Detected and warned, audit trail preserved
 
 ❌ DO NOT trigger GitHub Actions workflows unless:
 - User explicitly says "run the workflow" or "trigger the workflow"
@@ -651,6 +674,77 @@ daily_sentiment (
 - `is_duplicate`: 0 = unique, 1 = string duplicate (75% title similarity)
 - `is_semantic_duplicate`: 0 = unique, 1 = semantic duplicate (Claude-identified)
 - Reports query: `WHERE (is_duplicate IS NULL OR is_duplicate = 0) AND (is_semantic_duplicate IS NULL OR is_semantic_duplicate = 0)`
+
+**Safety Tables** (added 2025-11-26):
+```sql
+predictions (
+  date PRIMARY KEY,
+  sentiment_positive, sentiment_negative, sentiment_neutral, sentiment_mixed,
+  total_events, prediction, confidence,
+  top_events_summary,
+  created_at,          -- Last update timestamp
+  first_logged_at,     -- Original prediction timestamp (preserved)
+  is_locked            -- 1 = locked after market open, 0 = can update
+)
+
+prediction_audit (
+  id, date,
+  sentiment_positive, sentiment_negative, sentiment_neutral, sentiment_mixed,
+  total_events, prediction, confidence,
+  action,              -- 'INSERT', 'UPDATE', 'BLOCKED'
+  reason,              -- Why this action occurred
+  created_at,
+  workflow_run_id      -- Links to workflow_runs table
+)
+
+workflow_runs (
+  id, workflow_name,
+  run_date,
+  started_at, completed_at,
+  status,              -- 'started', 'completed', 'failed'
+  run_count_today,     -- Increments for each run on same day
+  is_duplicate_run,    -- 1 = duplicate run detected
+  notes
+)
+```
+
+### Safety Utilities
+
+**Location**: `storage/db_safety.py`
+
+**Key Functions**:
+- `PredictionSafety.is_market_open(check_time)` - Check if US market is currently open (2:30pm - 9pm GMT)
+- `PredictionSafety.should_lock_prediction(date, check_time)` - Determine if prediction should be locked
+- `save_prediction_safe(db, date, sentiment_data, prediction, confidence, top_events_summary, workflow_run_id)` - Save prediction with safety checks
+- `log_workflow_run(db, workflow_name, run_date, status, notes)` - Log workflow start and detect duplicates
+- `complete_workflow_run(db, workflow_run_id, status, notes)` - Mark workflow as completed
+
+**Wrapper Script**: `workflow_safety.py`
+```bash
+# Start workflow (returns workflow_run_id)
+python3.9 workflow_safety.py start <workflow-name>
+
+# Complete workflow
+python3.9 workflow_safety.py complete <workflow-run-id> [status] [notes]
+```
+
+**Testing**: `test_safety.py`
+```bash
+# Run all safety feature tests
+python3.9 test_safety.py
+
+# Tests:
+# - Market hours detection
+# - Prediction locking logic
+# - Save/update predictions
+# - Audit trail logging
+```
+
+**Migration**: `migrations/add_safety_features.py`
+- Adds safety columns to predictions table
+- Creates prediction_audit and workflow_runs tables
+- Backfills first_logged_at for existing predictions
+- Run once: `python3.9 migrations/add_safety_features.py`
 
 ## GitHub Pages Hosting
 

@@ -219,6 +219,14 @@ If no duplicates found, return:
             duplicate_groups = result.get('duplicate_groups', [])
             reasoning = result.get('reasoning', 'no reasoning provided')
 
+            # Convert string indices to integers (Claude may return either format)
+            try:
+                duplicate_groups = [[int(idx) for idx in group] for group in duplicate_groups]
+            except (ValueError, TypeError) as e:
+                print(f"  ✗ Error converting duplicate group indices to integers: {e}")
+                print(f"  Groups were: {duplicate_groups}")
+                return []
+
             if duplicate_groups:
                 print(f"  Claude reasoning: {reasoning}")
 

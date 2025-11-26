@@ -15,6 +15,7 @@ from datetime import datetime
 sys.path.append(str(Path(__file__).parent.parent))
 
 from storage.db import EventDatabase
+from storage.db_safety import save_prediction_safe
 
 
 def calculate_prediction(sentiment_pcts: dict, total_events: int) -> tuple[str, str]:
@@ -182,8 +183,9 @@ def log_prediction(db_path: str = "ai_pulse.db", date: str = None):
     # Get top events for context
     top_events_summary = get_top_events(db, date, limit=3)
 
-    # Save to database
-    db.save_prediction(
+    # Save to database with safety checks
+    result = save_prediction_safe(
+        db=db,
         date=date,
         sentiment_data=sentiment_data,
         prediction=prediction,
@@ -191,10 +193,20 @@ def log_prediction(db_path: str = "ai_pulse.db", date: str = None):
         top_events_summary=top_events_summary
     )
 
-    print(f"✓ Prediction logged:")
+    if result['status'] == 'blocked':
+        print(f"⚠️  {result['message']}")
+        print(f"   Existing prediction: {result['existing_prediction']}")
+        print(f"   Attempted prediction: {prediction}")
+        db.close()
+        return
+
+    print(f"✓ Prediction {result['action']}:")
     print(f"  Sentiment: {sentiment_data['positive']:.1f}% pos, {sentiment_data['negative']:.1f}% neg")
     print(f"  Events: {sentiment_data['total']}")
     print(f"  Prediction: {prediction} (confidence: {confidence})")
+    print(f"  First logged: {result['first_logged_at']}")
+    if result['is_locked']:
+        print(f"  🔒 Prediction is now LOCKED (market opened)")
 
     db.close()
 
