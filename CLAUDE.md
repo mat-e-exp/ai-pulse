@@ -37,26 +37,48 @@ Real-time intelligence agent for AI sector investment decisions. Tracks product 
 
 ## 🛠️ Common Tasks
 
-### Making Web Changes (Navigation, CSS, Layout)
+### Making Web Changes
 
-**Safe workflow:**
+**Two types of changes:**
+
+#### 1. Static Files (about.html, style.css, CNAME)
 ```bash
 # 1. Pull latest
 git pull
 
-# 2. Make your changes (edit HTML templates, CSS, etc.)
+# 2. Edit the file directly
+vim about.html  # or style.css
 
-# 3. Regenerate HTML (safe - no database writes)
+# 3. Commit and push
+git add about.html
+git commit -m "Update about page"
+git push
+
+# 4. Deploy to live site
+# Go to: GitHub Actions → "Deploy Assets to Public Site" → Run workflow
+```
+**No regeneration needed** - these files don't come from database
+
+#### 2. HTML Templates (Navigation, Layout Changes)
+```bash
+# 1. Pull latest
+git pull
+
+# 2. Edit template
+vim agents/html_reporter.py  # or publish_briefing.py (archive.html)
+
+# 3. Regenerate HTML from database (safe - no DB writes)
 python3.9 regenerate_html.py --days 7 --min-score 40
 
 # 4. Commit and push
-git add <files>
+git add agents/html_reporter.py index.html briefings/*.html archive.html
 git commit -m "Update navigation"
 git push
 
 # 5. Deploy to live site
 # Go to: GitHub Actions → "Deploy Assets to Public Site" → Run workflow
 ```
+**Regeneration needed** - templates generate index.html, archive.html, briefings/*.html
 
 ### Testing Locally
 
@@ -166,11 +188,13 @@ python3.9 publish_briefing.py --days 7 --min-score 40
 
 ## 📋 Quick Decision Tree
 
-**Need to:**
-- **Deploy web changes?** → `regenerate_html.py` → commit → `deploy-assets.yml`
-- **Test data collection?** → Run individual agent scripts
-- **Update briefing with new data?** → Wait for 1:30pm workflow
-- **Fix something urgent?** → Ask first, check safety implications
+**I changed:**
+- **Static file (about.html, style.css)?** → commit → push → `deploy-assets.yml`
+- **HTML template (navigation, layout)?** → `regenerate_html.py` → commit → push → `deploy-assets.yml`
+- **Just testing locally?** → `regenerate_html.py` (don't commit)
+- **Data collection logic?** → Run individual agent scripts for testing
+- **Need new data in briefing?** → Wait for 1:30pm workflow (don't run manually)
+- **Something urgent/unclear?** → Ask first, check safety implications
 
 ---
 
