@@ -23,7 +23,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             // Sentiment Chart
             const ctx = document.getElementById('sentimentChart').getContext('2d');
-            const chartData = {"dates": ["2025-11-24", "2025-11-25", "2025-11-26"], "positive": [40.9, 42.9, 37.1], "negative": [9.1, 7.5, 10.4], "neutral": [27.3, 36.1, 39.4], "mixed": [22.7, 13.5, 13.1], "totals": [44, 133, 221]};
+            const chartData = {"dates": ["2025-11-24", "2025-11-25", "2025-11-26"], "positive": [40.9, 42.9, 37.3], "negative": [9.1, 7.5, 10.5], "neutral": [27.3, 36.1, 39.1], "mixed": [22.7, 13.5, 13.2], "totals": [44, 133, 220]};
 
             // If we have data, generate labels from first data date to 30 days ahead
             let labels = chartData.dates;
@@ -158,8 +158,8 @@
 
             // Market Performance Chart
             const marketCtx = document.getElementById('marketChart').getContext('2d');
-            const marketData = {"BTC-USD": {"name": "Bitcoin", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [-1.7, 1.68, -0.26]}, "AIQ": {"name": "AI Analytics ETF", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [0.57, 3.17, 0.29]}, "BOTZ": {"name": "AI/Robotics ETF", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [1.24, 1.73, 1.41]}, "PLTR": {"name": "Palantir", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [-0.57, 4.78, 0.8]}, "AMD": {"name": "AMD", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [-1.09, 5.53, -4.15]}, "META": {"name": "Meta", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [0.87, 3.16, 3.78]}, "GOOGL": {"name": "Alphabet", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [3.53, 6.31, 1.53]}, "MSFT": {"name": "Microsoft", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [-1.32, 0.4, 0.63]}, "NVDA": {"name": "NVIDIA", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [-0.97, 2.05, -2.59]}, "^GSPC": {"name": "S&P 500", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [0.98, 1.55, 0.91]}, "^IXIC": {"name": "NASDAQ Composite", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [0.88, 2.69, 0.67]}};
-            const correlationData = {"total": 2, "correct": 2, "wrong": 0, "ambiguous": 0, "accuracy_pct": 100, "timeline": [{"date": "2025-11-24", "sentiment": "positive", "outcome": "positive", "correct": 1}, {"date": "2025-11-25", "sentiment": "positive", "outcome": "positive", "correct": 1}]};
+            const marketData = {"BTC-USD": {"name": "Bitcoin", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-1.7, 1.68, -0.26, 0.44]}, "AIQ": {"name": "AI Analytics ETF", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [0.57, 3.17, 0.29, 0.85]}, "BOTZ": {"name": "AI/Robotics ETF", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [1.24, 1.73, 1.41, 0.93]}, "PLTR": {"name": "Palantir", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [-0.57, 4.78, 0.8]}, "AMD": {"name": "AMD", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-1.09, 5.53, -4.15, 3.93]}, "META": {"name": "Meta", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [0.87, 3.16, 3.78]}, "GOOGL": {"name": "Alphabet", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [3.53, 6.31, 1.53]}, "MSFT": {"name": "Microsoft", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-1.32, 0.4, 0.63, 1.78]}, "NVDA": {"name": "NVIDIA", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-0.97, 2.05, -2.59, 1.37]}, "^GSPC": {"name": "S&P 500", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [0.98, 1.55, 0.91, 0.69]}, "^IXIC": {"name": "NASDAQ Composite", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [0.88, 2.69, 0.67, 0.82]}};
+            const correlationData = {"total": 3, "correct": 2, "wrong": 1, "ambiguous": 0, "accuracy_pct": 67, "timeline": [{"date": "2025-11-24", "sentiment": "positive", "outcome": "positive", "correct": 1}, {"date": "2025-11-25", "sentiment": "positive", "outcome": "positive", "correct": 1}, {"date": "2025-11-26", "sentiment": "neutral", "outcome": "positive", "correct": 0}]};
 
             // Use same date range as sentiment chart (reuse labels from sentiment chart)
             const marketLabels = labels;
@@ -305,22 +305,22 @@
     <header>
         <div class="header-stats">
             <div class="stat-item">
-                <span class="stat-value-small">307</span>
+                <span class="stat-value-small">304</span>
                 <span class="stat-label-small">Events</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value-small">221</span>
+                <span class="stat-value-small">220</span>
                 <span class="stat-label-small">Analyzed</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value-small">250</span>
+                <span class="stat-value-small">249</span>
                 <span class="stat-label-small">Significant</span>
             </div>
         </div>
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-26 13:59 UTC</p>
+            <p class="date">2025-11-26 21:41 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -6513,26 +6513,6 @@
 </div><div id="notable-hidden-116" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
-                    <h3 class="event-title-compact">Meta Segment Anything Model 3</h3>
-                    <button class="expand-btn" id="btn-198" onclick="toggleEvent(198)">▶</button>
-                </div>
-
-                <div class="event-content-expanded" id="content-198" style="display: none;">
-                    <div class="event-meta-compact">
-                        <span class="sentiment">➡️ neutral</span>
-                        
-                        <span> | 2025-11-19 16:27</span>
-                        <span> | Notable</span>
-                    </div>
-
-                    <div class="event-link">
-                        <a href="https://ai.meta.com/blog/segment-anything-model-3/?_fb_noscript=1" target="_blank">Read full article →</a>
-                    </div>
-                </div>
-            </article>
-</div><div id="notable-hidden-117" style="display: none;">
-            <article class="event-card-compact">
-                <div class="event-header-compact">
                     <h3 class="event-title-compact">Statistical Process Control in Python</h3>
                     <button class="expand-btn" id="btn-324" onclick="toggleEvent(324)">▶</button>
                 </div>
@@ -6565,7 +6545,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-118" style="display: none;">
+</div><div id="notable-hidden-117" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">The Trump Administration’s Data Center Push Could Open the Door for New Forever Chemicals</h3>
@@ -6600,7 +6580,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-119" style="display: none;">
+</div><div id="notable-hidden-118" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Premium: The Hater's Guide To NVIDIA</h3>
@@ -6635,7 +6615,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-120" style="display: none;">
+</div><div id="notable-hidden-119" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">jukebox-infer 0.1.0</h3>
@@ -6670,7 +6650,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-121" style="display: none;">
+</div><div id="notable-hidden-120" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">OpenAI faces trademark challenge over ‘cameo’ feature in Sora app</h3>
@@ -6705,7 +6685,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-122" style="display: none;">
+</div><div id="notable-hidden-121" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">SoftBank Group Shares Tumble on OpenAI Competition Worries</h3>
@@ -6735,7 +6715,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-123" style="display: none;">
+</div><div id="notable-hidden-122" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Google denies analyzing your emails for AI training - here's what happened - ZDNET</h3>
@@ -6770,7 +6750,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-124" style="display: none;">
+</div><div id="notable-hidden-123" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">claude-mpm 4.25.8</h3>
@@ -6805,7 +6785,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-125" style="display: none;">
+</div><div id="notable-hidden-124" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">DXYZ: Despite Owning SpaceX And OpenAI, This Fund Is A Sell</h3>
@@ -6840,7 +6820,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-126" style="display: none;">
+</div><div id="notable-hidden-125" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">raggify 0.1.6</h3>
@@ -6875,7 +6855,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-127" style="display: none;">
+</div><div id="notable-hidden-126" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Data Viz in Fabric Notebooks</h3>
@@ -6910,7 +6890,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-128" style="display: none;">
+</div><div id="notable-hidden-127" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">ChatGPT's New Personalities Don't Make It Feel Much More Human</h3>
@@ -6945,7 +6925,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-129" style="display: none;">
+</div><div id="notable-hidden-128" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Here's why concerns about an AI bubble are bigger than ever</h3>
@@ -6980,7 +6960,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-130" style="display: none;">
+</div><div id="notable-hidden-129" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">It’s Time to Pull the Plug on ChatGPT at Cal State</h3>
@@ -7015,7 +6995,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-131" style="display: none;">
+</div><div id="notable-hidden-130" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Is it time to embrace ethically-sourced marketing?</h3>
@@ -7050,7 +7030,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-132" style="display: none;">
+</div><div id="notable-hidden-131" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Racket v9.0</h3>
@@ -7085,7 +7065,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-133" style="display: none;">
+</div><div id="notable-hidden-132" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Kagi Hub Belgrade</h3>
@@ -7120,7 +7100,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-134" style="display: none;">
+</div><div id="notable-hidden-133" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Poland to Present Plan for Digital Services Tax in Early 2026</h3>
@@ -7150,7 +7130,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-135" style="display: none;">
+</div><div id="notable-hidden-134" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Private Debt Defaults Set to Climb as Middle-Market Firms Wobble</h3>
@@ -7185,7 +7165,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-136" style="display: none;">
+</div><div id="notable-hidden-135" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Can Tech Get Rid of Bad Trips?</h3>
@@ -7220,7 +7200,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-137" style="display: none;">
+</div><div id="notable-hidden-136" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">flytekitplugins-openai 1.16.10</h3>
@@ -7255,7 +7235,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-138" style="display: none;">
+</div><div id="notable-hidden-137" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">OpenAI learned the hard way that Cameo trademarked the word ‘cameo’</h3>
@@ -7290,7 +7270,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-139" style="display: none;">
+</div><div id="notable-hidden-138" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Nvidia’s ‘I’m Not Enron’ memo has people asking a lot of questions already answered by that memo</h3>
@@ -7325,7 +7305,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-140" style="display: none;">
+</div><div id="notable-hidden-139" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Judge Temporarily Blocks OpenAI From Using The Term ‘Cameo’ In Sora App</h3>
@@ -7360,7 +7340,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-141" style="display: none;">
+</div><div id="notable-hidden-140" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">This 30% discount on the Acer Chromebook Plus 515 is probably the best early Black Friday Chromebook deal I've seen so far</h3>
@@ -7395,7 +7375,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-142" style="display: none;">
+</div><div id="notable-hidden-141" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">F1 has thrived by democratizing what was once a ‘look, don’t touch’ sport, says McLaren Racing CEO Zak Brown</h3>
@@ -7430,7 +7410,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-143" style="display: none;">
+</div><div id="notable-hidden-142" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">The Perils of our Bubblicious World</h3>
@@ -7465,7 +7445,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-144" style="display: none;">
+</div><div id="notable-hidden-143" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Show HN: I wrote a site to aggregate Anthropic related news</h3>
@@ -7500,7 +7480,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-145" style="display: none;">
+</div><div id="notable-hidden-144" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Google's new AI model puts OpenAI, the great conundrum of this market, on shakier ground</h3>
@@ -7535,7 +7515,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-146" style="display: none;">
+</div><div id="notable-hidden-145" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Show HN: SitStand – Control your standing desk from the command line</h3>
@@ -7570,7 +7550,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-147" style="display: none;">
+</div><div id="notable-hidden-146" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Cyclone Senyar: Check path, timeline and landfall of cyclone. IMD warns of heavy rainfall in these states. Check list</h3>
@@ -7605,7 +7585,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-148" style="display: none;">
+</div><div id="notable-hidden-147" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">iflow-mcp_mcp-pinecone added to PyPI</h3>
@@ -7640,7 +7620,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-149" style="display: none;">
+</div><div id="notable-hidden-148" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">iflow-mcp_wcgw 5.5.1</h3>
@@ -7670,7 +7650,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-150" style="display: none;">
+</div><div id="notable-hidden-149" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">tokencostauto 0.1.362</h3>
@@ -7705,7 +7685,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-151" style="display: none;">
+</div><div id="notable-hidden-150" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Editing Code in Emacs</h3>
@@ -7740,7 +7720,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-152" style="display: none;">
+</div><div id="notable-hidden-151" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Madeleine Poulin, Radio-Canada’s first female correspondent in Ottawa and Paris, dies at 87</h3>
@@ -7775,7 +7755,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-153" style="display: none;">
+</div><div id="notable-hidden-152" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Private payroll losses accelerated in the past four weeks, ADP reports</h3>
@@ -7810,7 +7790,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-154" style="display: none;">
+</div><div id="notable-hidden-153" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Zelenskiy Says Peace Talks With US Continue After Deal Report</h3>
@@ -7845,7 +7825,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-155" style="display: none;">
+</div><div id="notable-hidden-154" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Links 11/24/2025</h3>
@@ -7880,7 +7860,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-156" style="display: none;">
+</div><div id="notable-hidden-155" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">US Producer Price Index Increases 0.3%, Led by Higher Energy</h3>
@@ -7915,7 +7895,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-157" style="display: none;">
+</div><div id="notable-hidden-156" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">How Kohl’s became a premarket beneficiary of a meme-stock-style surge</h3>
@@ -7950,7 +7930,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-158" style="display: none;">
+</div><div id="notable-hidden-157" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Bessent says very good chance Trump will announce new Fed chair before Christmas</h3>
@@ -7985,7 +7965,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-159" style="display: none;">
+</div><div id="notable-hidden-158" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Contemporary Chinese Literature, Google Play, Snapchat, More: Sunday ResearchBuzz, November 23, 2025</h3>
@@ -8020,7 +8000,7 @@
                     </div>
                 </div>
             </article>
-</div><div id="notable-hidden-160" style="display: none;">
+</div><div id="notable-hidden-159" style="display: none;">
             <article class="event-card-compact">
                 <div class="event-header-compact">
                     <h3 class="event-title-compact">Nigeria Unexpectedly Keeps Rates on Hold to Curb Price Pressures</h3>
@@ -8056,9 +8036,9 @@
                 </div>
             </article>
 </div>
-            <button onclick="toggleEventSection('notable', 161)" id="notable-toggle-btn"
+            <button onclick="toggleEventSection('notable', 160)" id="notable-toggle-btn"
                     style="margin: 20px auto; display: block; padding: 8px 20px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
-                Show 158 More Events
+                Show 157 More Events
             </button>
         </section>
 
@@ -9118,7 +9098,21 @@
                 <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
                     <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">BOTZ</div>
                     <div style="font-size: 24px; font-weight: 700; color: #6ee7b7; margin-bottom: 5px;">100.0%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">2/2 correct</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">3/3 correct</div>
+                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Strong</div>
+                </div>
+
+                <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
+                    <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">^GSPC</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #6ee7b7; margin-bottom: 5px;">100.0%</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">3/3 correct</div>
+                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Strong</div>
+                </div>
+
+                <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
+                    <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">^IXIC</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #6ee7b7; margin-bottom: 5px;">100.0%</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">3/3 correct</div>
                     <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Strong</div>
                 </div>
 
@@ -9144,52 +9138,38 @@
                 </div>
 
                 <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
-                    <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">^GSPC</div>
-                    <div style="font-size: 24px; font-weight: 700; color: #6ee7b7; margin-bottom: 5px;">100.0%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">2/2 correct</div>
-                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Strong</div>
-                </div>
-
-                <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
-                    <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">^IXIC</div>
-                    <div style="font-size: 24px; font-weight: 700; color: #6ee7b7; margin-bottom: 5px;">100.0%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">2/2 correct</div>
-                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Strong</div>
-                </div>
-
-                <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
                     <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">AIQ</div>
-                    <div style="font-size: 24px; font-weight: 700; color: #fcd34d; margin-bottom: 5px;">50.0%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">1/2 correct</div>
-                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Moderate</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #6ee7b7; margin-bottom: 5px;">66.7%</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">2/3 correct</div>
+                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Strong</div>
                 </div>
 
                 <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
                     <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">AMD</div>
-                    <div style="font-size: 24px; font-weight: 700; color: #fcd34d; margin-bottom: 5px;">50.0%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">1/2 correct</div>
-                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Moderate</div>
-                </div>
-
-                <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
-                    <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">BTC-USD</div>
-                    <div style="font-size: 24px; font-weight: 700; color: #fcd34d; margin-bottom: 5px;">50.0%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">1/2 correct</div>
-                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Moderate</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #6ee7b7; margin-bottom: 5px;">66.7%</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">2/3 correct</div>
+                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Strong</div>
                 </div>
 
                 <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
                     <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">MSFT</div>
-                    <div style="font-size: 24px; font-weight: 700; color: #fcd34d; margin-bottom: 5px;">50.0%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">1/2 correct</div>
-                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Moderate</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #6ee7b7; margin-bottom: 5px;">66.7%</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">2/3 correct</div>
+                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Strong</div>
                 </div>
 
                 <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
                     <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">NVDA</div>
-                    <div style="font-size: 24px; font-weight: 700; color: #fcd34d; margin-bottom: 5px;">50.0%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">1/2 correct</div>
-                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Moderate</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #6ee7b7; margin-bottom: 5px;">66.7%</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">2/3 correct</div>
+                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Strong</div>
+                </div>
+
+                <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
+                    <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">BTC-USD</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #fca5a5; margin-bottom: 5px;">33.3%</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">1/3 correct</div>
+                    <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Weak</div>
                 </div>
 
             </div>
