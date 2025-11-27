@@ -158,7 +158,7 @@
 
             // Market Performance Chart
             const marketCtx = document.getElementById('marketChart').getContext('2d');
-            const marketData = {"BTC-USD": {"name": "Bitcoin", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-1.7, 1.68, -0.26, 0.44]}, "AIQ": {"name": "AI Analytics ETF", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [0.57, 3.17, 0.29, 0.85]}, "BOTZ": {"name": "AI/Robotics ETF", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [1.24, 1.73, 1.41, 0.93]}, "PLTR": {"name": "Palantir", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [-0.57, 4.78, 0.8]}, "AMD": {"name": "AMD", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-1.09, 5.53, -4.15, 3.93]}, "META": {"name": "Meta", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [0.87, 3.16, 3.78]}, "GOOGL": {"name": "Alphabet", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [3.53, 6.31, 1.53]}, "MSFT": {"name": "Microsoft", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-1.32, 0.4, 0.63, 1.78]}, "NVDA": {"name": "NVIDIA", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-0.97, 2.05, -2.59, 1.37]}, "^GSPC": {"name": "S&P 500", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [0.98, 1.55, 0.91, 0.69]}, "^IXIC": {"name": "NASDAQ Composite", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [0.88, 2.69, 0.67, 0.82]}};
+            const marketData = {"BTC-USD": {"name": "Bitcoin", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26", "2025-11-27"], "changes": [-1.7, 1.68, -0.26, 0.44, 0.26]}, "AIQ": {"name": "AI Analytics ETF", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [0.57, 3.17, 0.29, 0.85]}, "BOTZ": {"name": "AI/Robotics ETF", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [1.24, 1.73, 1.41, 0.93]}, "PLTR": {"name": "Palantir", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [-0.57, 4.78, 0.8]}, "AMD": {"name": "AMD", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-1.09, 5.53, -4.15, 3.93]}, "META": {"name": "Meta", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [0.87, 3.16, 3.78]}, "GOOGL": {"name": "Alphabet", "dates": ["2025-11-21", "2025-11-24", "2025-11-25"], "changes": [3.53, 6.31, 1.53]}, "MSFT": {"name": "Microsoft", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-1.32, 0.4, 0.63, 1.78]}, "NVDA": {"name": "NVIDIA", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [-0.97, 2.05, -2.59, 1.37]}, "^GSPC": {"name": "S&P 500", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [0.98, 1.55, 0.91, 0.69]}, "^IXIC": {"name": "NASDAQ Composite", "dates": ["2025-11-21", "2025-11-24", "2025-11-25", "2025-11-26"], "changes": [0.88, 2.69, 0.67, 0.82]}};
             const correlationData = {"total": 3, "correct": 2, "wrong": 1, "ambiguous": 0, "accuracy_pct": 67, "timeline": [{"date": "2025-11-24", "sentiment": "positive", "outcome": "positive", "correct": 1}, {"date": "2025-11-25", "sentiment": "positive", "outcome": "positive", "correct": 1}, {"date": "2025-11-26", "sentiment": "neutral", "outcome": "positive", "correct": 0}]};
 
             // Use same date range as sentiment chart (reuse labels from sentiment chart)
@@ -305,7 +305,7 @@
     <header>
         <div class="header-stats">
             <div class="stat-item">
-                <span class="stat-value-small">413</span>
+                <span class="stat-value-small">412</span>
                 <span class="stat-label-small">Events</span>
             </div>
             <div class="stat-item">
@@ -320,7 +320,7 @@
 
         <div class="header-center">
             <h1>🧠 AI-Pulse</h1>
-            <p class="date">2025-11-27 13:57 UTC</p>
+            <p class="date">2025-11-27 21:40 UTC</p>
         </div>
 
         <nav class="header-nav">
@@ -12637,8 +12637,8 @@
 
                 <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
                     <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">BTC-USD</div>
-                    <div style="font-size: 24px; font-weight: 700; color: #fca5a5; margin-bottom: 5px;">33.3%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">1/3 correct</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #fca5a5; margin-bottom: 5px;">25.0%</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">1/4 correct</div>
                     <div style="font-size: 12px; color: #94a3b8;">r=0.00 | Weak</div>
                 </div>
 
