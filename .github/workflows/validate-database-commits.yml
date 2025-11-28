@@ -1,0 +1,88 @@
+name: Validate Database Commits
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      override:
+        description: 'Allow database commit (emergency use only)'
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  check-database-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit to compare
+
+      - name: Check for database changes
+        id: check_db
+        run: |
+          # Get list of changed files in this commit
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Check if ai_pulse.db was modified
+          if echo "$CHANGED_FILES" | grep -q "^ai_pulse.db$"; then
+            echo "database_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "database_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate database commit authority
+        if: steps.check_db.outputs.database_changed == 'true'
+        run: |
+          echo "==================================================================="
+          echo "DATABASE COMMIT DETECTED"
+          echo "==================================================================="
+          echo ""
+          echo "Commit: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo ""
+
+          # Check if this is a manual override
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ "${{ github.event.inputs.override }}" == "true" ]; then
+            echo "✅ MANUAL OVERRIDE APPROVED"
+            echo "Emergency database commit authorized by: ${{ github.actor }}"
+            exit 0
+          fi
+
+          # Check if this is from a scheduled workflow (GitHub Actions bot)
+          if [ "${{ github.actor }}" == "github-actions[bot]" ] || [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "✅ AUTHORIZED: Scheduled workflow database commit"
+            exit 0
+          fi
+
+          # All other commits are rejected
+          echo "❌ UNAUTHORIZED DATABASE COMMIT"
+          echo ""
+          echo "The ai_pulse.db file can only be committed by:"
+          echo "  1. Scheduled GitHub Actions workflows (6am, 1:30pm, 9:30pm GMT)"
+          echo "  2. Manual override via workflow_dispatch (emergency only)"
+          echo ""
+          echo "Manual database commits from local machines are BLOCKED to prevent:"
+          echo "  - Overwriting live workflow data"
+          echo "  - Committing stale database state"
+          echo "  - Data loss from incomplete information"
+          echo ""
+          echo "If you need to fix database data:"
+          echo "  1. Go to Actions → 'Validate Database Commits'"
+          echo "  2. Click 'Run workflow'"
+          echo "  3. Check 'Allow database commit' checkbox"
+          echo "  4. Your commit will be allowed through"
+          echo ""
+          echo "==================================================================="
+          exit 1
+
+      - name: Success
+        if: steps.check_db.outputs.database_changed == 'false'
+        run: |
+          echo "✅ No database changes detected - commit allowed"
