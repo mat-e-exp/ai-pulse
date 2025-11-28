@@ -120,6 +120,14 @@ jobs:
           target-branch: main
           commit-message: 'Daily briefing ${{ github.run_id }}'
 
+      - name: Save database artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-pulse-db-daily-${{ github.run_id }}
+          path: ai_pulse.db
+          retention-days: 7
+
       - name: Log run summary
         run: |
           echo "## Daily Collection Summary" >> $GITHUB_STEP_SUMMARY

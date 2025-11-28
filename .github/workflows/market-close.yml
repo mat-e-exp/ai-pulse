@@ -114,6 +114,14 @@ jobs:
           target-branch: main
           commit-message: 'Market close update ${{ github.run_id }}'
 
+      - name: Save database artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-pulse-db-market-${{ github.run_id }}
+          path: ai_pulse.db
+          retention-days: 7
+
       - name: Log run summary
         run: |
           echo "## Market Close Summary" >> $GITHUB_STEP_SUMMARY
