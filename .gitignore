@@ -27,11 +27,12 @@ dist/
 *.db
 cache/
 
-# Track the main database for GitHub Actions persistence
-!ai_pulse.db
-
 # But ignore test databases
 test*.db
+
+# Database: Ignore locally to prevent accidental commits
+# Only GitHub Actions should commit this with -f flag
+ai_pulse.db
 
 # Logs
 *.log
