@@ -162,6 +162,57 @@ positive_pct = (positive / total_analyzed) * 100
 
 ---
 
+### predictions
+
+**Purpose**: Daily market predictions based on overnight AI sentiment (logged before market opens)
+
+**Schema**:
+```sql
+CREATE TABLE predictions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL UNIQUE,         -- YYYY-MM-DD (prediction date)
+
+    -- Sentiment data (snapshot at prediction time)
+    sentiment_positive REAL,           -- Percentage of positive events
+    sentiment_negative REAL,           -- Percentage of negative events
+    sentiment_neutral REAL,            -- Percentage of neutral events
+    sentiment_mixed REAL,              -- Percentage of mixed events
+    total_events INTEGER,              -- Total events analyzed
+
+    -- Prediction
+    prediction TEXT,                   -- 'bullish', 'bearish', 'neutral'
+    confidence TEXT,                   -- 'high', 'medium', 'low'
+    top_events_summary TEXT,           -- JSON of top 3 events driving prediction
+
+    -- Timestamps (safety features)
+    created_at TEXT NOT NULL,          -- Last update timestamp
+    first_logged_at TEXT,              -- Original prediction time (NEVER changes)
+    is_locked INTEGER DEFAULT 0,       -- 1 = locked (after market opens at 2:30pm GMT)
+
+    -- Market status
+    market_status TEXT DEFAULT 'unknown'  -- 'open', 'closed', 'unknown'
+);
+```
+
+**Index**:
+```sql
+CREATE INDEX idx_predictions_date ON predictions(date DESC);
+```
+
+**Market Status Values**:
+- `'open'` - Market data collected at 9:30pm, accuracy calculated
+- `'closed'` - No market data (weekend/holiday), accuracy skipped
+- `'unknown'` - Status not yet determined (before 9:30pm GMT)
+
+**Safety Features**:
+- `first_logged_at` preserved even if prediction regenerated
+- `is_locked` prevents updates after market opens (2:30pm GMT)
+- See `prediction_audit` table for full change history
+
+**Migration**: `migrations/add_market_status.py`
+
+---
+
 ### daily_correlation
 
 **Purpose**: Tracks overnight sentiment vs same-day market performance (predictive model)

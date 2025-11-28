@@ -33,6 +33,8 @@ Real-time intelligence agent for AI sector investment decisions. Tracks product 
 | 9:00pm | Market closes | Outcomes recorded |
 | 9:30pm Mon-Fri | market-close.yml | Collect market data → Calculate prediction accuracy → Discord |
 
+**Note**: Workflows run every day including weekends/holidays. Market status is automatically detected - if market is closed, prediction is marked as 'closed' and accuracy calculation is skipped.
+
 ---
 
 ## 🛠️ Common Tasks

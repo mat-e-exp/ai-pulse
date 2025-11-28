@@ -359,6 +359,30 @@ except Exception as e:
 
 ---
 
+## Market Status Detection
+
+**Automatic Detection**: System detects market closures without manual calendar maintenance.
+
+**How it works**:
+1. Market data collection attempts to fetch data at 9:30pm GMT
+2. If data available → `market_status='open'` → Calculate accuracy
+3. If no data available → `market_status='closed'` → Skip accuracy calculation
+
+**Handles**:
+- Weekends (Saturday/Sunday)
+- US market holidays (Thanksgiving, Christmas, MLK Day, etc.)
+- Emergency market closures
+- Half-day trading sessions (partial data = still marked 'open')
+
+**Database field**: `predictions.market_status`
+- `'open'` - Market data collected, accuracy calculated
+- `'closed'` - No market data (weekend/holiday)
+- `'unknown'` - Status not yet determined (before 9:30pm GMT)
+
+**Migration**: See `migrations/add_market_status.py`
+
+---
+
 ## Troubleshooting
 
 **Prediction won't update**:

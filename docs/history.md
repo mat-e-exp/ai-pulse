@@ -193,6 +193,7 @@ All 4 are about the same event but have <75% title similarity
 | 2025-11-24 | Daily workflow automation complete (6am, 1:30pm, 9:30pm) |
 | 2025-11-26 | Safety features implemented |
 | 2025-11-26 | Documentation refactored |
+| 2025-11-28 | Market status tracking for weekends/holidays |
 
 ---
 
@@ -217,6 +218,11 @@ All 4 are about the same event but have <75% title similarity
 **Problem**: Single script doing HTML generation + database writes = dangerous
 **Solution**: Split into `regenerate_html.py` (safe) and `publish_briefing.py` (scheduled only)
 **Result**: Safe web publishing workflow
+
+### Market Closures Require Graceful Handling
+**Problem**: Thanksgiving (and weekends/holidays) cause prediction logging without market outcomes
+**Solution**: Automatic market status detection via data collection success/failure (Option 3: graceful degradation)
+**Result**: No manual holiday calendar maintenance, self-correcting system, accuracy stats only include trading days
 
 ---
 
