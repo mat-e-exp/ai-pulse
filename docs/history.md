@@ -194,6 +194,7 @@ All 4 are about the same event but have <75% title similarity
 | 2025-11-26 | Safety features implemented |
 | 2025-11-26 | Documentation refactored |
 | 2025-11-28 | Market status tracking for weekends/holidays |
+| 2025-11-28 | Reuters AI news added (8th RSS source via Google News) |
 
 ---
 

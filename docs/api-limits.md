@@ -206,7 +206,7 @@ python3.9 agents/collector.py \
    - Query: AI-related keywords
 
 3. **Tech RSS Feeds**
-   - Sources: TechCrunch, VentureBeat, The Verge, Ars Technica, MIT Tech Review, Wired, AI News
+   - Sources: TechCrunch, VentureBeat, The Verge, Ars Technica, MIT Tech Review, Wired, AI News, Reuters (via Google News)
    - Rate limit: Unlimited
    - Key: Not required
    - Format: RSS/Atom XML
