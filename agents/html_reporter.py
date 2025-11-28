@@ -306,6 +306,10 @@ class HTMLReporter:
             const marketData = {market_chart_data};
             const correlationData = {correlation_chart_data};
 
+            // Extract closed market dates
+            const closedDates = marketData._closed_dates || [];
+            delete marketData._closed_dates;  // Remove from data object
+
             // Use same date range as sentiment chart (reuse labels from sentiment chart)
             const marketLabels = labels;
 
@@ -350,12 +354,42 @@ class HTMLReporter:
                 }};
             }}).filter(d => d !== null);
 
+            // Plugin to highlight closed market dates
+            const closedDatesPlugin = {{
+                id: 'closedDatesHighlight',
+                beforeDatasetsDraw: function(chart) {{
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    const labels = chart.data.labels;
+
+                    // Draw background bars for closed dates
+                    labels.forEach((label, index) => {{
+                        if (closedDates.includes(label)) {{
+                            const x = xAxis.getPixelForValue(index);
+                            const barWidth = xAxis.width / labels.length;
+
+                            ctx.save();
+                            ctx.fillStyle = 'rgba(251, 191, 36, 0.15)';  // Light yellow/amber tint
+                            ctx.fillRect(
+                                x - barWidth / 2,
+                                yAxis.top,
+                                barWidth,
+                                yAxis.bottom - yAxis.top
+                            );
+                            ctx.restore();
+                        }}
+                    }});
+                }}
+            }};
+
             window.marketChart = new Chart(marketCtx, {{
                 type: 'line',
                 data: {{
                     labels: marketLabels,
                     datasets: marketDatasets
                 }},
+                plugins: [closedDatesPlugin],
                 options: {{
                     responsive: true,
                     maintainAspectRatio: false,
@@ -366,7 +400,10 @@ class HTMLReporter:
                         tooltip: {{
                             callbacks: {{
                                 label: function(context) {{
-                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
+                                    const date = context.label;
+                                    const isClosed = closedDates.includes(date);
+                                    const closedTag = isClosed ? ' (Market Closed)' : '';
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%' + closedTag;
                                 }}
                             }}
                         }}
@@ -1027,6 +1064,17 @@ class HTMLReporter:
         """, (days,))
 
         rows = cursor.fetchall()
+
+        # Get closed market dates
+        cursor.execute("""
+            SELECT DISTINCT date
+            FROM predictions
+            WHERE date >= date('now', '-' || ? || ' days')
+            AND market_status = 'closed'
+            ORDER BY date ASC
+        """, (days,))
+
+        closed_dates = [row['date'] for row in cursor.fetchall()]
         conn.close()
 
         # Group by symbol, keeping dates
@@ -1041,6 +1089,9 @@ class HTMLReporter:
                 }
             data[symbol]['dates'].append(row['date'])
             data[symbol]['changes'].append(round(row['change_pct'], 2))
+
+        # Add closed dates to data
+        data['_closed_dates'] = closed_dates
 
         return data
 
