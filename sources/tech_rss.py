@@ -35,6 +35,7 @@ class TechRSSSource:
         'MIT Technology Review AI': 'https://www.technologyreview.com/topic/artificial-intelligence/feed',
         'AI News': 'https://www.artificialintelligence-news.com/feed/',
         'Wired AI': 'https://www.wired.com/feed/tag/ai/latest/rss',
+        'Reuters AI (via Google News)': 'https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com+(AI+OR+artificial+intelligence+OR+machine+learning+OR+nvidia+OR+openai+OR+anthropic+OR+deepmind+OR+microsoft+OR+google)&ceid=US:en&hl=en-US&gl=US',
     }
 
     def __init__(self):
