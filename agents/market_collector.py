@@ -446,6 +446,9 @@ def collect_market_data(date_str: str, db_path: str = "ai_pulse.db"):
     Args:
         date_str: Date in YYYY-MM-DD format
         db_path: Database path
+
+    Returns:
+        True if any market data was collected, False if market closed or all sources failed
     """
     print("=" * 80)
     print(f"COLLECTING MARKET DATA - {date_str}")
@@ -639,6 +642,9 @@ def collect_market_data(date_str: str, db_path: str = "ai_pulse.db"):
     print(f"COMPLETE: {collected} symbols collected, {errors} errors")
     print("=" * 80)
 
+    # Return True if any data was collected (market was open)
+    return collected > 0
+
 
 def backfill_market_data(days_back: int = 30, db_path: str = "ai_pulse.db"):
     """
@@ -678,9 +684,15 @@ if __name__ == "__main__":
             date_str = get_last_trading_day()
             print(f"Auto-detected last trading day: {date_str}")
 
-        collect_market_data(date_str, db_path=args.db)
+        market_was_open = collect_market_data(date_str, db_path=args.db)
 
-        # After collecting market data, log outcomes and calculate accuracy
-        print("\nLogging outcomes and accuracy...")
-        from outcome_logger import log_outcomes
-        log_outcomes(db_path=args.db, date=date_str)
+        if market_was_open:
+            # After collecting market data, log outcomes and calculate accuracy
+            print("\nLogging outcomes and accuracy...")
+            from outcome_logger import log_outcomes
+            log_outcomes(db_path=args.db, date=date_str)
+            exit(0)  # Success - market was open
+        else:
+            print("\n⚠️ No market data collected - market likely closed (weekend/holiday)")
+            print("Skipping outcome logging and accuracy calculation")
+            exit(1)  # Market closed - no data collected

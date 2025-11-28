@@ -762,7 +762,7 @@ class HTMLReporter:
             html += """
         <section class="sentiment-box">
             <h2>📊 Prediction Accuracy (Last 30 Days)</h2>
-            <p style="color: #94a3b8; margin-bottom: 20px;">How well our sentiment predictions match actual market movements</p>
+            <p style="color: #94a3b8; margin-bottom: 20px;">How well our sentiment predictions match actual market movements on trading days (excludes weekends/holidays)</p>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
 """

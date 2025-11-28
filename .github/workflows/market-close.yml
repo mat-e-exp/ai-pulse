@@ -33,11 +33,32 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Collect market data
+        id: market_data
         env:
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-        run: python3 agents/market_collector.py
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+        run: |
+          python3 agents/market_collector.py
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "market_open=true" >> $GITHUB_OUTPUT
+          else
+            echo "market_open=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update market status in predictions
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          if [ "${{ steps.market_data.outputs.market_open }}" == "true" ]; then
+            echo "Marking $TODAY as market open"
+            sqlite3 ai_pulse.db "UPDATE predictions SET market_status='open' WHERE date='$TODAY'"
+          else
+            echo "Marking $TODAY as market closed"
+            sqlite3 ai_pulse.db "UPDATE predictions SET market_status='closed' WHERE date='$TODAY'"
+          fi
 
       - name: Calculate correlation
+        if: steps.market_data.outputs.market_open == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
