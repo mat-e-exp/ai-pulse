@@ -21,6 +21,30 @@ Real-time intelligence agent for AI sector investment decisions. Tracks product 
 
 **Why**: It logs predictions based on current database state. If run before data collection completes, logs prediction with incomplete data.
 
+### Never Commit Database Manually
+❌ **NEVER commit ai_pulse.db from your local machine**
+- Database is in .gitignore to prevent accidental commits
+- Only GitHub Actions commits database (using `git add -f`)
+- Your local copy is ALWAYS stale (workflows update it 3x daily: 6am, 1:30pm, 9:30pm)
+
+**Before ANY code changes:**
+```bash
+git pull  # Get latest database from workflows
+```
+
+**When making code changes:**
+```bash
+# Edit your code
+vim agents/something.py
+
+# Commit ONLY code files (database auto-ignored)
+git add agents/something.py
+git commit -m "Description"
+git push
+```
+
+**Why**: Committing stale local database overwrites live data from workflows, causing data loss. This happened 2025-11-28: commit 698491d accidentally reverted database from 494 events (through Nov 28) to 273 events (through Nov 26), losing 175 events.
+
 ---
 
 ## 📅 Daily Schedule
