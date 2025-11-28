@@ -26,6 +26,7 @@ Real-time intelligence agent for AI sector investment decisions. Tracks product 
 - Database is in .gitignore to prevent accidental commits
 - Only GitHub Actions commits database (using `git add -f`)
 - Your local copy is ALWAYS stale (workflows update it 3x daily: 6am, 1:30pm, 9:30pm)
+- **Server-side enforcement**: GitHub will reject any push containing database changes unless from authorized workflows
 
 **Before ANY code changes:**
 ```bash
@@ -44,6 +45,54 @@ git push
 ```
 
 **Why**: Committing stale local database overwrites live data from workflows, causing data loss. This happened 2025-11-28: commit 698491d accidentally reverted database from 494 events (through Nov 28) to 273 events (through Nov 26), losing 175 events.
+
+**Emergency database repair** (rare):
+If database needs manual fixing (data corruption, backfilling):
+1. Make changes locally
+2. Commit with `git add -f ai_pulse.db`
+3. Push will fail with validation error
+4. Go to: GitHub Actions → "Validate Database Commits" → Run workflow
+5. Check "Allow database commit" box
+6. Push again - will be accepted
+7. Document what was changed and why
+
+---
+
+## 🔍 DATABASE QUERY PROTOCOL
+
+### ALWAYS Query Git Database - NEVER Local Copy
+
+**The git database is the single source of truth.** Your local copy is ALWAYS stale.
+
+**MANDATORY command for EVERY database query:**
+```bash
+git show HEAD:ai_pulse.db > /tmp/git_db.db && sqlite3 /tmp/git_db.db "YOUR QUERY"
+```
+
+**Why:**
+- GitHub Actions workflows update database 3x daily (6am, 1:30pm, 9:30pm GMT)
+- Local `ai_pulse.db` could be hours or days out of date
+- Git HEAD contains the live database maintained by workflows
+- Local database is in .gitignore and treated as cache only
+
+**Examples:**
+
+❌ **WRONG - queries stale local copy:**
+```bash
+sqlite3 ai_pulse.db "SELECT COUNT(*) FROM events;"
+```
+
+✅ **CORRECT - queries source of truth:**
+```bash
+git show HEAD:ai_pulse.db > /tmp/git_db.db && sqlite3 /tmp/git_db.db "SELECT COUNT(*) FROM events;"
+```
+
+**BEFORE EVERY DATABASE OPERATION:**
+1. ✅ Am I using `git show HEAD:ai_pulse.db`?
+2. ✅ Am I writing to `/tmp/` not local directory?
+3. ❌ Am I querying `ai_pulse.db` directly? (STOP - use git version)
+
+**Exception:** The ONLY time to query local database is when explicitly testing local-only code changes before committing. Never query local database for production state.
 
 ---
 
@@ -220,6 +269,7 @@ python3.9 publish_briefing.py --days 7 --min-score 40
 - **Just testing locally?** → `regenerate_html.py` (don't commit)
 - **Data collection logic?** → Run individual agent scripts for testing
 - **Need new data in briefing?** → Wait for 1:30pm workflow (don't run manually)
+- **Need to check database state?** → `git show HEAD:ai_pulse.db > /tmp/git_db.db && sqlite3 /tmp/git_db.db "..."`
 - **Something urgent/unclear?** → Ask first, check safety implications
 
 ---
@@ -252,7 +302,7 @@ python3.9 publish_briefing.py --days 7 --min-score 40
 
 **Prediction seems wrong:**
 - Check `first_logged_at` timestamp (should be before 2:30pm GMT)
-- Check audit trail: `sqlite3 ai_pulse.db "SELECT * FROM prediction_audit WHERE date='YYYY-MM-DD'"`
+- Check audit trail: `git show HEAD:ai_pulse.db > /tmp/git_db.db && sqlite3 /tmp/git_db.db "SELECT * FROM prediction_audit WHERE date='YYYY-MM-DD'"`
 - Verify market wasn't open when prediction logged
 
 ---

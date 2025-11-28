@@ -195,6 +195,8 @@ All 4 are about the same event but have <75% title similarity
 | 2025-11-26 | Documentation refactored |
 | 2025-11-28 | Market status tracking for weekends/holidays |
 | 2025-11-28 | Reuters AI news added (8th RSS source via Google News) |
+| 2025-11-28 | Server-side database commit validation (branch protection) |
+| 2025-11-28 | Database corruption incident: 175 events lost, then restored |
 
 ---
 

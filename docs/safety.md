@@ -27,9 +27,36 @@ Protect prediction accuracy data for investment decisions. Prevent accidental co
 
 ---
 
-## 5 Safety Features
+## 6 Safety Features
 
-### 1. Prediction Locking
+### 1. Server-Side Database Commit Validation
+
+**GitHub branch protection prevents manual database commits from local machines.**
+
+**Enforcement workflow**: `.github/workflows/validate-database-commits.yml`
+
+**Rules**:
+- ✅ Scheduled workflows (github-actions[bot]) can commit database
+- ❌ Manual commits from local machines are BLOCKED
+- ✅ Emergency override available via workflow_dispatch
+
+**Behavior**:
+- Push containing `ai_pulse.db` → validation runs
+- If actor is NOT github-actions[bot] → push rejected
+- Error message explains how to use emergency override
+- Prevents accidental overwriting of live workflow data
+
+**Emergency override** (rare):
+1. Go to: Actions → "Validate Database Commits" → Run workflow
+2. Check "Allow database commit (emergency use only)"
+3. Push will be accepted
+4. Use only for: data corruption fixes, backfilling missing data
+
+**Why**: Prevents accidental commits of stale local database that would overwrite live data from workflows. Happened 2025-11-28: commit 698491d lost 175 events.
+
+**Added**: 2025-11-28
+
+### 2. Prediction Locking
 
 **When market opens (2:30pm GMT), predictions for that day are locked.**
 
@@ -60,7 +87,7 @@ def should_lock_prediction(date: str, check_time: datetime = None) -> bool:
 - After 2:30pm GMT: Prediction updates BLOCKED
 - Blocked attempts logged to `prediction_audit` with action='BLOCKED'
 
-### 2. Timestamp Preservation
+### 3. Timestamp Preservation
 
 **`first_logged_at` field preserves original prediction time, even if regenerated.**
 
@@ -79,7 +106,7 @@ predictions (
 - Subsequent updates: `first_logged_at` preserved, `created_at` updated
 - Audit trail can verify prediction was logged before market opened
 
-### 3. Audit Trail
+### 4. Audit Trail
 
 **Every prediction change logged in `prediction_audit` table.**
 
@@ -108,7 +135,7 @@ sqlite3 ai_pulse.db "SELECT date, action, prediction, reason, created_at
                      ORDER BY created_at"
 ```
 
-### 4. Duplicate Run Detection
+### 5. Duplicate Run Detection
 
 **Warns if workflow runs multiple times in one day.**
 
@@ -129,7 +156,7 @@ workflow_runs (
 - Second run today: `run_count_today=2`, `is_duplicate_run=1`, **WARNING printed**
 - Helps detect accidental manual triggers
 
-### 5. Idempotent Operations
+### 6. Idempotent Operations
 
 **Safe to run scripts multiple times - overwrites, not duplicates.**
 
