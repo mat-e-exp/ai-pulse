@@ -118,14 +118,15 @@ Real-time intelligence agent for AI sector investment decisions. Autonomously co
 
 ## Data Flow
 
-### Morning Collection (6am GMT)
+### Morning Collection (6am GMT - Daily)
 ```
 sources → collector → dedup → analyzer → database
                                             ↓
                                       Discord (top 10)
 ```
+**Runs:** Every day (Mon-Sun)
 
-### Afternoon Publish (1:30pm GMT)
+### Afternoon Publish (1:30pm GMT - Daily)
 ```
 sources → collector → dedup → analyzer → database
                                             ↓
@@ -133,13 +134,16 @@ sources → collector → dedup → analyzer → database
                                             ↓
                             ┌───────────────┼───────────────┐
                             ↓               ↓               ↓
-                      predictions    HTML files        Discord
+                  predictions (Mon-Fri)  HTML files    Discord
                       (locked)                         (link)
                             ↓               ↓
                       audit trail     GitHub Pages
 ```
+**Runs:** Every day (Mon-Sun)
+**Predictions:** Only created Mon-Fri (trading days)
+**Weekends:** News collected/analyzed, webpage published, but no prediction created
 
-### Market Close (9:30pm GMT Mon-Fri)
+### Market Close (9:30pm GMT - Mon-Fri Only)
 ```
 market APIs → market_data table
                     ↓
@@ -147,6 +151,8 @@ market APIs → market_data table
                     ↓
                Discord
 ```
+**Runs:** Mon-Fri only
+**Purpose:** Collect closing prices, compare predictions to outcomes
 
 ---
 

@@ -154,6 +154,30 @@ All 4 are about the same event but have <75% title similarity
 
 ---
 
+### Weekend Prediction Skip & Chart Highlighting (2025-11-29)
+
+**Problem**:
+- Predictions were being created on weekends (Sat/Sun) when markets are closed
+- No market data exists on weekends to validate predictions against
+- Weekend predictions would skew accuracy metrics
+- Charts didn't visually show when markets were closed (weekends + bank holidays)
+
+**Solution**:
+- ✅ `publish_briefing.py` - Skip prediction logging on weekends (weekday >= 5)
+- ✅ `html_reporter.py` - Client-side weekend detection in chart plugins
+- ✅ Both sentiment and market charts now highlight weekends + bank holidays with yellow background
+- ✅ Weekend highlighting uses JavaScript date detection (doesn't need database records)
+- ✅ Bank holiday highlighting uses `market_status='closed'` from database
+
+**Behavior**:
+- **Weekdays (Mon-Fri)**: Full workflow - collect, analyze, predict, compare to market
+- **Weekends (Sat-Sun)**: Collect news, analyze sentiment, publish webpage, but skip prediction creation
+- **Charts**: Yellow highlighting on all non-trading days for visual context
+
+**Result**: Clean prediction accuracy data, visual indication of market closures
+
+---
+
 ## Future Phases
 
 ### Phase 3: Narrative Tracking (Planned)
@@ -195,6 +219,7 @@ All 4 are about the same event but have <75% title similarity
 | 2025-11-26 | Documentation refactored |
 | 2025-11-28 | Market status tracking for weekends/holidays |
 | 2025-11-28 | Reuters AI news added (8th RSS source via Google News) |
+| 2025-11-29 | Weekend prediction skip + chart highlighting implemented |
 | 2025-11-28 | Server-side database commit validation (branch protection) |
 | 2025-11-28 | Database corruption incident: 175 events lost, then restored |
 

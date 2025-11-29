@@ -100,13 +100,13 @@ git show HEAD:ai_pulse.db > /tmp/git_db.db && sqlite3 /tmp/git_db.db "SELECT COU
 
 | Time (GMT) | Workflow | What Happens |
 |------------|----------|--------------|
-| 6:00am | morning-collection.yml | Collect overnight news → Analyze → Discord top 10 |
-| 1:30pm | daily-collection.yml | Collect more news → Analyze → **Log prediction** → Publish HTML → Discord |
+| 6:00am (daily) | morning-collection.yml | Collect overnight news → Analyze → Discord top 10 |
+| 1:30pm (daily) | daily-collection.yml | Collect news → Analyze → Publish HTML → **Log prediction (Mon-Fri only)** → Discord |
 | 2:30pm | Market opens | **Predictions locked** (can't update after this) |
 | 9:00pm | Market closes | Outcomes recorded |
-| 9:30pm Mon-Fri | market-close.yml | Collect market data → Calculate prediction accuracy → Discord |
+| 9:30pm (Mon-Fri) | market-close.yml | Collect market data → Calculate prediction accuracy → Discord |
 
-**Note**: Workflows run every day including weekends/holidays. Market status is automatically detected - if market is closed, prediction is marked as 'closed' and accuracy calculation is skipped.
+**Note**: Morning (6am) and daily (1:30pm) workflows run every day including weekends. Predictions are only created Mon-Fri when markets are open. Market-close workflow runs Mon-Fri only. Weekends: news collected and analyzed, but no predictions created (no market to predict).
 
 ---
 
