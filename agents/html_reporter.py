@@ -166,6 +166,10 @@ class HTMLReporter:
 
         // Initialize charts when page loads
         window.addEventListener('DOMContentLoaded', function() {{
+            // Extract closed market dates (needed for both charts)
+            const marketData = {market_chart_data};
+            const closedDates = marketData._closed_dates || [];
+
             // Sentiment Chart
             const ctx = document.getElementById('sentimentChart').getContext('2d');
             const chartData = {chart_data};
@@ -208,6 +212,43 @@ class HTMLReporter:
                 totalData = mapData(chartData.dates, chartData.totals);
             }}
 
+            // Plugin to highlight closed market dates (weekends + holidays)
+            const sentimentClosedDatesPlugin = {{
+                id: 'sentimentClosedDatesHighlight',
+                beforeDatasetsDraw: function(chart) {{
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    const labels = chart.data.labels;
+
+                    // Draw background bars for closed dates (weekends + holidays)
+                    labels.forEach((label, index) => {{
+                        // Check database for holidays (weekdays marked closed)
+                        const isHoliday = closedDates.includes(label);
+
+                        // Check for weekends (client-side detection)
+                        const date = new Date(label + 'T12:00:00Z');
+                        const dayOfWeek = date.getUTCDay();
+                        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+
+                        if (isHoliday || isWeekend) {{
+                            const x = xAxis.getPixelForValue(index);
+                            const barWidth = xAxis.width / labels.length;
+
+                            ctx.save();
+                            ctx.fillStyle = 'rgba(251, 191, 36, 0.15)';  // Light yellow/amber tint
+                            ctx.fillRect(
+                                x - barWidth / 2,
+                                yAxis.top,
+                                barWidth,
+                                yAxis.bottom - yAxis.top
+                            );
+                            ctx.restore();
+                        }}
+                    }});
+                }}
+            }};
+
             const sentimentChart = new Chart(ctx, {{
                 type: 'line',
                 data: {{
@@ -247,6 +288,7 @@ class HTMLReporter:
                         }}
                     ]
                 }},
+                plugins: [sentimentClosedDatesPlugin],
                 options: {{
                     responsive: true,
                     maintainAspectRatio: false,
@@ -303,12 +345,10 @@ class HTMLReporter:
 
             // Market Performance Chart
             const marketCtx = document.getElementById('marketChart').getContext('2d');
-            const marketData = {market_chart_data};
             const correlationData = {correlation_chart_data};
 
-            // Extract closed market dates
-            const closedDates = marketData._closed_dates || [];
-            delete marketData._closed_dates;  // Remove from data object
+            // Remove _closed_dates from marketData (already extracted above)
+            delete marketData._closed_dates;
 
             // Use same date range as sentiment chart (reuse labels from sentiment chart)
             const marketLabels = labels;
@@ -354,7 +394,7 @@ class HTMLReporter:
                 }};
             }}).filter(d => d !== null);
 
-            // Plugin to highlight closed market dates
+            // Plugin to highlight closed market dates (weekends + holidays)
             const closedDatesPlugin = {{
                 id: 'closedDatesHighlight',
                 beforeDatasetsDraw: function(chart) {{
@@ -363,9 +403,17 @@ class HTMLReporter:
                     const yAxis = chart.scales.y;
                     const labels = chart.data.labels;
 
-                    // Draw background bars for closed dates
+                    // Draw background bars for closed dates (weekends + holidays)
                     labels.forEach((label, index) => {{
-                        if (closedDates.includes(label)) {{
+                        // Check database for holidays (weekdays marked closed)
+                        const isHoliday = closedDates.includes(label);
+
+                        // Check for weekends (client-side detection)
+                        const date = new Date(label + 'T12:00:00Z');
+                        const dayOfWeek = date.getUTCDay();
+                        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+
+                        if (isHoliday || isWeekend) {{
                             const x = xAxis.getPixelForValue(index);
                             const barWidth = xAxis.width / labels.length;
 
