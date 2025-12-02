@@ -103,6 +103,7 @@ class HTMLReporter:
 
         # Get accuracy data
         accuracy_data = self._get_accuracy_data(days=30)
+        heatmap_data = self._get_heatmap_data(days=30)
 
         # Generate HTML
         html = self._generate_html(
@@ -115,13 +116,14 @@ class HTMLReporter:
             correlation_data=correlation_data,
             insights=insights,
             accuracy_data=accuracy_data,
+            heatmap_data=heatmap_data,
             days_back=days_back,
             min_score=min_score
         )
 
         return html, sentiment_counts
 
-    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, market_data, correlation_data, insights, accuracy_data, days_back, min_score) -> str:
+    def _generate_html(self, events, total_collected, total_analyzed, sentiment_counts, sentiment_history, market_data, correlation_data, insights, accuracy_data, heatmap_data, days_back, min_score) -> str:
         """Generate HTML document"""
         from models.events import EventType
 
@@ -842,56 +844,9 @@ class HTMLReporter:
         </script>
 """
 
-        # Add accuracy section if data available
-        if accuracy_data:
-            html += """
-        <section class="sentiment-box">
-            <h2>📊 Prediction Accuracy (Last 30 Days)</h2>
-            <p style="color: #94a3b8; margin-bottom: 20px;">How well our sentiment predictions match actual market movements on trading days (excludes weekends/holidays)</p>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-"""
-            # Sort by accuracy descending
-            sorted_symbols = sorted(accuracy_data.items(), key=lambda x: x[1]['accuracy'], reverse=True)
-
-            for symbol, data in sorted_symbols:
-                accuracy = data['accuracy']
-                correlation = data.get('correlation', 0)
-                correct = data['correct']
-                total = data['total']
-
-                # Color based on accuracy
-                if accuracy >= 60:
-                    color = "#6ee7b7"  # Green
-                    label = "Strong"
-                elif accuracy >= 50:
-                    color = "#fcd34d"  # Yellow
-                    label = "Moderate"
-                else:
-                    color = "#fca5a5"  # Red
-                    label = "Weak"
-
-                html += f"""
-                <div style="background: rgba(30, 58, 138, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(30, 58, 138, 0.5);">
-                    <div style="font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">{symbol}</div>
-                    <div style="font-size: 24px; font-weight: 700; color: {color}; margin-bottom: 5px;">{accuracy}%</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 3px;">{correct}/{total} correct</div>
-                    <div style="font-size: 12px; color: #94a3b8;">r={correlation:.2f} | {label}</div>
-                </div>
-"""
-
-            html += """
-            </div>
-
-            <div style="margin-top: 20px; padding: 15px; background: rgba(30, 58, 138, 0.2); border-radius: 8px; border-left: 3px solid #1e3a8a;">
-                <p style="color: #ffffff; margin: 0; font-size: 14px;">
-                    <strong>How to read:</strong> Accuracy shows how often our sentiment prediction (bullish/bearish/neutral)
-                    matched the market direction (up/down/flat). Correlation (r) measures how strongly sentiment
-                    percentages correlate with market % changes. Values closer to 1.0 indicate stronger predictive power.
-                </p>
-            </div>
-        </section>
-"""
+        # Add accuracy heat map if data available
+        if heatmap_data:
+            html += self._render_heatmap(heatmap_data)
 
         html += """    </main>
 
@@ -1239,6 +1194,272 @@ class HTMLReporter:
             by_symbol[symbol]['accuracy'] = round((correct / total) * 100, 1) if total > 0 else 0
 
         return by_symbol
+
+    def _get_heatmap_data(self, days: int = 30) -> dict:
+        """
+        Get accuracy data formatted for heat map display.
+
+        Returns:
+            {
+                'dates': ['2025-11-24', '2025-11-25', ...],
+                'symbols': [
+                    {
+                        'symbol': 'NVDA',
+                        'name': 'NVIDIA',
+                        'type': 'stock',
+                        'results': [
+                            {'date': '2025-11-24', 'correct': True, 'prediction': 'bullish',
+                             'outcome': 'up', 'change_pct': 2.05},
+                            {'date': '2025-11-27', 'market_closed': True},
+                            ...
+                        ]
+                    },
+                    ...
+                ],
+                'overall': {'total': 30, 'correct': 18, 'accuracy_pct': 60.0},
+                'best_day': {'date': '2025-11-24', 'accuracy': 90.9, 'correct': 10, 'total': 11},
+                'worst_day': {'date': '2025-11-28', 'accuracy': 9.1, 'correct': 1, 'total': 11}
+            }
+        """
+        from datetime import datetime, timedelta
+        import sqlite3
+
+        # Get date range
+        end_date = datetime.now().date()
+        start_date = end_date - timedelta(days=days)
+
+        # Query database for accuracy data (primary source with symbols)
+        query = """
+        SELECT
+            a.date,
+            a.symbol,
+            a.prediction,
+            a.outcome,
+            a.correct,
+            a.sentiment_correlation,
+            o.change_pct
+        FROM accuracy_log a
+        LEFT JOIN outcomes o ON a.date = o.date AND a.symbol = o.symbol
+        WHERE a.date >= ? AND a.date <= ?
+        ORDER BY a.date, a.symbol
+        """
+
+        cursor = self.db.conn.cursor()
+        cursor.execute(query, (str(start_date), str(end_date)))
+        rows = cursor.fetchall()
+
+        # Build date list (only dates with predictions)
+        dates = sorted(list(set([row[0] for row in rows])))
+
+        # Helper to determine symbol type
+        def get_symbol_type(symbol):
+            if symbol.startswith('^'):
+                return 'index'
+            elif '-USD' in symbol:
+                return 'crypto'
+            else:
+                return 'stock'
+
+        # Organize by symbol
+        symbol_data = {}
+        for row in rows:
+            date, symbol, prediction, outcome, correct, correlation, change_pct = row
+
+            if symbol not in symbol_data:
+                symbol_data[symbol] = {
+                    'symbol': symbol,
+                    'name': symbol,  # Use symbol as name
+                    'type': get_symbol_type(symbol),
+                    'results': {}
+                }
+
+            symbol_data[symbol]['results'][date] = {
+                'date': date,
+                'prediction': prediction,
+                'correct': correct == 1 if correct is not None else None,
+                'outcome': outcome,
+                'change_pct': change_pct,
+                'correlation': correlation,
+                'market_closed': False  # If we have a record in accuracy_log, market was open
+            }
+
+        # Convert to list format with all dates filled
+        symbols = []
+        for symbol, data in sorted(symbol_data.items(), key=lambda x: (x[1]['type'], x[0])):
+            results = []
+            for date in dates:
+                if date in data['results']:
+                    results.append(data['results'][date])
+                else:
+                    # No prediction for this date
+                    results.append({'date': date, 'no_prediction': True})
+
+            symbols.append({
+                'symbol': data['symbol'],
+                'name': data['name'],
+                'type': data['type'],
+                'results': results
+            })
+
+        # Calculate overall stats
+        total_predictions = sum(1 for s in symbols for r in s['results'] if not r.get('market_closed') and not r.get('no_prediction'))
+        correct_predictions = sum(1 for s in symbols for r in s['results'] if r.get('correct') == True)
+        overall_accuracy = round((correct_predictions / total_predictions * 100), 1) if total_predictions > 0 else 0
+
+        # Calculate best/worst days
+        daily_stats = {}
+        for date in dates:
+            day_total = 0
+            day_correct = 0
+            for s in symbols:
+                for r in s['results']:
+                    if r['date'] == date and not r.get('market_closed') and not r.get('no_prediction'):
+                        day_total += 1
+                        if r.get('correct'):
+                            day_correct += 1
+
+            if day_total > 0:
+                daily_stats[date] = {
+                    'date': date,
+                    'correct': day_correct,
+                    'total': day_total,
+                    'accuracy': round((day_correct / day_total * 100), 1)
+                }
+
+        best_day = max(daily_stats.values(), key=lambda x: x['accuracy']) if daily_stats else None
+        worst_day = min(daily_stats.values(), key=lambda x: x['accuracy']) if daily_stats else None
+
+        return {
+            'dates': dates,
+            'symbols': symbols,
+            'overall': {
+                'total': total_predictions,
+                'correct': correct_predictions,
+                'accuracy_pct': overall_accuracy
+            },
+            'best_day': best_day,
+            'worst_day': worst_day
+        }
+
+    def _render_heatmap(self, heatmap_data: dict) -> str:
+        """Render compact accuracy heat map HTML"""
+        if not heatmap_data or not heatmap_data['dates']:
+            return ""
+
+        overall = heatmap_data['overall']
+
+        # Symbol name mapping
+        symbol_names = {
+            '^GSPC': 'S&P 500',
+            '^DJI': 'Dow Jones',
+            '^IXIC': 'NASDAQ',
+            '^VIX': 'VIX',
+            'NVDA': 'NVIDIA',
+            'MSFT': 'Microsoft',
+            'GOOGL': 'Google',
+            'AMZN': 'Amazon',
+            'META': 'Meta',
+            'TSLA': 'Tesla',
+            'AAPL': 'Apple',
+            'QQQ': 'QQQ ETF',
+            'SPY': 'SPY ETF',
+            'BTC-USD': 'Bitcoin',
+            'ETH-USD': 'Ethereum'
+        }
+
+        html = """
+        <section class="sentiment-box">
+            <h2>📊 Prediction Accuracy (Last 30 Days)</h2>
+"""
+
+        # Overall accuracy
+        overall_color = "#6ee7b7" if overall['accuracy_pct'] >= 60 else "#fcd34d" if overall['accuracy_pct'] >= 50 else "#fca5a5"
+        html += f"""
+            <div style="margin-bottom: 20px;">
+                <span style="color: #94a3b8;">Overall: </span>
+                <span style="color: {overall_color}; font-weight: 700; font-size: 1.3rem;">{overall['accuracy_pct']}%</span>
+                <span style="color: #94a3b8; font-size: 0.9rem;"> ({overall['correct']}/{overall['total']} correct)</span>
+            </div>
+
+            <div class="heatmap-container">
+"""
+
+        from datetime import datetime
+
+        # Date headers
+        html += '                <div class="heatmap-header">\n'
+        html += '                    <div class="heatmap-symbol-label"></div>\n'
+        html += '                    <div class="heatmap-accuracy-label"></div>\n'
+        html += '                    <div class="heatmap-dates">\n'
+
+        for date_str in heatmap_data['dates']:
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+            day_num = date_obj.strftime('%d')
+            html += f'                        <div class="heatmap-date-label" title="{date_str}">{day_num}</div>\n'
+
+        html += '                    </div>\n'
+        html += '                </div>\n'
+
+        # Symbol rows
+        for symbol_data in heatmap_data['symbols']:
+            symbol = symbol_data['symbol']
+            name = symbol_names.get(symbol, symbol)
+
+            # Calculate accuracy for this symbol
+            total = sum(1 for r in symbol_data['results'] if not r.get('market_closed') and not r.get('no_prediction'))
+            correct = sum(1 for r in symbol_data['results'] if r.get('correct') == True)
+            accuracy = round((correct / total * 100), 0) if total > 0 else 0
+
+            html += '                <div class="heatmap-row">\n'
+            html += f'                    <div class="heatmap-symbol-label" title="{symbol}">{name}</div>\n'
+            html += f'                    <div class="heatmap-accuracy-label">{int(accuracy)}%</div>\n'
+            html += '                    <div class="heatmap-cells">\n'
+
+            # Daily results - small colored squares
+            for result in symbol_data['results']:
+                if result.get('market_closed'):
+                    html += '                        <div class="heatmap-square heatmap-square-closed" title="Market closed"></div>\n'
+                elif result.get('no_prediction'):
+                    html += '                        <div class="heatmap-square heatmap-square-none" title="No prediction"></div>\n'
+                elif result.get('correct') is True:
+                    prediction = result.get('prediction', '')
+                    outcome = result.get('outcome', '')
+                    change = result.get('change_pct', 0)
+                    tooltip = f"✓ {prediction} → {outcome} ({change:+.2f}%)" if change else f"✓ {prediction} → {outcome}"
+                    html += f'                        <div class="heatmap-square heatmap-square-correct" title="{tooltip}"></div>\n'
+                elif result.get('correct') is False:
+                    prediction = result.get('prediction', '')
+                    outcome = result.get('outcome', '')
+                    change = result.get('change_pct', 0)
+                    tooltip = f"✗ {prediction} → {outcome} ({change:+.2f}%)" if change else f"✗ {prediction} → {outcome}"
+                    html += f'                        <div class="heatmap-square heatmap-square-incorrect" title="{tooltip}"></div>\n'
+                else:
+                    html += '                        <div class="heatmap-square heatmap-square-none"></div>\n'
+
+            html += '                    </div>\n'
+            html += '                </div>\n'
+
+        html += """
+            </div>
+
+            <div style="margin-top: 15px; display: flex; gap: 20px; font-size: 0.85rem; color: #94a3b8;">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div class="heatmap-square heatmap-square-correct" style="width: 16px; height: 16px;"></div>
+                    <span>Correct</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div class="heatmap-square heatmap-square-incorrect" style="width: 16px; height: 16px;"></div>
+                    <span>Incorrect</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div class="heatmap-square heatmap-square-closed" style="width: 16px; height: 16px;"></div>
+                    <span>Market closed</span>
+                </div>
+            </div>
+        </section>
+"""
+
+        return html
 
     def close(self):
         """Close database connection"""
