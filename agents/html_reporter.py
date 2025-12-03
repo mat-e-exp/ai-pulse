@@ -1415,26 +1415,70 @@ class HTMLReporter:
             html += f'                    <div class="heatmap-accuracy-label">{int(accuracy)}%</div>\n'
             html += '                    <div class="heatmap-cells">\n'
 
-            # Daily results - small colored squares
+            # Daily results - small colored squares with flip animation
             for result in symbol_data['results']:
+                # Helper to get prediction icon
+                def get_prediction_icon(pred):
+                    if pred == 'bullish':
+                        return '↑'
+                    elif pred == 'bearish':
+                        return '↓'
+                    elif pred == 'neutral':
+                        return '→'
+                    return ''
+
                 if result.get('market_closed'):
-                    html += '                        <div class="heatmap-square heatmap-square-closed" title="Market closed"></div>\n'
+                    html += '                        <div class="heatmap-square-container">\n'
+                    html += '                            <div class="heatmap-square-inner">\n'
+                    html += '                                <div class="heatmap-square heatmap-square-closed"></div>\n'
+                    html += '                                <div class="heatmap-square-back heatmap-square-closed">\n'
+                    html += '                                    <div class="flip-text">Market</div>\n'
+                    html += '                                    <div class="flip-text">Closed</div>\n'
+                    html += '                                </div>\n'
+                    html += '                            </div>\n'
+                    html += '                        </div>\n'
                 elif result.get('no_prediction'):
-                    html += '                        <div class="heatmap-square heatmap-square-none" title="No prediction"></div>\n'
+                    html += '                        <div class="heatmap-square-container">\n'
+                    html += '                            <div class="heatmap-square-inner">\n'
+                    html += '                                <div class="heatmap-square heatmap-square-none"></div>\n'
+                    html += '                                <div class="heatmap-square-back heatmap-square-none"></div>\n'
+                    html += '                            </div>\n'
+                    html += '                        </div>\n'
                 elif result.get('correct') is True:
                     prediction = result.get('prediction', '')
-                    outcome = result.get('outcome', '')
                     change = result.get('change_pct', 0)
-                    tooltip = f"✓ {prediction} → {outcome} ({change:+.2f}%)" if change else f"✓ {prediction} → {outcome}"
-                    html += f'                        <div class="heatmap-square heatmap-square-correct" title="{tooltip}"></div>\n'
+                    icon = get_prediction_icon(prediction)
+                    change_text = f"{change:+.1f}%" if change else "—"
+                    html += '                        <div class="heatmap-square-container">\n'
+                    html += '                            <div class="heatmap-square-inner">\n'
+                    html += '                                <div class="heatmap-square heatmap-square-correct"></div>\n'
+                    html += '                                <div class="heatmap-square-back heatmap-square-correct">\n'
+                    html += f'                                    <div class="flip-icon">{icon}</div>\n'
+                    html += f'                                    <div class="flip-pct">{change_text}</div>\n'
+                    html += '                                </div>\n'
+                    html += '                            </div>\n'
+                    html += '                        </div>\n'
                 elif result.get('correct') is False:
                     prediction = result.get('prediction', '')
-                    outcome = result.get('outcome', '')
                     change = result.get('change_pct', 0)
-                    tooltip = f"✗ {prediction} → {outcome} ({change:+.2f}%)" if change else f"✗ {prediction} → {outcome}"
-                    html += f'                        <div class="heatmap-square heatmap-square-incorrect" title="{tooltip}"></div>\n'
+                    icon = get_prediction_icon(prediction)
+                    change_text = f"{change:+.1f}%" if change else "—"
+                    html += '                        <div class="heatmap-square-container">\n'
+                    html += '                            <div class="heatmap-square-inner">\n'
+                    html += '                                <div class="heatmap-square heatmap-square-incorrect"></div>\n'
+                    html += '                                <div class="heatmap-square-back heatmap-square-incorrect">\n'
+                    html += f'                                    <div class="flip-icon">{icon}</div>\n'
+                    html += f'                                    <div class="flip-pct">{change_text}</div>\n'
+                    html += '                                </div>\n'
+                    html += '                            </div>\n'
+                    html += '                        </div>\n'
                 else:
-                    html += '                        <div class="heatmap-square heatmap-square-none"></div>\n'
+                    html += '                        <div class="heatmap-square-container">\n'
+                    html += '                            <div class="heatmap-square-inner">\n'
+                    html += '                                <div class="heatmap-square heatmap-square-none"></div>\n'
+                    html += '                                <div class="heatmap-square-back heatmap-square-none"></div>\n'
+                    html += '                            </div>\n'
+                    html += '                        </div>\n'
 
             html += '                    </div>\n'
             html += '                </div>\n'

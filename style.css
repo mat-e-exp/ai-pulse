@@ -601,7 +601,7 @@ footer a:hover {
     height: 18px;
 }
 
-/* Heat Map Styles - Compact Grid */
+/* Heat Map Styles - Compact Grid with Flip Animation */
 .heatmap-container {
     background: rgba(30, 58, 138, 0.1);
     border-radius: 8px;
@@ -672,22 +672,52 @@ footer a:hover {
     flex: 1;
 }
 
-.heatmap-square {
+/* Flip Animation Container */
+.heatmap-square-container {
     width: 20px;
     min-width: 20px;
     height: 20px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: transform 0.1s, opacity 0.2s;
+    perspective: 1000px;
     flex-shrink: 0;
 }
 
-.heatmap-square:hover {
-    transform: scale(1.2);
-    opacity: 0.9;
-    z-index: 10;
+.heatmap-square-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
 }
 
+.heatmap-square-container:hover .heatmap-square-inner {
+    transform: rotateY(180deg);
+}
+
+/* Front and Back Faces */
+.heatmap-square,
+.heatmap-square-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 3px;
+}
+
+.heatmap-square {
+    cursor: pointer;
+}
+
+.heatmap-square-back {
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    gap: 1px;
+}
+
+/* Colors for tiles */
 .heatmap-square-correct {
     background: #d1fae5;
 }
@@ -702,6 +732,26 @@ footer a:hover {
 
 .heatmap-square-none {
     background: rgba(255, 255, 255, 0.05);
+}
+
+/* Back face text styling */
+.flip-icon {
+    font-size: 10px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.flip-pct {
+    font-size: 7px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.flip-text {
+    font-size: 6px;
+    font-weight: 600;
+    color: #92400e;
+    text-align: center;
 }
 
 @media (max-width: 768px) {
